@@ -42,7 +42,7 @@ services:
         preferences:
           - spread: node.id
   traefik:
-    image: traefik:v1.7
+    image: traefik:v2.2
     ports:
       - target: 80
         published: 80
@@ -96,6 +96,7 @@ services:
     networks:
       - default
       - traefik-public
+      - swarmlet-network
     depends_on:
       - consul-leader
 
@@ -105,4 +106,6 @@ volumes:
 
 networks:
   traefik-public:
+    external: true
+  swarmlet-network:
     external: true
