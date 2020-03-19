@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
+main() {
+  echo "$FPREFIX Starting deployment"
+  echo "$PREFIX Command: $@"
+  "$@"
+}
+
+deploy() {
+  declare cmd="deploy"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  REPO_PATH="$1"
+  REPO_NAME=$(basename $REPO_PATH)
+  ENV_FILE="$REPO_PATH/.env"
+  ENTRYPOINT_FILE="$REPO_PATH/entrypoint"
+  COMPOSE_FILE="$REPO_PATH/docker-compose.yml"
+
+  echo "$FPREFIX Deploying $REPO_NAME"
+  cd $REPO_PATH
+
+  if [ -f $ENV_FILE ]; then
+    set -o allexport
+    source $ENV_FILE
+    set +o allexport
+  fi
+
+  if [[ -f $ENTRYPOINT_FILE && $REPO_NAME != "deployments" ]]; then
+    source $ENTRYPOINT_FILE
+  fi
+
+  HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*" | cut -f2- -d:)
+  DOMAINS="${E//\$\{DOMAIN\}/DOMAIN}"
+
+  if [ -f $COMPOSE_FILE ]; then
+    echo "$FPREFIX Building $REPO_NAME"
+    docker-compose build --parallel
+    echo "$FPREFIX Pushing $REPO_NAME to swarm registry"
+    docker-compose push
+    echo "$FPREFIX Deploying $REPO_NAME"
+    docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
+    echo "$FPREFIX Stack deployed:"
+    for E in ${DOMAINS//\$\{DOMAIN\}/DOMAIN}; do
+      echo "$INDENT $E";
+    done
+  else
+    echo "$PREFIX No docker-compose.yml found, exiting"
+    exit 1
+  fi
+}
+
+main "$@"

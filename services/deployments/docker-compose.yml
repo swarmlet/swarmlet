@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  deploy:
+    image: http://registry:5000/v2/deployments
+    build:
+      context: .
+      args:
+        SWARMLET_REGISTRY: http://registry:5000/v2
+    networks:
+      - swarmlet-network
+    volumes:
+      - git-data:/home/git
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  swarmlet-network:
+    external: true
+
+volumes:
+  git-data:
+    external: true

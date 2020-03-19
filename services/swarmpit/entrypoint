@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
+NAME=$(basename $PWD)
+
+main() {
+  echo "$FPREFIX Running $NAME entrypoint script"
+
+  echo "$PREFIX Updating current swarm node so that the database used by Swarmpit is always deployed to the same node and uses the existing volume"
+  docker node update --label-add swarmpit.db-data=true $NODE_ID
+}
+
+main "$@"

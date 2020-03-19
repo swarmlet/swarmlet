@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+cmd-repo-list() {
+  declare cmd="repo:list"
+  declare alias="repo:ls"
+  [[ "$1" == "$cmd" || "$1" == "$alias" ]] && shift 1
+
+  echo "$FPREFIX Listing repositories"
+
+  for REPO in $REPO_ROOT/*; do
+    REPO_BASE=$(basename $REPO)
+    REPO_NAME=${REPO_BASE/.git}
+    if [ -d $USER_ROOT/$REPO_NAME ];
+      then DEPLOYED="Deployed"
+      else DEPLOYED="Created"
+    fi
+    echo "$INDENT $(basename $REPO) - Status: $DEPLOYED"
+  done
+}
+
+cmd-repo-list "$@"

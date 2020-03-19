@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
+USERNAME="git"
+USER_ROOT="/home/$USERNAME"
+REPO_ROOT="/var/repo"
+DOCKER_SOCKET="/var/run/docker.sock"
+
+SSH_COMMAND="command=\"cd $REPO_ROOT; git-shell -c \\\"\$SSH_ORIGINAL_COMMAND\\\"\""
+SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"
+
+SWARMLET_ROOT="/opt/swarmlet"
+SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
+SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
+SWARMLET_SERVICES_ROOT="$SWARMLET_ROOT/services"
+
+SWARMLET_NETWORK_NAME="swarmlet-network"
+SWARMLET_NETWORK_DRIVER="overlay"
+
+SWARMLET_REGISTRY_NAME="swarmlet-registry"
+SWARMLET_REGISTRY_IMAGE="registry:2"
+SWARMLET_REGISTRY_HOST="127.0.0.1"
+SWARMLET_REGISTRY_PORT="5000"
+SWARMLET_REGISTRY="$SWARMLET_REGISTRY_HOST:$SWARMLET_REGISTRY_PORT/v2"

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+cmd-repo-create() {
+  declare cmd="repo:create"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  REPO_NAME="$1"
+  REPO_PATH="$REPO_ROOT/$REPO_NAME.git"
+
+  echo "$FPREFIX Creating repository $REPO_NAME on swarm"
+
+  if [ -z $REPO_NAME ]; then
+    echo "$PREFIX No repository name specified"
+    echo "$INDENT Usage:"
+    echo "$INDENT swarmlet repo:create <name>"
+    exit 1
+  fi
+
+  git init --bare $REPO_PATH
+  cp -R $SWARMLET_HOOKS/* $REPO_PATH/hooks/
+  chown -R $USERNAME:$USERNAME $REPO_PATH
+
+  echo "$INDENT Created remote repository $REPO_NAME"
+  echo "$PREFIX Ready for deploy"
+  echo "$INDENT Add a git remote to your local repository:"
+  echo "$INDENT $ git remote add swarm git@swarm:$REPO_NAME"
+  echo -e "$INDENT $ git push swarm master\n"
+}
+
+cmd-repo-create "$@"

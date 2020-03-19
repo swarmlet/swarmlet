@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+cmd-repo-remove() {
+  declare cmd="repo:remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  REPO_NAME="$1"
+  REPO_PATH="$REPO_ROOT/$REPO_NAME.git"
+
+  echo "$FPREFIX Removing repository $REPO_NAME from swarm"
+  echo "$INDENT [NOTE] This won't remove your stack"
+
+  if [ -z $REPO_NAME ]; then
+    echo "$PREFIX No repository name specified"
+    echo "$INDENT Usage:"
+    echo "$INDENT swarmlet repo:remove <name>"
+    exit 1
+  fi
+
+  rm -rf $REPO_PATH
+  echo "$INDENT Repository removed from swarm"
+}
+
+cmd-repo-remove "$@"

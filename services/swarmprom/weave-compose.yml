@@ -1,0 +1,144 @@
+version: "3.3"
+
+networks:
+  net:
+    driver: overlay
+    attachable: true
+
+volumes:
+    prometheus: {}
+    grafana: {}
+
+configs:
+  caddy_config:
+    file: ./caddy/Caddyfile
+  dockerd_config:
+    file: ./dockerd-exporter/Caddyfile
+
+services:
+  dockerd-exporter:
+    image: stefanprodan/caddy
+    networks:
+      - net
+    environment:
+      - DOCKER_GWBRIDGE_IP=172.18.0.1
+    configs:
+      - source: dockerd_config
+        target: /etc/caddy/Caddyfile
+    deploy:
+      mode: global
+
+  cadvisor:
+    image: google/cadvisor
+    networks:
+      - net
+    command: -logtostderr -docker_only
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      mode: global
+
+  grafana:
+    image: stefanprodan/swarmprom-grafana:4.6.3
+    networks:
+      - net
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      #- GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL:-localhost}
+      #- GF_SMTP_ENABLED=${GF_SMTP_ENABLED:-false}
+      #- GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:-grafana@test.com}
+      #- GF_SMTP_FROM_NAME=${GF_SMTP_FROM_NAME:-Grafana}
+      #- GF_SMTP_HOST=${GF_SMTP_HOST:-smtp:25}
+      #- GF_SMTP_USER=${GF_SMTP_USER}
+      #- GF_SMTP_PASSWORD=${GF_SMTP_PASSWORD}
+    volumes:
+      - grafana:/var/lib/grafana
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  node-exporter:
+    image: stefanprodan/swarmprom-node-exporter:v0.15.2
+    networks:
+      - net
+    environment:
+      - NODE_ID={{.Node.ID}}
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /etc/hostname:/etc/nodename
+    command:
+      - '--path.sysfs=/host/sys'
+      - '--path.procfs=/host/proc'
+      - '--collector.textfile.directory=/etc/node-exporter/'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      # no collectors are explicitely enabled here, because the defaults are just fine,
+      # see https://github.com/prometheus/node_exporter
+      # disable ipvs collector because it barfs the node-exporter logs full with errors on my centos 7 vm's
+      - '--no-collector.ipvs'
+    deploy:
+      mode: global
+
+  caddy:
+    image: stefanprodan/caddy
+    ports:
+      - "3000:3000"
+      - "9090:9090"
+    networks:
+      - net
+    environment:
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+    configs:
+      - source: caddy_config
+        target: /etc/caddy/Caddyfile
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  prometheus:
+    image: stefanprodan/swarmprom-prometheus:v2.2.0-rc.0
+    networks:
+      - net
+    environment:
+      - WEAVE_TOKEN=$TOKEN
+      #- JOBS=mongo-exporter:9216
+    command:
+      - '--config.file=/etc/prometheus/weave-cortex.yml'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=${PROMETHEUS_RETENTION:-24h}'
+    volumes:
+      - prometheus:/prometheus
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  scope-launcher:
+    image: weaveworks/scope-swarm-launcher
+    networks:
+      - net
+    command: scope launch --service-token=$TOKEN
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+      restart_policy:
+        condition: none

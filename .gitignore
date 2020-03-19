@@ -1,0 +1,5 @@
+.DS_Store
+__bak
+*.psd
+*.code-workspace
+node_modules

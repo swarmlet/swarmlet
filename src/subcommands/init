@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+cmd-init() {
+  declare cmd="init"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  echo "$PREFIX Setting up the git user"
+  adduser $USERNAME --disabled-password --gecos --quiet
+  usermod -aG docker $USERNAME
+  mkdir -p $REPO_ROOT $USER_ROOT/.ssh
+  cat /root/.ssh/authorized_keys | ts "$SSH_OPTIONS" > $USER_ROOT/.ssh/authorized_keys
+  chmod 700 $USER_ROOT/.ssh
+  chmod 600 $USER_ROOT/.ssh/authorized_keys
+  chown -R $USERNAME:$USERNAME $USER_ROOT/.ssh
+  setfacl -m u:$USERNAME:rwx $REPO_ROOT
+
+  # Temporary: add some swap
+  sudo fallocate -l 2G /swapfile
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+  echo "$PREFIX Checking Docker status"
+  if check-docker;
+    then echo "Docker is running"; docker --version
+    else echo "Docker is not running, exiting"; exit 1
+  fi
+
+  echo "$PREFIX Selecting network interface"
+  if check-network-interface eth1;
+    then ETH_LINK=eth1
+    else ETH_LINK=eth0    
+  fi
+
+  NODE_IP=$(ifconfig $ETH_LINK | grep -oP 'inet \K\S+')
+  ADVERTISE_ADDR="$NODE_IP:2377"
+
+  echo "$INDENT Using network interface: $ETH_LINK"
+  echo "$INDENT Node IP address: $NODE_IP"
+  echo "$FPREFIX Initializing node as swarm manager"
+  docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
+
+  echo "$PREFIX Creating networks"
+  docker network create \
+    --driver=overlay \
+    traefik-public
+
+  docker network create \
+    --attachable \
+    --driver $SWARMLET_NETWORK_DRIVER \
+    $SWARMLET_NETWORK_NAME
+
+  echo "$PREFIX Creating volumes"
+  docker volume create \
+    --driver "local" \
+    -o o=bind \
+    -o type=none \
+    -o device=$USER_ROOT \
+    git-data
+
+  echo "$PREFIX Installing services"
+  SWARMLET_SERVICES=(registry deployments loadbalancer swarmpit swarmprom)
+  for SERVICE in "${SWARMLET_SERVICES[@]}"; do
+    echo "$PREFIX Installing $SERVICE"
+    if [ $SERVICE == 'deployments' ]; then
+      swarmlet stack:build $SERVICE $SWARMLET_SERVICES_ROOT
+    fi
+    swarmlet repo:create $SERVICE >/dev/null
+    git-local-push $SWARMLET_SERVICES_ROOT/$SERVICE >/dev/null
+  done
+}
+
+cmd-init "$@"

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+cmd-stack-build() {
+  declare cmd="stack:build"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  STACK_NAME="$1"
+  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+
+  if [ "$(ls -A $STACK_ROOT)" ]; then
+    pushd $STACK_ROOT >/dev/null
+
+    echo "$FPREFIX Building stack $STACK_NAME"
+    docker-compose build --parallel
+
+    echo "$PREFIX Pushing $STACK_NAME to swarm registry"
+    docker-compose push
+
+    popd >/dev/null
+  fi
+}
+
+cmd-stack-build "$@"

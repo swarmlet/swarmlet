@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+cmd-stack-list() {
+  declare cmd="stack:list"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  echo "$PREFIX Listing stacks"
+  docker stack ls
+}
+
+cmd-stack-list "$@"

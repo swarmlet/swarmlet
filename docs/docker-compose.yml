@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  docs:
+    image: nginx:1.17-alpine
+    volumes:
+      - ./website/build/swarmlet-docs:/usr/share/nginx/html
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - traefik.frontend.rule=Host:docs.${DOMAIN}
+        - traefik.enable=true
+        - traefik.port=80
+        - traefik.tags=traefik-public
+        - traefik.docker.network=traefik-public
+        - traefik.redirectorservice.frontend.entryPoints=http
+        - traefik.redirectorservice.frontend.redirect.entryPoint=https
+        - traefik.webservice.frontend.entryPoints=https
+
+networks:
+  traefik-public:
+    external: true
