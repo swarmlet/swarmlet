@@ -10,6 +10,30 @@ services:
     networks:
       - swarmlet-network
 
-networks:
-  swarmlet-network:
-    external: true
+# networks:
+#   swarmlet-network:
+#     external: true
+
+#   registry:
+#     restart: always
+#     image: registry:2
+#     volumes:
+#       - registry:/var/lib/registry
+#     environment:
+#       - REGISTRY_HTTP_ADDR=0.0.0.0:5000
+#     networks:
+#       - default
+#       - swarmlet-network
+#     deploy:
+#       mode: 'global'
+#       placement:
+#         constraints:
+#           - 'node.hostname == docker-registry'
+#       labels:
+#         - "traefik.port=5000"
+#         - "traefik.docker.network=foobar_registry_traefik_net"
+#         - "traefik.frontend.entryPoints=http,https"
+#         - "traefik.frontend.redirect.entryPoint=https"
+#         - "traefik.frontend.rule=Host:registry.foobar.com"
+# volumes:
+#   registry: ~
