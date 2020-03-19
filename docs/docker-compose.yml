@@ -2,9 +2,8 @@ version: '3.7'
 
 services:
   docs:
-    image: nginx:1.17-alpine
-    volumes:
-      - ./website/build/swarmlet-docs:/usr/share/nginx/html
+    image: ${SWARMLET_REGISTRY}/docs
+    build: .
     networks:
       - traefik-public
     deploy:
