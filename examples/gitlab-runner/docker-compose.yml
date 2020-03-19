@@ -1,0 +1,36 @@
+# sudo docker run --detach \
+#   --hostname gitlab.example.com \
+#   --publish 127.0.0.1:4443:443 --publish 127.0.0.1:4000:80 \
+#   --name gitlab \
+#   --restart always \
+#   --volume /srv/gitlab/config:/etc/gitlab \
+#   --volume /srv/gitlab/logs:/var/log/gitlab \
+#   --volume /srv/gitlab/data:/var/opt/gitlab \
+#   gitlab/gitlab-ce:latest
+
+# docker run -d --name gitlab-runner --restart always \
+    # -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+    # -v /var/run/docker.sock:/var/run/docker.sock \
+    # gitlab/gitlab-runner:latest
+
+# docker exec -ti gitlab-runner bash
+
+# IN PROJECT
+# image: docker:latest
+# build_job:
+#   stage: build
+#   script:
+#     - ls
+#     - echo "starting job..."
+#     - docker build -t "${CI_PROJECT_NAME}:${CI_COMMIT_REF_NAME}-0.1.${CI_JOB_ID}" .
+#     - echo job finished
+#   only:
+#     - develop
+#     - master
+
+# docker network create gitlabnet
+# docker network connect gitlabnet gitlab
+# docker network connect gitlabnet gitlab-runner
+
+# Where “gitlab” and “gitlab runner” are the names of the containers as they were named during their creation (using --name=...).
+# Now, instead of giving https://git.mydomain.com as the root checkout url to the gitlab-runner register command, we can give http://gitlab which is the address the internal DNS of Docker had given.
