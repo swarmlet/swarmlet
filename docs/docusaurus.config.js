@@ -21,7 +21,7 @@ module.exports = {
         },
         {to: 'blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/woudsma/swarmlet',
           label: 'GitHub',
           position: 'right',
         },
@@ -65,7 +65,7 @@ module.exports = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/woudsma/swarmlet',
             },
             {
               label: 'Twitter',
@@ -84,7 +84,7 @@ module.exports = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/',
+            'https://github.com/woudsma/swarmlet/edit/master/website/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -93,3 +93,4 @@ module.exports = {
     ],
   ],
 };
+
