@@ -2,38 +2,45 @@ version: '3.7'
 
 services:
   swarmlet-registry:
+    restart: always
     image: registry:2
+    volumes:
+      - registry:/var/lib/registry
     ports:
       - 5000:5000
-    deploy:
-      mode: global
     networks:
+      - default
       - swarmlet-network
+      - traefik-public
+    deploy:
+      mode: 'global'
+      # placement:
+      #   constraints:
+      #     - 'node.hostname == docker-registry'
+      labels:
+        - traefik.frontend.rule=Host:registry.${DOMAIN}
+        - traefik.enable=true
+        - traefik.port=5000
+        - traefik.tags=traefik-public
+        - traefik.tags=traefik-public
+        - traefik.docker.network=traefik-public
+        - traefik.redirectorservice.frontend.entryPoints=http
+        - traefik.redirectorservice.frontend.redirect.entryPoint=https
+        - traefik.webservice.frontend.entryPoints=https
+  # swarmlet-registry:
+  #   image: registry:2
+  #   ports:
+  #     - 5000:5000
+  #   deploy:
+  #     mode: global
+  #   networks:
+  #     - swarmlet-network
 
-# networks:
-#   swarmlet-network:
-#     external: true
+networks:
+  swarmlet-network:
+    external: true
+  traefik-public:
+    external: true
 
-#   registry:
-#     restart: always
-#     image: registry:2
-#     volumes:
-#       - registry:/var/lib/registry
-#     environment:
-#       - REGISTRY_HTTP_ADDR=0.0.0.0:5000
-#     networks:
-#       - default
-#       - swarmlet-network
-#     deploy:
-#       mode: 'global'
-#       placement:
-#         constraints:
-#           - 'node.hostname == docker-registry'
-#       labels:
-#         - "traefik.port=5000"
-#         - "traefik.docker.network=foobar_registry_traefik_net"
-#         - "traefik.frontend.entryPoints=http,https"
-#         - "traefik.frontend.redirect.entryPoint=https"
-#         - "traefik.frontend.rule=Host:registry.foobar.com"
-# volumes:
-#   registry: ~
+volumes:
+  registry:

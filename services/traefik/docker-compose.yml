@@ -72,11 +72,12 @@ services:
     volumes:
       - ./:/basicAuth
       - /var/run/docker.sock:/var/run/docker.sock
+      # --docker.exposedbydefault=false
     command: >
       --docker
       --docker.swarmmode
       --docker.watch
-      --docker.exposedbydefault=false
+      --docker.exposedbydefault=true      
       --constraints=tag==traefik-public
       --entrypoints='Name:http Address::80'
       --entrypoints='Name:https Address::443 TLS'

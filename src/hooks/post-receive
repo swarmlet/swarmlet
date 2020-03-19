@@ -11,7 +11,7 @@ REPO_NAME=${REPO_BASE/.git}
 REPO_DEST=$USER_ROOT/$REPO_NAME
 COMMIT_HASH=$(git rev-parse --short=6 HEAD)
 COMPOSE_FILE=$REPO_DEST/docker-compose.yml
-SWARMLET_REGISTRY=127.0.0.1:5000/v2
+SWARMLET_REGISTRY=swarmlet-registry:5000/v2
 DOCKER_SOCKET=/var/run/docker.sock
 USERNAME=git
 
@@ -34,5 +34,6 @@ fi
 docker run --rm \
   -v $REPO_DEST:$REPO_DEST \
   -v $DOCKER_SOCKET:$DOCKER_SOCKET \
+  --network=swarmlet-network \
   $SWARMLET_REGISTRY/deployments \
   deploy $REPO_DEST || exit 1

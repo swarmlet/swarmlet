@@ -35,8 +35,9 @@ deploy() {
     source $ENTRYPOINT_FILE
   fi
 
-  HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*" | cut -f2- -d:)
-  DOMAINS="${E//\$\{DOMAIN\}/DOMAIN}"
+  HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*")
+  DOMAINS="${HOSTS//\$\{DOMAIN\}/$DOMAIN}"
+  DOMAINS="${DOMAINS//Host:/}"
 
   if [ -f $COMPOSE_FILE ]; then
     echo "$FPREFIX Building $REPO_NAME"
@@ -46,9 +47,8 @@ deploy() {
     echo "$FPREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
     echo "$FPREFIX Stack deployed:"
-    for E in ${DOMAINS//\$\{DOMAIN\}/DOMAIN}; do
-      echo "$INDENT $E";
-    done
+    for DOMAIN in ${DOMAINS[@]}; do echo "$INDENT $DOMAIN"; done
+    echo
   else
     echo "$PREFIX No docker-compose.yml found, exiting"
     exit 1

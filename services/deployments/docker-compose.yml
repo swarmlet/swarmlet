@@ -2,12 +2,13 @@ version: '3.7'
 
 services:
   deploy:
-    image: http://registry:5000/v2/deployments
+    image: ${SWARMLET_REGISTRY}/deployments
     build:
       context: .
       args:
-        SWARMLET_REGISTRY: http://registry:5000/v2
+        SWARMLET_REGISTRY: ${SWARMLET_REGISTRY}
     networks:
+      - default
       - swarmlet-network
     volumes:
       - git-data:/home/git
