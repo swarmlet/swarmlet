@@ -1,7 +1,7 @@
 module.exports = {
   title: 'Swarmlet',
   tagline: 'Swarmlet Documentation',
-  url: 'https://docs.swarmlet.dev',
+  url: 'https://swarmlet.dev',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   projectName: 'swarmlet',
