@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+echo "ARGS=$@"
+printenv
+exit
+curl -fsSL "https://raw.githubusercontent.com/woudsma/swarmlet/master/install" | bash "$@"
+
+# set -eo pipefail; [[ $DEBUG ]] && set -x
+
+# FPREFIX="=====>"
+# PREFIX="----->"
+# INDENT="      "
+
+# DEPENDENCIES=(git apt-transport-https moreutils apache2-utils)
+# REPOSITORY="https://github.com/woudsma/swarmlet.git"
+# SWARMLET_INSTALL_ROOT="/opt/swarmlet"
+
+# install() {
+#   echo "$FPREFIX Installing Swarmlet"
+
+#   echo "$PREFIX Installing dependencies"
+#   apt-get update -y -qq
+#   apt-get install -y -qq "${DEPENDENCIES[@]}"
+#   wget -nv -O - https://get.docker.com/ | sh
+#   curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#   chmod +x /usr/local/bin/docker-compose
+
+#   echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
+#   mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
+#   # git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
+
+#   echo "$PREFIX Linking executable"
+#   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
+
+#   echo "$FPREFIX Initializing Swarmlet"
+#   swarmlet init
+
+#   echo "$FPREFIX Installation complete"
+#   echo "$PREFIX Usage:"
+#   echo "$INDENT Create a repository on the swarm using:"
+#   echo -e "$INDENT $ swarmlet repo:create <name>\n"
+# }
+
+# install "$@"
