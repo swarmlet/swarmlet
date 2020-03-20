@@ -10,8 +10,8 @@ services:
       - 5000:5000
     networks:
       - default
-      - swarmlet-network
       - traefik-public
+      - swarmlet-network
     deploy:
       mode: 'global'
       # placement:
@@ -21,7 +21,6 @@ services:
         - traefik.frontend.rule=Host:registry.${DOMAIN}
         - traefik.enable=true
         - traefik.port=5000
-        - traefik.tags=traefik-public
         - traefik.tags=traefik-public
         - traefik.docker.network=traefik-public
         - traefik.redirectorservice.frontend.entryPoints=http
@@ -37,9 +36,9 @@ services:
   #     - swarmlet-network
 
 networks:
-  swarmlet-network:
-    external: true
   traefik-public:
+    external: true
+  swarmlet-network:
     external: true
 
 volumes:
