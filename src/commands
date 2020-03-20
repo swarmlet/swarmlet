@@ -21,6 +21,8 @@ case $COMMAND in
   
   stack:build) "$SUBCOMMANDS/stack-build" "$@" ;;
   stack:deploy) "$SUBCOMMANDS/stack-deploy" "$@" ;;
+  stack:start) "$SUBCOMMANDS/stack-start" "$@" ;;
+  stack:stop) "$SUBCOMMANDS/stack-stop" "$@" ;;
   stack:list|stack:ls) "$SUBCOMMANDS/stack-list" "$@" ;;
 
   *) echo "$PREFIX Unknown command $COMMAND"; exit 1 ;;
