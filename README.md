@@ -1,6 +1,6 @@
 <div>
   <img align="left" src="assets/logo-small.jpg" width="175" alt="logo" />
-  <h1 align="left">Swarmlet</h1>
+  <h1 align="left">Swarmlet — doc</h1>
 </div>
 
 A small tool to manage swarm deployments, load balancing, SSL, metrics and more.  
@@ -38,7 +38,7 @@ List all services and containers: `swarmlet ls`.
 ---
 
 ### Automatic load balancing and SSL
-Swarmlet uses Traefik and Let's Encrypt by default. These can be configured by editing the `docker-compose.yml` file of the `loadbalancer` application stack, which can simply be cloned from your swarm registry using `git clone git@swarm:loadbalancer` and redeployed using `git push swarm master`. Traefik uses [Consul](https://www.consul.io) as it's internal key-value store.  
+Swarmlet uses Traefik and Let's Encrypt by default. These can be configured by editing the `docker-compose.yml` file of the `traefik` application stack, which can simply be cloned from your swarm registry using `git clone git@swarm:traefik` and redeployed using `git push swarm master`. Traefik uses [Consul](https://www.consul.io) as it's internal key-value store.  
 The Traefik and Consul dashboards are available on the following domains:
 ```sh
 https://traefik.example.com
@@ -89,7 +89,7 @@ Host swarm
 Now `ssh -i ~/.ssh/id_rsa_swarm root@123.23.12.123` becomes `ssh swarm`.  
 
 ### Services configuration
-To configure the built-in services such as swarmpit/loadbalancer/registry, simply pull the `swarmlet-services` repo from your swarm. Edit the service `docker-compose.yml` file and push the changes using `git push origin master`.
+To configure the built-in services such as swarmpit/traefik/registry, simply pull the `swarmlet-services` repo from your swarm. Edit the service `docker-compose.yml` file and push the changes using `git push origin master`.
 ```sh
 # Clone the 'services' repository
 git clone git@swarm:swarmlet-services 
@@ -104,7 +104,7 @@ git push origin master
 ```sh
 swarmlet init  # This command executes automatically on initial installation
                # Installs dependencies (git, docker, docker-compose)
-               # Installs services (deployments, loadbalancer, metrics)
+               # Installs services (deployments, traefik, metrics)
                # Creates the 'git' user who manages git repositories
                # Enables git push to the server using git@<server>:<app>
 
