@@ -52,13 +52,13 @@ install() {
   # TODO: get from compose files and handle no domain
   DOMAIN=${DOMAIN:-\$DOMAIN}
   echo "$FPREFIX Stacks deployed and available at:"
-  echo "[Traefik]       https://traefik.$DOMAIN"
-  echo "[Swarmpit]      https://swarmpit.$DOMAIN"
-  echo "[Grafana]       https://grafana.$DOMAIN"
-  echo "[Consul]        https://consul.$DOMAIN"
-  echo "[Unsee]         https://unsee.$DOMAIN"
-  echo "[Prometheus]    https://prometheus.$DOMAIN"
-  echo "[Alertmanager]  https://alertmanager.$DOMAIN"
+  echo "[traefik]       https://traefik.$DOMAIN"
+  echo "[swarmpit]      https://swarmpit.$DOMAIN"
+  echo "[grafana]       https://grafana.$DOMAIN"
+  echo "[consul]        https://consul.$DOMAIN"
+  echo "[unsee]         https://unsee.$DOMAIN"
+  echo "[prometheus]    https://prometheus.$DOMAIN"
+  echo "[alertmanager]  https://alertmanager.$DOMAIN"
   echo
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
   echo "$PREFIX Usage:"
