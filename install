@@ -53,13 +53,13 @@ install() {
   # TODO: get from compose files and handle no domain
   DOMAIN=swarmlet.dev
   echo "$FPREFIX Stacks deployed and available at:"
-  echo "[traefik]       https://traefik.$DOMAIN"
-  echo "[swarmpit]      https://swarmpit.$DOMAIN"
-  echo "[grafana]       https://grafana.$DOMAIN"
-  echo "[consul]        https://consul.$DOMAIN"
-  echo "[unsee]         https://unsee.$DOMAIN"
-  echo "[prometheus]    https://prometheus.$DOMAIN"
-  echo "[alertmanager]  https://alertmanager.$DOMAIN"
+  echo "$INDENT [traefik] — https://traefik.$DOMAIN"
+  echo "$INDENT [consul] — https://consul.$DOMAIN"
+  echo "$INDENT [swarmpit] — https://swarmpit.$DOMAIN"
+  echo "$INDENT [grafana] — https://grafana.$DOMAIN"
+  echo "$INDENT [unsee] — https://unsee.$DOMAIN"
+  echo "$INDENT [prometheus] — https://prometheus.$DOMAIN"
+  echo "$INDENT [alertmanager] — https://alertmanager.$DOMAIN"
   echo
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
   echo "$PREFIX Usage:"
