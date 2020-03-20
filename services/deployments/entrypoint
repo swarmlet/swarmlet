@@ -38,6 +38,8 @@ deploy() {
   HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*")
   DOMAINS="${HOSTS//\$\{DOMAIN\}/$DOMAIN}"
   DOMAINS="${DOMAINS//Host:/}"
+  # check protocol(s)
+  PROTOCOL=https://
 
   if [ -f $COMPOSE_FILE ]; then
     echo "$FPREFIX Building $REPO_NAME"
@@ -47,7 +49,7 @@ deploy() {
     echo "$FPREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
     echo "$FPREFIX Stack deployed:"
-    for DOMAIN in ${DOMAINS[@]}; do echo "$INDENT $DOMAIN"; done
+    for DOMAIN in ${DOMAINS[@]}; do echo "$INDENT $PROTOCOL$DOMAIN"; done
     echo
   else
     echo "$PREFIX No docker-compose.yml found, exiting"

@@ -16,13 +16,6 @@ cmd-init() {
   chown -R $USERNAME:$USERNAME $USER_ROOT/.ssh
   setfacl -m u:$USERNAME:rwx $REPO_ROOT
 
-  # Temporary: add some swap
-  # sudo fallocate -l 2G /swapfile
-  # sudo chmod 600 /swapfile
-  # sudo mkswap /swapfile
-  # sudo swapon /swapfile
-  # echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-
   echo "$PREFIX Checking Docker status"
   if check-docker;
     then echo "Docker is running"; docker --version
