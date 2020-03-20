@@ -34,5 +34,5 @@ create-swap() {
   sudo chmod 600 $FILE_PATH
   sudo mkswap $FILE_PATH
   sudo swapon $FILE_PATH
-  echo "$PATH none swap sw 0 0" | sudo tee -a /etc/fstab
+  echo "$FILE_PATH none swap sw 0 0" | sudo tee -a /etc/fstab
 }
