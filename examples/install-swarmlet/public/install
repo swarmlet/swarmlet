@@ -3,6 +3,7 @@
 echo "ARGS=$@"
 printenv
 exit
+
 curl -fsSL "https://raw.githubusercontent.com/woudsma/swarmlet/master/install" | bash "$@"
 
 # set -eo pipefail; [[ $DEBUG ]] && set -x

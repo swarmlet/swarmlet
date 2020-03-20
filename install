@@ -51,7 +51,7 @@ install() {
 
   echo "$FPREFIX Installation complete"
   # TODO: get from compose files and handle no domain
-  DOMAIN=${DOMAIN:-\$DOMAIN}
+  DOMAIN=swarmlet.dev
   echo "$FPREFIX Stacks deployed and available at:"
   echo "[traefik]       https://traefik.$DOMAIN"
   echo "[swarmpit]      https://swarmpit.$DOMAIN"
