@@ -2,6 +2,24 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
+cat << EOM
+———————————————————————————————————————————————————————————————————————————————
+
+        _______ _  _  _ _______  ______ _______        _______ _______
+        |______ |  |  | |_____| |_____/ |  |  | |      |______    |   
+        ______| |__|__| |     | |    \_ |  |  | |_____ |______    |    
+
+
+       Description:  A small tool to manage swarm deployments,
+                     load balancing, SSL, metrics and more.
+       Version:      1.0 - 6ef0c484553656dc0b4b9cbd85b4d8d5a9e2586b
+       Author:       Tjerk Woudsma <tjerk@passionatepeople.io>
+       Website:      https://swarmlet.dev
+
+———————————————————————————————————————————————————————————————————————————————
+       Thank you for installing Swarmlet!
+EOM
+
 FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
