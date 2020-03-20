@@ -16,6 +16,10 @@ Swarmlet is a thin wrapper around [Docker Swarm mode](https://docs.docker.com/en
 curl -fsSL https://get.swarmlet.dev | bash
 ```
 
+- **[Website](https://swarmlet.dev/docs/doc1)**  
+- **[Documentation](https://swarmlet.dev/docs/doc1)**  
+
+
 ## Introduction
 Swarmlet tries to make it as easy as possible to deploy applications on your server cluster. The idea is to define your application stack in a `docker-compose.yml` file, including domain name configuration for each service. Swarmlet handles deployment and sets up SSL certificates automatically. Also, it's 100% open-source, highly configurable and self-hosted.
 
