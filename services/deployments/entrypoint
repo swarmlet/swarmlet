@@ -49,7 +49,7 @@ deploy() {
     echo "$FPREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
     echo "$FPREFIX Stack deployed:"
-    for DOMAIN in ${DOMAINS[@]}; do echo "$INDENT $PROTOCOL$DOMAIN"; done
+    for DOMAIN in ${DOMAINS[@]}; do echo "$INDENT [$REPO_NAME]  $PROTOCOL$DOMAIN"; done
     echo
   else
     echo "$PREFIX No docker-compose.yml found, exiting"
