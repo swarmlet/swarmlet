@@ -71,14 +71,18 @@ curl -fsSL https://get.swarmlet.dev | bash
 
 # Install with options:
 OPTIONS=(
-  DEBUG=true  # (default false)
-  # SKIP_SWAP=true  # (default false) Don't allocate 1GB swap
+  DOMAIN=my-domain.com  # (defaults to server IP) Recommended to replace this with the domain you are going to use
+  # DEBUG=true  # (default false)
+  # ADD_SWAP=true  # (default false) Allocate 1GB of swap space
   SKIP_METRICS=true  # (default false) Skip installation of Swarmpit and Swarmprom
   # SKIP_SWARMPIT=true  # (default false) Skip installation of Swarmpit
   # SKIP_SWARMPROM=true  # (default false) Skip installation of Swarmprom
 )
 
 curl -fsSL https://get.swarmlet.dev | bash -s "${OPTIONS[@]}"
+# Or
+curl -fsSL https://get.swarmlet.dev | bash -s DOMAIN=my-domain.com
+curl -fsSL https://get.swarmlet.dev | bash -s DOMAIN=my-domain.com DEBUG=true
 ```
 
 ### SSH configuration
