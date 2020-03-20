@@ -29,10 +29,10 @@ git-local-push() {
 # temporary
 create-swap() {
   SIZE=${1:-2G}
-  PATH=${2:-/swapfile}
-  sudo fallocate -l $SIZE 
-  sudo chmod 600 $PATH
-  sudo mkswap $PATH
-  sudo swapon $PATH
-  echo '$PATH none swap sw 0 0' | sudo tee -a /etc/fstab
+  FILE_PATH=${2:-/swapfile}
+  sudo fallocate -l $SIZE $FILE_PATH
+  sudo chmod 600 $FILE_PATH
+  sudo mkswap $FILE_PATH
+  sudo swapon $FILE_PATH
+  echo "$PATH none swap sw 0 0" | sudo tee -a /etc/fstab
 }
