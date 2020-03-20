@@ -46,9 +46,21 @@ install() {
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
 
   echo "$FPREFIX Initializing Swarmlet"
-  swarmlet init
+  swarmlet init "$@"
 
   echo "$FPREFIX Installation complete"
+  # TODO: get from compose files and handle no domain
+  echo "$PREFIX Stacks deployed and available at:"
+  echo "$INDENT [Traefik]       https://traefik.\$YOUR_DOMAIN"
+  echo "$INDENT [Swarmpit]      https://swarmpit.\$YOUR_DOMAIN"
+  echo "$INDENT [Grafana]       https://grafana.\$YOUR_DOMAIN"
+  echo "$INDENT [Consul]        https://consul.\$YOUR_DOMAIN"
+  echo "$INDENT [Unsee]         https://unsee.\$YOUR_DOMAIN"
+  echo "$INDENT [Prometheus]    https://prometheus.\$YOUR_DOMAIN"
+  echo "$INDENT [Alertmanager]  https://alertmanager.\$YOUR_DOMAIN"
+  echo
+  echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
+  echo
   echo "$PREFIX Usage:"
   echo "$INDENT Create a repository on the swarm using:"
   echo -e "$INDENT $ swarmlet repo:create <name>\n"
