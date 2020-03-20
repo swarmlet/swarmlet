@@ -9,7 +9,7 @@ INDENT="      "
 NAME=$(basename $PWD)
 
 main() {
-  echo "$FPREFIX Running $NAME entrypoint script"
+  echo "$PREFIX Running $NAME entrypoint script"
   # echo "$PREFIX Environment:"; printenv
 }
 
