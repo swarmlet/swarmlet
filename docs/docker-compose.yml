@@ -8,7 +8,7 @@ services:
       - traefik-public
     deploy:
       labels:
-        - traefik.frontend.rule=Host:docs.${DOMAIN}
+        - traefik.frontend.rule=Host:${DOMAIN}
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=traefik-public
