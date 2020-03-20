@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+check-docker() {
+  systemctl show --property ActiveState docker | grep -q "ActiveState=active"
+}
+
+check-network-interface() {
+  ip a show $1 up | grep -q "state UP"
+}
+
+git-set-config() {
+  git config user.email "git@$HOSTNAME.local"
+  git config user.name "git"
+}
+
+git-local-push() {
+  REPO_SRC=$1
+  REPO_NAME=$(basename $REPO_SRC)
+  pushd $REPO_SRC >/dev/null
+  git init
+  git-set-config
+  git add .
+  git commit -m "initial"
+  git push $REPO_ROOT/$REPO_NAME.git master
+  chown -R $USRNAME:$USERNAME $USER_ROOT/$REPO_NAME
+  popd >/dev/null
+}

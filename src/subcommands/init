@@ -17,11 +17,11 @@ cmd-init() {
   setfacl -m u:$USERNAME:rwx $REPO_ROOT
 
   # Temporary: add some swap
-  sudo fallocate -l 2G /swapfile
-  sudo chmod 600 /swapfile
-  sudo mkswap /swapfile
-  sudo swapon /swapfile
-  echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+  # sudo fallocate -l 2G /swapfile
+  # sudo chmod 600 /swapfile
+  # sudo mkswap /swapfile
+  # sudo swapon /swapfile
+  # echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
   echo "$PREFIX Checking Docker status"
   if check-docker;
@@ -45,7 +45,7 @@ cmd-init() {
 
   echo "$PREFIX Creating networks"
   docker network create \
-    --driver overlay \
+    --driver=overlay \
     traefik-public
 
   docker network create \
@@ -60,11 +60,14 @@ cmd-init() {
     -o type=none \
     -o device=$USER_ROOT \
     git-data
+  
+  pushd $SWARMLET_SERVICES_ROOT/registry >/dev/null
+  docker-compose up -d
+  popd >/dev/null
 
-  SWARMLET_SERVICES=(registry deployments traefik swarmpit swarmprom)
   echo "$PREFIX Installing services"
-  echo "$PREFIX ($SWARMLET_SERVICES)"
-  for SERVICE in "${SWARMLET_SERVICES[@]}"; do
+  SWARMLET_SERVICES=(deployments loadbalancer swarmpit swarmprom)
+  for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
     if [ $SERVICE == 'deployments' ]; then
       swarmlet stack:build $SERVICE $SWARMLET_SERVICES_ROOT

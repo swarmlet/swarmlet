@@ -34,6 +34,5 @@ fi
 docker run --rm \
   -v $REPO_DEST:$REPO_DEST \
   -v $DOCKER_SOCKET:$DOCKER_SOCKET \
-  --network=swarmlet-network \
   $SWARMLET_REGISTRY/deployments \
   deploy $REPO_DEST || exit 1
