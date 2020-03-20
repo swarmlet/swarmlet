@@ -42,14 +42,14 @@ deploy() {
   PROTOCOL=https://
 
   if [ -f $COMPOSE_FILE ]; then
-    echo "$FPREFIX Building $REPO_NAME"
+    echo "$PREFIX Building $REPO_NAME"
     docker-compose build --parallel
-    echo "$FPREFIX Pushing $REPO_NAME to swarm registry"
+    echo "$PREFIX Pushing $REPO_NAME to swarm registry"
     docker-compose push
-    echo "$FPREFIX Deploying $REPO_NAME"
+    echo "$PREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
     echo "$FPREFIX Stack deployed:"
-    for DOMAIN in ${DOMAINS[@]}; do echo "[$REPO_NAME]  $PROTOCOL$DOMAIN"; done
+    for DOMAIN in ${DOMAINS[@]}; do echo "[$REPO_NAME] — $PROTOCOL$DOMAIN"; done
     echo
   else
     echo "$PREFIX No docker-compose.yml found, exiting"
