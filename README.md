@@ -1,6 +1,6 @@
 <div>
   <img align="left" src="assets/logo-small.jpg" width="175" alt="logo" />
-  <h1 align="left">Swarmlet — doc</h1>
+  <h1 align="left">Swarmlet</h1>
 </div>
 
 A small tool to manage swarm deployments, load balancing, SSL, metrics and more.  
