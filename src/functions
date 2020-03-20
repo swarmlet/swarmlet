@@ -25,3 +25,14 @@ git-local-push() {
   chown -R $USRNAME:$USERNAME $USER_ROOT/$REPO_NAME
   popd >/dev/null
 }
+
+# temporary
+create-swap() {
+  SIZE=${1:-2G}
+  PATH=${2:-/swapfile}
+  sudo fallocate -l $SIZE 
+  sudo chmod 600 $PATH
+  sudo mkswap $PATH
+  sudo swapon $PATH
+  echo '$PATH none swap sw 0 0' | sudo tee -a /etc/fstab
+}
