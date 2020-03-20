@@ -12,7 +12,7 @@ cat << EOM
 
        Description:  A small tool to manage swarm deployments,
                      load balancing, SSL, metrics and more.
-       Version:      1.0 - 6ef0c484553656dc0b4b9cbd85b4d8d5a9e2586b
+       Version:      v1.0-11-ge29b126
        Author:       Tjerk Woudsma <tjerk@passionatepeople.io>
        Website:      https://swarmlet.dev
 
