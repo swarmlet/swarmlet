@@ -45,7 +45,7 @@ while [[ "$#" > 0 ]]; do case "${1%=*}" in
   *) echo "Unknown argument: $1"; shift ;;
 esac; done
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail; [[ $DEBUG == 'true' ]] && set -x
 
 install() {
   echo "$FPREFIX Installing Swarmlet"
