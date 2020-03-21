@@ -25,6 +25,7 @@ services:
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
         - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+
   consul-replica:
     image: consul
     command: agent -server -client=0.0.0.0 -retry-join="consul-leader"
@@ -41,6 +42,7 @@ services:
       placement:
         preferences:
           - spread: node.id
+
   traefik:
     image: traefik:v1.7
     ports:
@@ -72,12 +74,12 @@ services:
     volumes:
       - ./:/basicAuth
       - /var/run/docker.sock:/var/run/docker.sock
+            # --constraints=tag==traefik-public
     command: >
       --docker
       --docker.swarmmode
       --docker.watch
-      --docker.exposedbydefault=false
-      --constraints=tag==traefik-public
+      --docker.exposedbydefault=true
       --entrypoints='Name:http Address::80'
       --entrypoints='Name:https Address::443 TLS'
       --consul
@@ -99,11 +101,29 @@ services:
       - swarmlet-network
     depends_on:
       - consul-leader
+    
+  certdumper:
+    image: svendowideit/traefik-certdumper:latest
+    environment:
+      - CERTDUMPER_MODE=consul
+      - CERTDUMPER_CONSUL_ADDR=consul-leader:8500
+    volumes:
+      - traefik-certs:/traefik/ssl
+    networks:
+      - traefik-public
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 60s
 
 volumes:
   consul-data-leader:
   consul-data-replica:
-
+  traefik-certs:
+    external: true
+    
 networks:
   traefik-public:
     external: true
