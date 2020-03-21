@@ -1,45 +1,89 @@
 #!/usr/bin/env bash
 
-echo "ARGS=$@"
+cat << EOM
+——————————————————————————————————————————————————————————————————————————
+
+      _______ _  _  _ _______  ______ _______        _______ _______
+      |______ |  |  | |_____| |_____/ |  |  | |      |______    |   
+      ______| |__|__| |     | |    \  |  |  | |_____ |______    |    
+
+
+       Description:  A small tool to manage swarm deployments,
+                     load balancing, SSL, metrics and more.
+       Version:      v1.0-11-ge29b126
+       Author:       Tjerk Woudsma <tjerk@passionatepeople.io>
+       Website:      https://swarmlet.dev
+
+——————————————————————————————————————————————————————————————————————————
+       Thank you for installing Swarmlet!
+
+EOM
+
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
+REPOSITORY="https://github.com/woudsma/swarmlet.git"
+DEPENDENCIES=(git apt-transport-https moreutils apache2-utils)
+SWARMLET_INSTALL_ROOT="/opt/swarmlet"
+
+declare -A DEFAULT_OPTS=(
+  [DOMAIN]=  # (defaults to server IP address) Recommended to replace this with the domain you are going to use
+  [DEBUG]=false  # (default false) Run installation in debug mode
+  [CREATE_SWAP]=false  # (default false) Allocate 1GB of swap space
+  [SKIP_METRICS]=false  # (default false) Skip installation of Swarmpit and Swarmprom
+  [SKIP_SWARMPIT]=false  # (default false) Skip installation of Swarmpit
+  [SKIP_SWARMPROM]=false  # (default false) Skip installation of Swarmprom
+)
+
+OPTS=$(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g')
+shopt -s extglob
+
+for K in "${!DEFAULT_OPTS[@]}"; do export "$K=${DEFAULT_OPTS[$K]}"; done
+while [[ "$#" > 0 ]]; do case "${1%=*}" in
+  @($OPTS)) export "$1"; shift ;;
+  *) echo "Unknown argument: $1"; shift ;;
+esac; done
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
 printenv
 exit
 
-curl -fsSL "https://raw.githubusercontent.com/woudsma/swarmlet/master/install" | bash "$@"
+install() {
+  echo "$FPREFIX Installing Swarmlet"
+  echo "$PREFIX Installing dependencies"
+  apt-get update -y -qq
+  apt-get install -y -qq "${DEPENDENCIES[@]}"
+  wget -nv -O - https://get.docker.com/ | sh
+  curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
 
-# set -eo pipefail; [[ $DEBUG ]] && set -x
+  echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
+  mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
+  # git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
 
-# FPREFIX="=====>"
-# PREFIX="----->"
-# INDENT="      "
+  echo "$PREFIX Linking executable"
+  ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
 
-# DEPENDENCIES=(git apt-transport-https moreutils apache2-utils)
-# REPOSITORY="https://github.com/woudsma/swarmlet.git"
-# SWARMLET_INSTALL_ROOT="/opt/swarmlet"
+  echo "$FPREFIX Initializing Swarmlet"
+  swarmlet init "$@"
 
-# install() {
-#   echo "$FPREFIX Installing Swarmlet"
+  echo "$FPREFIX Installation complete"
+  # TODO: get from compose files and handle no domain
+  echo "$FPREFIX Stacks deployed and available at:"
+  echo "$INDENT [traefik] — https://traefik.${DOMAIN:-$HOSTNAME}"
+  echo "$INDENT [consul] — https://consul.${DOMAIN:-$HOSTNAME}"
+  echo "$INDENT [swarmpit] — https://swarmpit.${DOMAIN:-$HOSTNAME}"
+  echo "$INDENT [grafana] — https://grafana.${DOMAIN:-$HOSTNAME}"
+  echo "$INDENT [unsee] — https://unsee.${DOMAIN:-$HOSTNAME}"
+  echo "$INDENT [prometheus] — https://prometheus.${DOMAIN:-$HOSTNAME}"
+  echo "$INDENT [alertmanager] — https://alertmanager.${DOMAIN:-$HOSTNAME}"
+  echo
+  echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
+  echo "$PREFIX Usage:"
+  echo "$INDENT Create a repository on the swarm using:"
+  echo -e "$INDENT $ swarmlet repo:create <name>\n"
+}
 
-#   echo "$PREFIX Installing dependencies"
-#   apt-get update -y -qq
-#   apt-get install -y -qq "${DEPENDENCIES[@]}"
-#   wget -nv -O - https://get.docker.com/ | sh
-#   curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-#   chmod +x /usr/local/bin/docker-compose
-
-#   echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
-#   mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
-#   # git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
-
-#   echo "$PREFIX Linking executable"
-#   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
-
-#   echo "$FPREFIX Initializing Swarmlet"
-#   swarmlet init
-
-#   echo "$FPREFIX Installation complete"
-#   echo "$PREFIX Usage:"
-#   echo "$INDENT Create a repository on the swarm using:"
-#   echo -e "$INDENT $ swarmlet repo:create <name>\n"
-# }
-
-# install "$@"
+install
