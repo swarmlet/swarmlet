@@ -9,10 +9,10 @@ Swarmlet is a thin wrapper around [Docker Swarm mode](https://docs.docker.com/en
 
 ---
 
+***TLDR;*** Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
+
 - **[Website](https://swarmlet.dev)**  
 - **[Documentation](https://swarmlet.dev/docs/doc1)**  
-
-***TLDR;*** Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
 #### Requirements
 - Bash 4.0 or higher
@@ -68,11 +68,12 @@ https://prometheus.example.com
 
 ## Installation
 On the server:
-```sh
-# Quick install
+#### Quick install
+```sh 
 curl -fsSL https://get.swarmlet.dev | bash
-
-# Install with options:
+```
+#### With options:
+```sh
 OPTIONS=(
   DOMAIN=my-domain.com  # (defaults to server IP) Recommended to replace this with the domain you are going to use
   # DEBUG=true  # (default false)
@@ -83,9 +84,8 @@ OPTIONS=(
 )
 
 curl -fsSL https://get.swarmlet.dev | bash -s "${OPTIONS[@]}"
-# Or
-curl -fsSL https://get.swarmlet.dev | bash -s DOMAIN=my-domain.com
-curl -fsSL https://get.swarmlet.dev | bash -s DOMAIN=my-domain.com DEBUG=true
+# or
+curl -fsSL https://get.swarmlet.dev | bash -s DOMAIN=my-domain.com CREATE_SWAP=true
 ```
 
 ### SSH configuration
