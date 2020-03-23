@@ -13,8 +13,9 @@ Swarmlet is a thin wrapper around [Docker Swarm mode](https://docs.docker.com/en
 
 #### Requirements
 - Bash 4.0 or higher
+#### Quick install
+See the [installation](#installation) section for install with options.
 ```sh
-# Quick install (see below for install with options)
 curl -fsSL https://get.swarmlet.dev | bash
 ```
 
