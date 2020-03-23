@@ -11,6 +11,7 @@ services:
       - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
     networks:
       - traefik-private
+      - traefik-public
     deploy:
       labels:
         - traefik.frontend.rule=Host:consul.${DOMAIN}
@@ -33,6 +34,7 @@ services:
       - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
     networks:
       - traefik-private
+      - traefik-public
     deploy:
       replicas: ${CONSUL_REPLICAS:-3}
       placement:
@@ -72,6 +74,8 @@ services:
       # Wildcard domain SSL
       # --certificatesResolvers.myresolver.acme.dnsChallenge.provider=digitalocean
       # --certificatesResolvers.myresolver.acme.dnsChallenge.delayBeforeCheck=0
+      # ENABLE FOR STAGING
+      # --acme.caServer="https://acme-staging-v02.api.letsencrypt.org/directory"
     command: >
       --docker
       --docker.swarmmode
@@ -82,7 +86,6 @@ services:
       --consul
       --consul.endpoint="consul-leader:8500"
       --acme
-      --acme.caServer="https://acme-staging-v02.api.letsencrypt.org/directory"
       --acme.email=${EMAIL}
       --acme.storage="traefik/acme/account"
       --acme.entryPoint=https
