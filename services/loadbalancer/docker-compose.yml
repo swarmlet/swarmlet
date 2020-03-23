@@ -10,8 +10,7 @@ services:
       - CONSUL_BIND_INTERFACE=eth0
       - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
     networks:
-      - default
-      - traefik-public
+      - traefik-private
     deploy:
       labels:
         - traefik.frontend.rule=Host:consul.${DOMAIN}
@@ -19,10 +18,8 @@ services:
         - traefik.port=8500
         - traefik.tags=traefik-public
         - traefik.docker.network=traefik-public
-        # Traefik service that listens to HTTP
         - traefik.redirectorservice.frontend.entryPoints=http
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
         - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
 
@@ -35,8 +32,7 @@ services:
       - CONSUL_BIND_INTERFACE=eth0
       - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
     networks:
-      - default
-      - traefik-public
+      - traefik-private
     deploy:
       replicas: ${CONSUL_REPLICAS:-3}
       placement:
@@ -65,16 +61,17 @@ services:
         - traefik.port=8080
         - traefik.tags=traefik-public
         - traefik.docker.network=traefik-public
-        # Traefik service that listens to HTTP
         - traefik.redirectorservice.frontend.entryPoints=http
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
         - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
     volumes:
       - ./:/basicAuth
       - /var/run/docker.sock:/var/run/docker.sock
-            # --constraints=tag==traefik-public
+      # --constraints=tag==traefik-public
+      # Wildcard domain SSL
+      # --certificatesResolvers.myresolver.acme.dnsChallenge.provider=digitalocean
+      # --certificatesResolvers.myresolver.acme.dnsChallenge.delayBeforeCheck=0
     command: >
       --docker
       --docker.swarmmode
@@ -96,7 +93,7 @@ services:
       --accessLog
       --api
     networks:
-      - default
+      - traefik-private
       - traefik-public
       - swarmlet-network
     depends_on:
@@ -110,7 +107,7 @@ services:
     volumes:
       - traefik-certs:/traefik/ssl
     networks:
-      - traefik-public
+      - traefik-private
     deploy:
       mode: replicated
       replicas: 1
@@ -125,6 +122,7 @@ volumes:
     external: true
     
 networks:
+  traefik-private:
   traefik-public:
     external: true
   swarmlet-network:

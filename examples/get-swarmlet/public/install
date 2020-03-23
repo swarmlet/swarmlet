@@ -24,12 +24,12 @@ PREFIX="----->"
 INDENT="      "
 
 REPOSITORY="https://github.com/woudsma/swarmlet.git"
-DEPENDENCIES=(git apt-transport-https moreutils apache2-utils)
+DEPENDENCIES=(git apt-transport-https apache2-utils moreutils)
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
 
 declare -A DEFAULT_OPTS=(
   [DOMAIN]=  # (defaults to server IP address) Recommended to replace this with the domain you are going to use
-  [DEBUG]=false  # (default false) Run installation in debug mode
+  [DEBUG]=  # (default undefined) Run installation in debug mode
   [CREATE_SWAP]=false  # (default false) Allocate 1GB of swap space
   [SKIP_METRICS]=false  # (default false) Skip installation of Swarmpit and Swarmprom
   [SKIP_SWARMPIT]=false  # (default false) Skip installation of Swarmpit
@@ -37,9 +37,11 @@ declare -A DEFAULT_OPTS=(
 )
 
 OPTS=$(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g')
-shopt -s extglob
+for KEY in "${!DEFAULT_OPTS[@]}"; do
+  [ -z "${DEFAULT_OPTS[$KEY]}" ] && export "$KEY=${DEFAULT_OPTS[$KEY]}";
+done
 
-for K in "${!DEFAULT_OPTS[@]}"; do export "$K=${DEFAULT_OPTS[$K]}"; done
+shopt -s extglob
 while [[ "$#" > 0 ]]; do case "${1%=*}" in
   @($OPTS)) export "$1"; shift ;;
   *) echo "Unknown argument: $1"; shift ;;
