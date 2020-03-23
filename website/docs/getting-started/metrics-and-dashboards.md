@@ -36,47 +36,47 @@ export const Gallery = ({ name, images }) => {
 ## Swarmpit
 <Gallery 
   images={[
-    '/static/img/screenshots/swarmpit-0.png',
-    '/static/img/screenshots/swarmpit-1.png',
-    '/static/img/screenshots/swarmpit-2.png',
-    '/static/img/screenshots/swarmpit-3.png',
+    '/img/screenshots/swarmpit-0.png',
+    '/img/screenshots/swarmpit-1.png',
+    '/img/screenshots/swarmpit-2.png',
+    '/img/screenshots/swarmpit-3.png',
   ]} />
 
 ## Grafana
 <Gallery
   images={[
-    '/static/img/screenshots/grafana-0.png',
-    '/static/img/screenshots/grafana-1.png',
-    '/static/img/screenshots/grafana-2.png',
+    '/img/screenshots/grafana-0.png',
+    '/img/screenshots/grafana-1.png',
+    '/img/screenshots/grafana-2.png',
   ]} />
 
 ## Traefik
 <Gallery
   images={[
-    '/static/img/screenshots/traefik-0.png',
-    '/static/img/screenshots/traefik-1.png',
+    '/img/screenshots/traefik-0.png',
+    '/img/screenshots/traefik-1.png',
   ]} />
 
 ## Consul
 <Gallery
   images={[
-    '/static/img/screenshots/consul-0.png',
+    '/img/screenshots/consul-0.png',
   ]} />
 
 ## Prometheus
 <Gallery
   images={[
-    '/static/img/screenshots/prometheus-0.png',
+    '/img/screenshots/prometheus-0.png',
   ]} />
 
 ## Unsee
 <Gallery
   images={[
-    '/static/img/screenshots/unsee-0.png',
+    '/img/screenshots/unsee-0.png',
   ]} />
 
 ## Alertmanager
 <Gallery
   images={[
-    '/static/img/screenshots/alertmanager-0.png',
+    '/img/screenshots/alertmanager-0.png',
   ]} />
