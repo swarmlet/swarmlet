@@ -3,27 +3,27 @@ module.exports = {
   tagline: 'Swarmlet Documentation',
   url: 'https://swarmlet.dev',
   baseUrl: '/',
-  favicon: 'img/favicon.ico',
+  favicon: 'favicon.ico',
   projectName: 'swarmlet',
   themeConfig: {
     navbar: {
       title: 'Swarmlet',
       logo: {
         alt: 'Swarmlet Logo',
-        src: 'img/logo.svg',
+        src: 'img/logo.jpg',
       },
       links: [
         {
-          to: 'docs/doc1',
+          to: 'docs/getting-started/introduction',
           activeBasePath: 'docs',
           label: 'Docs',
           position: 'left',
         },
-        {to: 'blog', label: 'Blog', position: 'left'},
+        // {to: 'blog', label: 'Blog', position: 'left'},
         {
           href: 'https://github.com/woudsma/swarmlet',
           label: 'GitHub',
-          position: 'right',
+          position: 'left',
         },
       ],
     },
@@ -34,12 +34,8 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Style Guide',
-              to: 'docs/doc1',
-            },
-            {
-              label: 'Second Doc',
-              to: 'docs/doc2',
+              label: 'Introduction',
+              to: 'docs/getting-started/introduction',
             },
           ],
         },
