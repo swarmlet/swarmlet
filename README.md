@@ -13,12 +13,12 @@ Swarmlet is a thin wrapper around [Docker Swarm mode](https://docs.docker.com/en
 
 <br />
 <div align="center">
-  <b><a href="#">Website</a></b> — 
-  <b><a href="#">Documentation</a></b> —
+  <b><a href="#">Website</a></b> &nbsp;—&nbsp; 
+  <b><a href="#">Documentation</a></b> &nbsp;—&nbsp;
   <b><a href="#">Demo</a></b>
 </div>
 
-#### Quick install
+### Quick install
 Requirements:  
 - Bash 4.0 or higher  
 ```sh
