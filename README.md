@@ -11,7 +11,12 @@ Swarmlet is a thin wrapper around [Docker Swarm mode](https://docs.docker.com/en
 
 ***TLDR;*** Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
-#### Quick install
+<div align="center">
+  <b><a href="#">Website</a></b>
+  <b><a href="#">Documentation</a></b>
+</div>
+
+### Quick install
 Requirements:  
 - Bash 4.0 or higher  
 
@@ -85,7 +90,7 @@ OPTIONS=(
 )
 
 curl -fsSL https://get.swarmlet.dev | bash -s "${OPTIONS[@]}"
-# or
+# Or
 curl -fsSL https://get.swarmlet.dev | bash -s DOMAIN=my-domain.com CREATE_SWAP=true
 ```
 
@@ -102,10 +107,13 @@ Now `ssh -i ~/.ssh/id_rsa_swarm root@123.23.12.123` becomes `ssh swarm`.
 ### Services configuration
 To configure the built-in services such as swarmpit/traefik/registry, simply pull the `swarmlet-services` repo from your swarm. Edit the service `docker-compose.yml` file and push the changes using `git push origin master`.
 ```sh
-# Clone the 'services' repository
-git clone git@swarm:swarmlet-services 
-cd swarmlet-services
-# Edit configuration..
+# Clone a swarmlet services repository using 'git clone git@swarm:<service>'
+# For example:
+git clone git@swarm:loadbalancer
+cd loadbalancer
+
+# ... Edit configuration ...
+
 git add .
 git commit -m 'update configuration'
 git push origin master
@@ -170,7 +178,7 @@ services:
       labels:
         # Specify the (sub) domain(s) for this service
         - traefik.frontend.rule=Host:echo.${DOMAIN}
-        # The service port Traefik will expose to ${DOMAIN}:80 (and ${DOMAIN}:443)
+        # The service port Traefik will expose to 'https://echo.${DOMAIN}'
         - traefik.port=5678
         - traefik.enable=true
         - traefik.tags=traefik-public
