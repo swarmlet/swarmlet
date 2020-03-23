@@ -10,7 +10,7 @@ module.exports = {
       title: 'Swarmlet',
       logo: {
         alt: 'Swarmlet Logo',
-        src: 'img/logo.jpg',
+        src: 'img/logo.png',
       },
       links: [
         {
