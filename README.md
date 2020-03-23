@@ -11,9 +11,11 @@ Swarmlet is a thin wrapper around [Docker Swarm mode](https://docs.docker.com/en
 
 ***TLDR;*** Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
+
 <div align="center">
-  <b><a href="#">Website</a></b>
-  <b><a href="#">Documentation</a></b>
+  <b><a href="#">Website</a></b> | 
+  <b><a href="#">Documentation</a></b> |
+  <b><a href="#">Demo</a></b>
 </div>
 
 ### Quick install
