@@ -38,23 +38,6 @@ services:
       - swarmlet-network
       - traefik-public
 
-  web-3:
-    image: hashicorp/http-echo
-    deploy:
-      replicas: 1
-      labels:
-        - traefik.frontend.rule=Host:echo.echo.${DOMAIN}
-        - traefik.enable=true
-        - traefik.port=5678
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
-    command: ["-text", "Echo echo echooo"]
-    networks:
-      - swarmlet-network
-
   redis:
     image: redis:alpine
     networks:

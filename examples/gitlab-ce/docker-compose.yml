@@ -4,13 +4,13 @@ services:
   gitlab:
     image: gitlab/gitlab-ce:latest
     ports:
-      - "8000:8000"
-      - "8001:8001"
-      - "2222:22"
+      - "15000:15000"
+      - "15001:15001"
     networks:
-      - gitlab-network
+      - default
       - traefik-public
       - swarmlet-network
+      - gitlab-network
     volumes:
       - gitlab-data:/var/opt/gitlab
       - gitlab-logs:/var/log/gitlab
@@ -20,9 +20,6 @@ services:
         from_file('/omnibus_config.rb')
         external_url 'https://gitlab.${DOMAIN}'
         registry_external_url 'https://registry.${DOMAIN}'
-        nginx['listen_port'] = 8000
-        registry_nginx['listen_port'] = 8001
-        gitlab_rails['gitlab_shell_ssh_port'] = 22
     deploy:
       placement:
         constraints:
@@ -31,8 +28,8 @@ services:
         - traefik.enable=true
         - traefik.tags=traefik-public
         - traefik.docker.network=traefik-public
-
-        - traefik.gitlab.port=8000
+        - traefik.gitlab.enable=true
+        - traefik.gitlab.port=15000
         - traefik.gitlab.frontend.rule=Host:gitlab.${DOMAIN}
         - traefik.gitlab.frontend.entryPoints=http,https
         - traefik.gitlab.frontend.passHostHeader=true
@@ -40,15 +37,15 @@ services:
         - traefik.gitlab.frontend.headers.SSLHost=gitlab.${DOMAIN}
         - traefik.gitlab.frontend.headers.STSIncludeSubdomains=true
         - traefik.gitlab.frontend.headers.STSPreload=true
-
-        - traefik.gitlab-registry.port=8001
-        - traefik.gitlab-registry.frontend.rule=Host:registry.${DOMAIN}
-        - traefik.gitlab-registry.frontend.entryPoints=http,https
-        - traefik.gitlab-registry.frontend.passHostHeader=true
-        - traefik.gitlab-registry.frontend.headers.SSLRedirect=true
-        - traefik.gitlab-registry.frontend.headers.SSLHost=registry.${DOMAIN}
-        - traefik.gitlab-registry.frontend.headers.STSIncludeSubdomains=true
-        - traefik.gitlab-registry.frontend.headers.STSPreload=true
+        - traefik.registry.enable=true
+        - traefik.registry.port=15001
+        - traefik.registry.frontend.rule=Host:registry.${DOMAIN}
+        - traefik.registry.frontend.entryPoints=http,https
+        - traefik.registry.frontend.passHostHeader=true
+        - traefik.registry.frontend.headers.SSLRedirect=true
+        - traefik.registry.frontend.headers.SSLHost=registry.${DOMAIN}
+        - traefik.registry.frontend.headers.STSIncludeSubdomains=true
+        - traefik.registry.frontend.headers.STSPreload=true
     configs:
       - source: gitlab
         target: /omnibus_config.rb
@@ -68,13 +65,6 @@ volumes:
   gitlab-logs:
   gitlab-data:
 
-networks:
-  gitlab-network:
-  traefik-public:
-    external: true
-  swarmlet-network:
-    external: true
-
 configs:
   gitlab:
     file: ./gitlab.rb
@@ -83,391 +73,9 @@ secrets:
   gitlab_root_password:
     file: ./root_password.txt
 
-
-
-########## WORKING VERSION ##########
-# version: "3.6"
-
-# services:
-#   gitlab:
-#     image: gitlab/gitlab-ce:latest
-#     ports:
-#       - "15000:15000"
-#       - "15001:15001"
-#     networks:
-#       - default
-#       - traefik-public
-#       - swarmlet-network
-#       - gitlab-network
-#     volumes:
-#       - gitlab-data:/var/opt/gitlab
-#       - gitlab-logs:/var/log/gitlab
-#       - gitlab-config:/etc/gitlab
-#     environment:
-#       GITLAB_OMNIBUS_CONFIG: "from_file('/omnibus_config.rb')"
-#     deploy:
-#       placement:
-#         constraints:
-#           - node.role == manager
-#       labels:
-#         - traefik.enable=true
-#         - traefik.tags=traefik-public
-#         - traefik.docker.network=traefik-public
-#         - traefik.gitlab.enable=true
-#         - traefik.gitlab.port=15000
-#         - traefik.gitlab.frontend.rule=Host:gitlab.${DOMAIN}
-#         - traefik.gitlab.frontend.entryPoints=http,https
-#         - traefik.gitlab.frontend.passHostHeader=true
-#         - traefik.gitlab.frontend.headers.SSLRedirect=true
-#         - traefik.gitlab.frontend.headers.SSLHost=gitlab.${DOMAIN}
-#         - traefik.gitlab.frontend.headers.STSIncludeSubdomains=true
-#         - traefik.gitlab.frontend.headers.STSPreload=true
-#         - traefik.registry.enable=true
-#         - traefik.registry.port=15001
-#         - traefik.registry.frontend.rule=Host:registry.${DOMAIN}
-#         - traefik.registry.frontend.entryPoints=http,https
-#         - traefik.registry.frontend.passHostHeader=true
-#         - traefik.registry.frontend.headers.SSLRedirect=true
-#         - traefik.registry.frontend.headers.SSLHost=registry.${DOMAIN}
-#         - traefik.registry.frontend.headers.STSIncludeSubdomains=true
-#         - traefik.registry.frontend.headers.STSPreload=true
-#     configs:
-#       - source: gitlab
-#         target: /omnibus_config.rb
-#     secrets:
-#       - gitlab_root_password
-
-#   gitlab-runner:
-#     image: gitlab/gitlab-runner:alpine
-#     networks:
-#       - gitlab-network
-#     deploy:
-#       mode: replicated
-#       replicas: 1
-
-# volumes:
-#   gitlab-config:
-#   gitlab-logs:
-#   gitlab-data:
-
-# configs:
-#   gitlab:
-#     file: ./gitlab.rb
-
-# secrets:
-#   gitlab_root_password:
-#     file: ./root_password.txt
-
-# networks:
-#   gitlab-network:
-#   traefik-public:
-#     external: true
-#   swarmlet-network:
-#     external: true
-
-
-
-
-
-######## NOTES ###########
-
-# version: '3.7'
-
-# services:
-#   gitlab:
-#     image: 'gitlab/gitlab-ce:latest'
-#     restart: always
-#     ports:
-#       - '15000:15000'
-#       - '15001:15001'
-#       - '15002:15002'
-#     labels:
-#       # Traefik Magic: Define three backends and linked domains
-#       - traefik.enable=true
-#       - traefik.tags=traefik-public
-#       - traefik.docker.network=traefik-public
-#       - traefik.gitlab.port=15000
-#       - traefik.gitlab.frontend.rule='Host:gitlab.${DOMAIN}'
-#       - traefik.registry.port=15001
-#       - traefik.registry.frontend.rule='Host:registry.${DOMAIN}'
-#       - traefik.pages.port=15002
-#       - traefik.pages.frontend.rule='HostRegexp={subdomain:[a-z0-9]+}.pages.${DOMAIN}'
-#       - traefik.redirectorservice.frontend.entryPoints=http
-#       - traefik.redirectorservice.frontend.redirect.entryPoint=https
-#       - traefik.webservice.frontend.entryPoints=https
-#     environment:
-#       GITLAB_OMNIBUS_CONFIG: |
-#         external_url 'https://gitlab.${DOMAIN}'
-#         registry_external_url 'https://registry.${DOMAIN}'
-#         pages_external_url 'https://pages.${DOMAIN}'
-#         nginx['listen_port'] = 15000
-#         nginx['listen_https'] = false
-#         nginx['redirect_http_to_https'] = false
-#         nginx['proxy_set_headers'] = {"X-Forwarded-Proto" => "https","X-Forwarded-Ssl" => "on"}
-#         gitlab_rails['registry_enabled'] = true
-#         registry['enable'] = true
-#         registry_nginx['enable'] = true
-#         registry_nginx['listen_port'] = 15001
-#         registry_nginx['listen_https'] = false
-#         registry_nginx['redirect_http_to_https'] = false
-#         registry_nginx['proxy_set_headers'] = {"X-Forwarded-Proto" => "https","X-Forwarded-Ssl" => "on"}
-#         gitlab_rails['rack_attack_git_basic_auth'] = {
-#            'enabled' => false,
-#         }
-#         pages_nginx['listen_port'] = 15002
-#         pages_nginx['listen_https'] = false
-#         pages_nginx['redirect_http_to_https'] = false
-#         pages_nginx['proxy_set_headers'] = {"X-Forwarded-Proto" => "https","X-Forwarded-Ssl" => "on"}
-#         gitlab_pages['inplace_chroot'] = true
-#         gitlab_rails['smtp_enable'] = false
-#         gitlab_rails['backup_keep_time'] = 604800
-#         postgresql['shared_buffers'] = "256MB"
-#         unicorn['worker_processes'] = 4
-#         prometheus_monitoring['enable'] = false
-#     networks:
-#       - traefik-public
-#     volumes:
-#       - gitlab-config:/etc/gitlab
-#       - gitlab-logs:/var/log/gitlab
-#       - gitlab-data:/var/opt/gitlab
-
-# nginx['redirect_http_to_https'] = false
-# nginx['listen_port'] = 8000
-# nginx['listen_https'] = false
-# nginx['proxy_set_headers'] = {
-#   'X-Forwarded-Proto' => 'https',
-#   'X-Forwarded-Ssl' => 'on'
-# }
-# nginx['client_max_body_size'] = '2G'
-# unicorn['worker_timeout'] = 60
-# unicorn['worker_processes'] = 2
-# sidekiq['concurrency'] = 8
-# postgresql['shared_buffers'] = "512MB"
-
-# registry_external_url 'https://registry.${DOMAIN}'
-# gitlab_rails['registry_enabled'] = true
-# registry_nginx['listen_port'] = 8001
-# registry_nginx['listen_https'] = false
-# letsencrypt['enable'] = true
-# letsencrypt['auto_renew_hour'] = "00"
-# letsencrypt['auto_renew_minute'] = "00"
-# letsencrypt['auto_renew_day_of_month'] = "*/7"
-# nginx[‘redirect_http_to_https’] = true
-
-# version: '3.3'
-# networks:
-#   traefik-public:
-#     external: true
-# services:
-#   gitlab:
-#     image: gitlab/gitlab-ce:latest
-#     restart: always
-#     container_name: gitlab
-#     environment:
-#       GITLAB_OMNIBUS_CONFIG: |
-#         external_url 'https://gitlab.${DOMAIN}'
-#         registry_external_url 'https://registry.${DOMAIN}'
-#         nginx['listen_port'] = '80'
-#         nginx['listen_https'] = false
-#         registry_nginx['listen_port'] = '80'
-#         registry_nginx['listen_https'] = false
-#         gitlab_rails['registry_enabled'] = true
-#         gitlab_rails['gitlab_shell_ssh_port'] = 2222
-#     ports:
-#       - '2222:22'
-#     volumes:
-#       - gitlab-config:/etc/gitlab
-#       - gitlab-logs:/var/log/gitlab
-#       - gitlab-data:/var/opt/gitlab
-#       - traefik-certs:/etc/gitlab/ssl
-#     networks:
-#       - traefik-public
-#     labels:
-#       - traefik.docker.network=traefik-public
-#       - traefik.ci.frontend.rule=Host:gitlab.${DOMAIN}
-#       - traefik.ci.port=80
-#       - traefik.ci.frontend.entryPoints=http,https
-#       - traefik.reg.frontend.rule=Host:registry.${DOMAIN}
-#       - traefik.reg.port=80
-#       - traefik.reg.frontend.entryPoints=http,https
-
-# volumes:
-#   gitlab-config:
-#   gitlab-logs:
-#   gitlab-data:
-#   traefik-certs:
-#     external: true
-
-# version: '3.7'
-# services:
-#   gitlab:
-#     image: 'gitlab/gitlab-ce:latest'
-#     restart: always
-#     hostname: gitlab.${DOMAIN}
-#     labels:
-#       - traefik.docker.network=traefik-public
-#       - traefik.enable=true
-#       - traefik.tags=traefik-public
-
-#       - traefik.redirectorservice.frontend.entryPoints=http
-#       - traefik.redirectorservice.frontend.redirect.entryPoint=https
-#       - traefik.webservice.frontend.entryPoints=https
-
-#       - traefik.gitlab.enable=true
-#       - traefik.gitlab.port=8000
-#       - traefik.gitlab.frontend.rule=Host:gitlab.${DOMAIN}
-      
-#       - traefik.registry.enable=true
-#       - traefik.registry.port=8001
-#       - traefik.registry.frontend.rule=Host:registry.${DOMAIN}
-#     healthcheck:
-#       disable: true
-#     environment:
-#       GITLAB_OMNIBUS_CONFIG: |
-#         external_url 'https://gitlab.${DOMAIN}'
-#         nginx['listen_port'] = 8000
-#         nginx['listen_https'] = false
-
-#         nginx['client_max_body_size'] = '2G'
-#         unicorn['worker_timeout'] = 60
-#         unicorn['worker_processes'] = 2
-#         sidekiq['concurrency'] = 8
-#         postgresql['shared_buffers'] = "512MB"
-
-#         registry_external_url 'https://registry.${DOMAIN}'
-#         gitlab_rails['registry_enabled'] = true
-#         registry_nginx['listen_port'] = 8001
-#         registry_nginx['listen_https'] = false
-#     ports:
-#       - '8000:8000'
-#       - '8001:8001'
-#       - '22:22'
-#     networks:
-#       - traefik-public
-#     volumes:
-#       - gitlab-config:/etc/gitlab
-#       - gitlab-logs:/var/log/gitlab
-#       - gitlab-data:/var/opt/gitlab
-
-# networks:
-#   traefik-public:
-#     external: true
-
-# volumes:
-#   gitlab-config:
-#   gitlab-logs:
-#   gitlab-data:
-  # postgresql-data:
-
-# version: '3.7'
-
-# services:
-#   gitlab:
-#     image: gitlab/gitlab-ce
-#     container_name: gitlab
-#     # restart: always
-#     hostname: gitlab.${DOMAIN}
-#     networks:
-#       - gitlab-network
-#       - traefik-public
-#       - swarmlet-network
-#     environment:
-#       GITLAB_OMNIBUS_CONFIG: |
-#         external_url 'https://gitlab.${DOMAIN}:7777'
-#         gitlab_rails['gitlab_shell_ssh_port'] = 2224
-#     # environment:
-#       # GITLAB_OMNIBUS_CONFIG: |
-#       #   postgresql['enable'] = true
-#       #   gitlab_rails['db_username'] = "gitlab"
-#       #   gitlab_rails['db_password'] = "gitlab"
-#       #   gitlab_rails['db_host'] = "postgresql"
-#       #   gitlab_rails['db_port'] = "5432"
-#       #   gitlab_rails['db_database'] = "gitlab_db"
-#       #   gitlab_rails['db_adapter'] = 'postgresql'
-#       #   gitlab_rails['db_encoding'] = 'utf8'
-#       #   redis['enable'] = true
-#       #   gitlab_rails['redis_host'] = 'redis'
-#       #   gitlab_rails['redis_port'] = '6379'
-#       #   external_url 'https://gitlab.${DOMAIN}'
-#       #   gitlab_rails['gitlab_shell_ssh_port'] = 30022
-#     # ports:
-#     #   - "30080:30080"
-#     #   - "30022:22"
-#     ports:
-#       - '7777:80'
-#       - '5001:80'
-#       # - '1234:443'
-#       # - '9090:9090'
-#       - '2224:22'
-#     deploy:
-#       labels:
-#         - "traefik.backend.loadbalancer.stickiness=true"
-#         - "traefik.backend.loadbalancer.swarm=true"
-#         - "traefik.docker.network=traefik-public"
-#         - "traefik.frontend.entrypoints=https"
-#         - "traefik.frontend.headers.SSLProxyHeaders=X-Forwarded-For:https"
-#         - "traefik.frontend.headers.STSSeconds=315360000"
-#         - "traefik.frontend.headers.browserXSSFilter=true"
-#         - "traefik.frontend.headers.contentTypeNosniff=true"
-#         - "traefik.frontend.headers.customrequestheaders=X-Forwarded-Ssl:on"
-#         - "traefik.frontend.passHostHeader=true"
-#         - "traefik.frontend.passTLSCert=false"
-#         - "traefik.lab.frontend.rule=Host:gitlab.${DOMAIN}"
-#         - "traefik.lab.port=7777"
-#         - "traefik.reg.frontend.rule=Host:registry.${DOMAIN}"
-#         - "traefik.reg.port=5001"
-#         # - traefik.frontend.rule=Host:gitlab.${DOMAIN}
-#         # - traefik.enable=true
-#         # - traefik.port=9090
-#         # - traefik.tags=traefik-public
-#         # - traefik.docker.network=traefik-public
-#         # - traefik.redirectorservice.frontend.entryPoints=http
-#         # - traefik.redirectorservice.frontend.redirect.entryPoint=https
-#         # - traefik.webservice.frontend.entryPoints=https
-#     # volumes:
-#     #   - gitlab-config:/etc/gitlab:rw
-#     #   - gitlab-logs:/var/log/gitlab:rw
-#     #   - gitlab-data:/var/opt/gitlab:rw
-
-#   gitlab-runner:
-#     image: gitlab/gitlab-runner:alpine
-#     networks:
-#       - gitlab-network
-#       - traefik-public
-#     deploy:
-#       mode: replicated
-#       replicas: 0
-
-#   postgresql:
-#     restart: always
-#     image: postgres:9.6.2-alpine
-#     environment:
-#       - POSTGRES_USER=gitlab
-#       - POSTGRES_PASSWORD=gitlab
-#       - POSTGRES_DB=gitlab_db
-#     networks:
-#       - gitlab-network
-#       - traefik-public
-#     volumes:
-#       - postgresql-data:/var/lib/postgresql:rw
-
-#   redis:
-#     restart: always
-#     image: redis:alpine
-#     networks:
-#       - gitlab-network
-#       - traefik-public
-
-# networks:
-#   gitlab-network:
-#     name: gitlab-network
-#   traefik-public:
-#     external: true
-#   swarmlet-network:
-#     external: true
-
-# volumes:
-#   gitlab-config:
-#   gitlab-logs:
-#   gitlab-data:
-#   postgresql-data:
+networks:
+  gitlab-network:
+  traefik-public:
+    external: true
+  swarmlet-network:
+    external: true
