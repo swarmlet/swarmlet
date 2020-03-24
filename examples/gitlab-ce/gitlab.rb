@@ -11,3 +11,6 @@ registry_nginx['proxy_set_headers'] = {"X-Forwarded-Proto" => "https","X-Forward
 postgresql['shared_buffers'] = "256MB"
 unicorn['worker_processes'] = 4
 prometheus_monitoring['enable'] = false
+
+# unicorn['socket'] = '/var/opt/gitlab/gitlab-rails/sockets/gitlab.socket'
+# gitlab_workhorse['auth_socket'] = "/var/opt/gitlab/gitlab-rails/sockets/gitlab.socket"
