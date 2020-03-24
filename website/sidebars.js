@@ -3,6 +3,7 @@ module.exports = {
     'Getting Started': [
       'getting-started/introduction',
       'getting-started/installation',
+      'getting-started/deploying-applications',
       'getting-started/automatic-ssl-and-load-balancing',
       'getting-started/metrics-and-dashboards',
       'getting-started/styleguide',
