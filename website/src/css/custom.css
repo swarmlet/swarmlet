@@ -40,6 +40,11 @@ a.featureLink {
   color: white !important;
 }
 
+.hero.hero--primary.heroBanner_src-pages- {
+  box-shadow: var(--ifm-color-primary-darker) 0 0 7.5px 0 inset;
+  mix-blend-mode: multiply;
+}
+
 .hero.hero--primary > div:after {
   content: '';
   position: absolute;
