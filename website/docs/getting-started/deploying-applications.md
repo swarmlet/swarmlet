@@ -4,10 +4,21 @@ title: Deploying applications
 custom_edit_url: null
 ---
 
+## How it works
+You can `git push` to any swarm manager node to create or update a repository and deploy your application on the swarm. Swarmlet creates a `git` user on the swarm node during installation and creates the `/var/repo` directory, which will contain the bare repositories for every application you deploy to the server using Swarmlet. If a repository does not exist, it will be created by a `pre-receive` git hook.  
+
+After receiving the repository, the `post-receive` hook will execute which triggers the `deployments` service. The `deployments` service searches for the (optional) `.env` and `entrypoint` files and the project `docker-compose.yml` file, which must be placed in the root of the project. It will build the project using `docker-compose build`, push it to the specified registry and deploy the stack using `docker stack deploy`.  
+
 ## How to deploy applications on your swarm
-This guide describes how to deploy a simple Python web server using Redis on your swarm.  
+- Use an existing project, or create a new project based on one of the [examples](/docs/getting-started/deploying-applications#example-application-setup)
+- Add a git remote to your local project using `git remote add swarm git@swarm:my-app`
+- Commit your files: `git add . && git commit -m 'initial'`
+- Push to the swarm repository: `git push swarm master`
+- Wait for Traefik to update it's configuration and visit your app at [https://my-app.mydomain.com]()
 
 ## Example application setup
+This guide describes how to deploy a simple Python web server using Redis on your swarm.  
+
 Create a new project locally:
 ```shell
 # Create project folder
@@ -35,12 +46,11 @@ def hello():
     count = redis.incr('hits')
     host_name = socket.gethostname()
     host_ip = socket.gethostbyname(host_name)
-    response = '<h1>Hello World!</h1>' \
-      'I have been seen {} times<br>' \
-      'HostName = {}<br>' \
-      'IP = {}<br>' \
+    return '<h1>Hello World!</h1>' \
+      'I have been seen %s times<br>' \
+      'HostName = %s<br>' \
+      'IP = %s<br>' \
       'Try refreshing the page.' % (count, host_name, host_ip)
-    return response
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)

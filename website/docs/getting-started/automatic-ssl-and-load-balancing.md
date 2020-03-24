@@ -5,34 +5,34 @@ custom_edit_url: null
 ---
 
 ## Introduction
-Because Swarmlet activates Docker Swarm mode, you can run your applications in 'highly available' Docker containers. The application containers will be distributed on the swarm, this can be configured in your project `docker-compose.yml` file under the `deploy` key.  
+Because Swarmlet activates Docker Swarm mode, you can run your applications in 'highly available' Docker containers across your swarm. The application containers will be distributed on the swarm, this can be configured in your project `docker-compose.yml` file under the `deploy` key.  
 
 ### Traefik and Consul
+![traefik diagram](/img/traefik-diagram.png)  
+
 Swarmlet uses [Traefik](https://github.com/containous/traefik) for load balancing with [Consul](https://www.consul.io) as it's distributed certificate store. Traefik detects new applications and listens for any configuration updates.  
-Traefik will try to generate a SSL certificate for each frontend service in your application stack using [Let's Encrypt](https://letsencrypt.org).  
+Traefik will attempt to generate a SSL certificate for each frontend service in your application stack using [Let's Encrypt](https://letsencrypt.org).  
 
 Certificates are stored in Consul, which is a distributed key-value store. In the case where a swarm node goes offline, the certificates are still available from a Consul replica on another node.  
 
 > *Note: Use the Let's Encrypt [staging environment](https://letsencrypt.org/docs/staging-environment/) to prevent exceeding the [rate limit](https://letsencrypt.org/docs/rate-limits/) while developing. [Traefik configuration](#traefik-configuration)*  
 
-![traefik diagram](/img/traefik-diagram.png)
-
 ## Configuration
 ### Example project configuration
-To enable load balancing on a service and expose it to the web, add these labels and networks to your frontend service:
-```yml
+To enable load balancing on a service and expose it to the web, add the highlighted labels and networks to your frontend service(s):
+```yml {8-25}
 # Example docker-compose.yml file
 version: '3.7'
 
 services:
-  test-app-web:
+  web:
     image: ${SWARMLET_REGISTRY}/test-app
     build: .
     deploy:
       mode: replicated
       replicas: 3
       labels:
-        - traefik.frontend.rule=Host:test-app.${DOMAIN} # The (sub) domain
+        - traefik.frontend.rule=Host:test-app.${DOMAIN} # Specify the domain
         - traefik.enable=true
         - traefik.port=8000 # The container port to expose
         - traefik.tags=traefik-public

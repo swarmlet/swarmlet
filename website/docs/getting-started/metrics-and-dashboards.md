@@ -51,6 +51,16 @@ export const Gallery = ({ name, images }) => {
     '/img/screenshots/grafana-2.png',
   ]} />
 
+## GitLab CE
+> Not included by default  
+
+<Gallery
+  images={[
+    '/img/screenshots/gitlab-ce-0.png',
+    '/img/screenshots/gitlab-ce-1.png',
+    '/img/screenshots/gitlab-ce-2.png',
+  ]} />
+
 ## Traefik
 <Gallery
   images={[

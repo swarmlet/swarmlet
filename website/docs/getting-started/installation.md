@@ -5,7 +5,7 @@ custom_edit_url: null
 ---
 
 ## Installing Swarmlet on a server
-**Requirements**: Bash 4.0 or higher (run `bash --version`).  
+**Requirements**: Bash 4.0 or higher (run `bash --version`)  
 > *Recommended distribution: Ubuntu 18.04 x64*  
 
 To install the latest version of Swarmlet, log in to your server as root and run:  
@@ -34,7 +34,6 @@ Check if services are running:
 ```shell
 # Using swarmlet
 swarmlet info
-swarmlet stack:list
 
 # Using docker:
 docker stack ls

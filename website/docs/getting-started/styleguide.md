@@ -1,7 +1,6 @@
 ---
 id: styleguide
-title: Style Guide
-sidebar_label: Style Guide
+title: Markdown Cheatsheet
 custom_edit_url: null
 ---
 

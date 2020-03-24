@@ -36,6 +36,31 @@ module.exports = {
             {
               label: "Introduction",
               to: "docs/getting-started/introduction"
+            },
+            {
+              label: "Installation",
+              to: "docs/getting-started/installation"
+            },
+            {
+              label: "Deploying applications",
+              to: "docs/getting-started/deploying-applications"
+            }
+          ]
+        },
+        {
+          title: "Examples",
+          items: [
+            {
+              label: "Static site",
+              href: "docs/examples/static-site"
+            },
+            {
+              label: "Python web server + Redis",
+              href: "docs/examples/python-redis"
+            },
+            {
+              label: "NGINX + React app + Node.js API",
+              href: "docs/examples/nginx-react-node"
             }
           ]
         },
@@ -43,29 +68,12 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Stack Overflow",
-              href: "https://stackoverflow.com/questions/tagged/docusaurus"
-            },
-            {
-              label: "Discord",
-              href: "https://discordapp.com/invite/docusaurus"
-            }
-          ]
-        },
-        {
-          title: "Social",
-          items: [
-            {
-              label: "Blog",
-              to: "blog"
-            },
-            {
               label: "GitHub",
               href: "https://github.com/woudsma/swarmlet"
             },
             {
-              label: "Twitter",
-              href: "https://twitter.com/docusaurus"
+              label: "Stack Overflow",
+              href: "https://stackoverflow.com/questions/tagged/swarmlet"
             }
           ]
         }

@@ -29,5 +29,37 @@
 }
 
 .get-started:hover {
+  color: initial !important;
+}
+
+a.featureLink {
   color: black !important;
+}
+
+[data-theme="dark"] a.featureLink {
+  color: white !important;
+}
+
+.hero.hero--primary > div:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80%;
+  height: 100%;
+  background-image: url('/img/overlay.jpg') !important;
+  background-position: left top -75px !important;
+  background-repeat: no-repeat !important;
+  background-size: 110% !important;
+  mix-blend-mode: screen;
+  transform: translateX(-10%);
+  transition: all 250ms ease;
+  opacity: 1;
+  pointer-events: none;
+}
+
+@media screen and (max-width: 966px) {
+  .hero.hero--primary > div:after {
+    opacity: 0;
+  }
 }
