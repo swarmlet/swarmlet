@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  web:
+    image: sentry:9.1
+    ports:
+      - '8080:8080'
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.docker.network=traefik-public
+        - traefik.sentry.enable=true
+        - traefik.sentry.port=8080
+        - traefik.sentry.frontend.rule=Host:sentry.${DOMAIN}
+        - traefik.sentry.frontend.entryPoints=http,https
+        - traefik.sentry.frontend.passHostHeader=true
+        - traefik.sentry.frontend.headers.SSLRedirect=true
+        - traefik.sentry.frontend.headers.SSLHost=sentry.${DOMAIN}
+        - traefik.sentry.frontend.headers.STSIncludeSubdomains=true
+        - traefik.sentry.frontend.headers.STSPreload=true
+    networks:
+      - traefik-public
+
+networks:
+  traefik-public:
+    external: true
