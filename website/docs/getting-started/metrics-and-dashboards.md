@@ -1,6 +1,7 @@
 ---
 id: metrics-and-dashboards
 title: Metrics and dashboards
+custom_edit_url: null
 ---
 
 export const Gallery = ({ name, images }) => {

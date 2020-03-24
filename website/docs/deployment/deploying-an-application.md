@@ -1,6 +1,7 @@
 ---
 id: deploying-an-application
 title: Deploying an application
+custom_edit_url: null
 ---
 
 You can write JSX and use React components within your Markdown thanks to [MDX](https://mdxjs.com/).

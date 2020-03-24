@@ -1,19 +1,19 @@
 ---
 id: installation
 title: Installation
+custom_edit_url: null
 ---
 
-## Installation
-**Required**: Bash 4.0 or higher (run `bash --version`).  
-> *Recommended operating system: Ubuntu 18.04 LTS*  
+## Installing Swarmlet on a server
+**Requirements**: Bash 4.0 or higher (run `bash --version`).  
+> *Recommended distribution: Ubuntu 18.04 x64*  
 
-To install the latest version of Swarmlet, log in to your server and run:  
+To install the latest version of Swarmlet, log in to your server as root and run:  
 ```shell
-# Log in as root on your server
-
 # Quick installation:
 curl -fsSL https://get.swarmlet.dev | bash
-
+```
+```shell
 # Custom installation:
 curl -fsSL https://get.swarmlet.dev | bash -s \
   SWARMLET_DOMAIN=dev.mydomain.com \
