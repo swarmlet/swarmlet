@@ -11,7 +11,7 @@ const features = [
     title: (
       <Link
         className="featureLink"
-        to="docs/getting-started/introduction"
+        to="docs/getting-started/deploying-applications"
       >
         Simply <code>git push</code> to deploy
       </Link>
@@ -60,7 +60,7 @@ const features = [
   },
   {
     title: (
-      <Link className="featureLink" to="docs/examples/gitlab-ce">
+      <Link className="featureLink" to="docs/getting-started/deploying-applications#example-application-setup">
         Configure app domains, backends and deployment in a single file.
       </Link>
     ),
@@ -74,7 +74,7 @@ const features = [
   },
   {
     title: (
-      <Link className="featureLink" to="docs/examples/gitlab-ce">
+      <Link className="featureLink" to="docs/getting-started/introduction">
         Just a thin wrapper around Docker and Docker Compose
       </Link>
     ),
