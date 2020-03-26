@@ -41,7 +41,7 @@ a.featureLink {
 }
 
 .hero.hero--primary.heroBanner_src-pages- {
-  box-shadow: var(--ifm-color-primary-darker) 0 0 7.5px 0 inset;
+  box-shadow: var(--ifm-color-primary-darker) 0 0 10px 0 inset;
   mix-blend-mode: multiply;
 }
 

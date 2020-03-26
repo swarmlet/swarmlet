@@ -11,12 +11,29 @@ const features = [
     title: (
       <Link
         className="featureLink"
+        to="docs/getting-started/introduction"
+      >
+        Simply <code>git push</code> to deploy
+      </Link>
+    ),
+    imageUrl: "img/undraw_outer_space.svg",
+    description: (
+      <>
+        Install Swarmlet on a single server and try it out by deploying an app.
+        Add additional servers to provide more resources for your apps.
+      </>
+    )
+  },
+  {
+    title: (
+      <Link
+        className="featureLink"
         to="docs/getting-started/automatic-ssl-and-load-balancing"
       >
         Automatic SSL and load balancing
       </Link>
     ),
-    imageUrl: "img/undraw_outer_space.svg",
+    imageUrl: "img/undraw_secure_server.svg",
     description: (
       <>
         Swarmlet uses Traefik, Consul and Let's Encrypt to provide automatic SSL
@@ -33,11 +50,39 @@ const features = [
         Dashboards included
       </Link>
     ),
-    imageUrl: "img/undraw_dashboard.svg",
+    imageUrl: "img/undraw_all_the_data.svg",
     description: (
       <>
-        Metrics tools and dashboards such as Swarmpit, Traefik, Grafana are
+        Metrics tools, analytics and dashboards such as Matamo, Swarmpit, Traefik, Grafana are
         included by default. With easy Slack integration.
+      </>
+    )
+  },
+  {
+    title: (
+      <Link className="featureLink" to="docs/examples/gitlab-ce">
+        Configure app domains, backends and deployment in a single file.
+      </Link>
+    ),
+    imageUrl: "img/undraw_prioritise.svg",
+    description: (
+      <>
+        Swarmlet reads your application stack configuration from a
+        docker-compose.yml file and deploys services accordingly.
+      </>
+    )
+  },
+  {
+    title: (
+      <Link className="featureLink" to="docs/examples/gitlab-ce">
+        Just a thin wrapper around Docker and Docker Compose
+      </Link>
+    ),
+    imageUrl: "img/undraw_container_ship.svg",
+    description: (
+      <>
+        Swarmlet is nothing more than a thin wrapper around Docker commands.
+        It builds applications, stores them in a local or custom registry and deploys them on your swarm.
       </>
     )
   },
@@ -54,7 +99,7 @@ const features = [
         dedicated worker nodes for self-hosted CI/CD.
       </>
     )
-  }
+  },
 ];
 
 function Feature({imageUrl, title, description}) {

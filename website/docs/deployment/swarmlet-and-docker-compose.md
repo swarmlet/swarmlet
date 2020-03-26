@@ -6,12 +6,6 @@ custom_edit_url: null
 
 https://docs.traefik.io/v1.7/configuration/backends/docker/
 
-## Infrastructure as code
-With Docker Compose, you can define your entire application stack in a single `docker-compose.yml` file.
-
-## Container orchestration using Docker Compose
-Specify which services can run on which swarm nodes, configure virtual hosts, control replication and rolling updates strategies.
-
 ## Deployments with Swarmlet
 After receiving the new or updated repository from a user `git push`, `swarmlet` will run these steps in following order:
 - Receive updated repository triggers the `/var/repo/my-app.git/hooks/post-receive` hook
