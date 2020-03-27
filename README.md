@@ -1,5 +1,5 @@
 <div>
-  <img align="left" src="assets/logo.png" width="175" alt="logo" />
+  <img align="right" src="assets/logo.png" width="175" alt="logo" />
   <h1 align="left">Swarmlet</h1>
 </div>
 
