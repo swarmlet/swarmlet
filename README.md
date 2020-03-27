@@ -1,26 +1,21 @@
 <div>
   <img align="left" src="assets/logo.png" width="175" alt="logo" />
   <h1 align="left">Swarmlet</h1>
-  <ul>
-    <li><b><a href="https://swarmlet.dev">Website</a></b></li>
-    <li><b><a href="https://swarmlet.dev/docs/getting-started/introduction">Documentation</a></b></li>
-  </ul>
 </div>
+
+Swarmlet is a self-hosted, open-source Platform as a Service that runs on any single server.  
+It's mainly intended for use with multiple servers, a server cluster / swarm.  
+Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.  
 
 ---
 
 - **[Website](https://swarmlet.dev)**  
 - **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)**  
 
-#### ***TL;DR***  
+***TL;DR***  
 Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
-
 ## What is Swarmlet?
-Swarmlet is a self-hosted, open-source Platform as a Service that runs on any single server.  
-It's mainly intended for use with multiple servers, a server cluster / swarm.  
-Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.  
-
 Swarmlet is a thin wrapper around [Docker Compose](https://docs.docker.com/compose/) and [Docker Swarm mode](https://docs.docker.com/engine/swarm/).  
 [Traefik](https://github.com/containous/traefik), [Let's Encrypt](https://letsencrypt.org), [Matamo](https://matomo.org/), [Swarmpit](https://swarmpit.io) and [Swarmprom](https://github.com/stefanprodan/swarmprom) are included by default.  
 Swarmlet uses these to provide automatic SSL, load balancing, analytics and various metrics dashboards.  
