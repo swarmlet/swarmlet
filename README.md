@@ -3,16 +3,14 @@
   <h1 align="left">Swarmlet</h1>
 </div>
 
-A small tool to manage swarm deployments, load balancing, SSL, metrics and more.  
-Swarmlet is a thin wrapper around [Docker Swarm mode](https://docs.docker.com/engine/swarm/). Heavily inspired by [Dokku](http://dokku.viewdocs.io/dokku/).  
-[Traefik](https://github.com/containous/traefik), [Let's Encrypt](https://letsencrypt.org), [Swarmpit](https://swarmpit.io) and [Swarmprom](https://github.com/stefanprodan/swarmprom) are included by default. Written in Bash.  
+- **[Website](https://swarmlet.dev)**  
+- **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)**  
 
 ---
 
-***TLDR;*** Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
+#### ***TL;DR***  
+Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
-- **[Website](https://swarmlet.dev)**  
-- **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)**  
 
 ## What is Swarmlet?
 Swarmlet is a self-hosted, open-source Platform as a Service that runs on any single server.  
@@ -69,3 +67,17 @@ Swarmlet includes various examples of services that you can deploy to your serve
 - [GitLab CE](/docs/examples/gitlab-ce) (self-hosted)
 - [GitLab Runner](/docs/examples/gitlab-runner) (self-hosted)
 - [HAProxy](/docs/examples/haproxy) (Replacing Traefik with HAProxy)
+
+All these examples and the [Swarmlet documentation and website](https://swarmlet.dev) are running on a €5/mo *single* server 'cluster', using Swarmlet for deployments.  
+
+These are all services hosted on the swarm by subdomain:
+
+[swarmlet.dev](https://swarmlet.dev)  
+[swarmpit.swarmlet.dev](https://swarmpit.swarmlet.dev)  
+[matomo.swarmlet.dev](https://matomo.swarmlet.dev)  
+[grafana.swarmlet.dev](https://grafana.swarmlet.dev)  
+[traefik.swarmlet.dev](https://traefik.swarmlet.dev)  
+[consul.swarmlet.dev](https://consul.swarmlet.dev)  
+[prometheus.swarmlet.dev](https://prometheus.swarmlet.dev)  
+[alertmanager.swarmlet.dev](https://alertmanager.swarmlet.dev)  
+[unsee.swarmlet.dev](https://unsee.swarmlet.dev)  
