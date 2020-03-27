@@ -1,12 +1,16 @@
 <div>
-  <img align="right" src="assets/logo.png" width="175" alt="logo" />
+  <img align="left" src="assets/logo.png" width="175" alt="logo" />
   <h1 align="left">Swarmlet</h1>
+  <ul>
+    <li><b><a href="https://swarmlet.dev">Website</a></b></li>
+    <li><b><a href="https://swarmlet.dev/docs/getting-started/introduction">Documentation</a></b></li>
+  </ul>
 </div>
+
+---
 
 - **[Website](https://swarmlet.dev)**  
 - **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)**  
-
----
 
 #### ***TL;DR***  
 Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
