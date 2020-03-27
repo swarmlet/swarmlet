@@ -3,16 +3,15 @@
   <h1 align="left">Swarmlet</h1>
 </div>
 
+**[Website](https://swarmlet.dev)** — **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)**  
+
 Swarmlet is a self-hosted, open-source Platform as a Service that runs on any single server.  
 It's mainly intended for use with multiple servers, a server cluster / swarm.  
 Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.  
 
 ---
 
-- **[Website](https://swarmlet.dev)**  
-- **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)**  
-
-***TL;DR***  
+### *TL;DR*  
 Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
 ## What is Swarmlet?
