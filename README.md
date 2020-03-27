@@ -14,179 +14,58 @@ Swarmlet is a thin wrapper around [Docker Swarm mode](https://docs.docker.com/en
 - **[Website](https://swarmlet.dev)**  
 - **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)**  
 
-### Quick install
-Requirements:  
-- Bash 4.0 or higher  
-```sh
-curl -fsSL https://get.swarmlet.dev | bash
-```
-See the [installation](#installation) section for installation with options.  
+## What is Swarmlet?
+Swarmlet is a self-hosted, open-source Platform as a Service that runs on any single server.  
+It's mainly intended for use with multiple servers, a server cluster / swarm.  
+Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.  
 
-## Introduction
-Swarmlet tries to make it as easy as possible to deploy applications on your server cluster. The idea is to define your application stack in a `docker-compose.yml` file, including domain name configuration for each service. Swarmlet handles deployment and sets up SSL certificates automatically. Also, it's 100% open-source, highly configurable and self-hosted.
+Swarmlet is a thin wrapper around [Docker Compose](https://docs.docker.com/compose/) and [Docker Swarm mode](https://docs.docker.com/engine/swarm/).  
+[Traefik](https://github.com/containous/traefik), [Let's Encrypt](https://letsencrypt.org), [Matamo](https://matomo.org/), [Swarmpit](https://swarmpit.io) and [Swarmprom](https://github.com/stefanprodan/swarmprom) are included by default.  
+Swarmlet uses these to provide automatic SSL, load balancing, analytics and various metrics dashboards.  
 
-### Example workflow for a server cluster with a single node:  
-1. Install `swarmlet` as root on a manager node.  
-This can be an empty server without Docker installed for example. You only need `curl`.  
-2. Create a repository on the swarm using `swarmlet repo:create my-app`. [[info]](#swarm-repositories)
-3. Add a git remote to your project using `git remote add swarm git@swarm:my-app`. [[info]](#setting-up-remotes)
-4. Describe your project in a `docker-compose.yml` file.
-5. Done! -> `git push swarm master`.
+This project is aimed at developers that want to experiment with application deployment in a flexible multi-server / high-availability environment. The goal is to be able to set up your own swarm and deploy your app(s) in minutes.  
 
-### Example workflow for a server cluster with multiple nodes
-1. Follow the instructions for a single node setup.
-2. Add additional manager/worker nodes to the swarm using `swarmlet node:join <node-ip>`. [[info]](#join-nodes)
+## Getting started
+1. Create a new VPS running Ubuntu 18.04 x64 and log in as root
+1. Install Swarmlet (optionally [with some swap]() if your server has less than 2gb of memory)
+1. [Edit your SSH config]() to be able to use `ssh swarm` instead of `ssh root@123.23.12.123`
+1. Use an existing project, or clone one of the [examples](/docs/examples/static-site)
+1. Add a `docker-compose.yml` file in the root of your project: [example docker-compose.yml](https://github.com/woudsma/swarmlet/blob/master/examples/basic-example/docker-compose.yml)
+1. Add a git remote: `git remote add swarm git@swarm:my-project`  
+(notice the syntax `git@<name-configured-in-ssh-config>:<project-name>`)
+1. Deploy your application stack to the swarm using `git push swarm master`
+1. SSL certificates for web facing services are generated automatically using Let's Encrypt  
+(assuming you've assigned a domain to your server in your DNS configuration)
 
-Create new repository: `swarmlet repo:create hello-universe`.  
-Remove repository: `swarmlet repo:remove hello-universe`.  
-List all services and containers: `swarmlet ls`.  
-
----
-
-### Automatic load balancing and SSL
-Swarmlet uses Traefik and Let's Encrypt by default. These can be configured by editing the `docker-compose.yml` file of the `traefik` application stack, which can simply be cloned from your swarm registry using `git clone git@swarm:traefik` and redeployed using `git push swarm master`. Traefik uses [Consul](https://www.consul.io) as it's internal key-value store.  
-The Traefik and Consul dashboards are available on the following domains:
-```sh
-https://traefik.example.com
-https://consul.example.com
-```
-
-### Metrics and logging
-Metrics and logging are enabled by default. Swarmlet includes [Swarmpit](https://swarmpit.io) and [Swarmprom](https://github.com/stefanprodan/swarmprom), which are accessible on the following domains:
-```sh
-# Swarmpit
-https://swarmpit.example.com
-
-# Swarmprom
-https://grafana.example.com
-https://alertmanager.example.com
-https://unsee.example.com
-https://prometheus.example.com
-```
-
----
+**[Example application setup and deployment guide](/docs/getting-started/deploying-applications#example-application-setup)**
 
 ## Installation
-On the server:
-#### Quick install
-```sh 
+**Requirements**: Bash 4.0 or higher (run `bash --version`).  
+
+**[Full installation instructions can be found here](/docs/getting-started/installation)**  
+To install the latest version of Swarmlet, log in to your server as root and run:  
+```shell
+# Quick installation:
 curl -fsSL https://get.swarmlet.dev | bash
 ```
-#### With options:
-```sh
-OPTIONS=(
-  DOMAIN=my-domain.com  # (defaults to server IP) Recommended to replace this with the domain you are going to use
-  # DEBUG=true  # (default false)
-  # CREATE_SWAP=true  # (default false) Allocate 1GB of swap space
-  SKIP_METRICS=true  # (default false) Skip installation of Swarmpit and Swarmprom
-  # SKIP_SWARMPIT=true  # (default false) Skip installation of Swarmpit
-  # SKIP_SWARMPROM=true  # (default false) Skip installation of Swarmprom
-)
-
-curl -fsSL https://get.swarmlet.dev | bash -s "${OPTIONS[@]}"
-# Or
-curl -fsSL https://get.swarmlet.dev | bash -s DOMAIN=my-domain.com CREATE_SWAP=true
+Or with [options](/docs/getting-started/installation):
+```shell
+# Custom installation 
+curl -fsSL https://get.swarmlet.dev | bash -s \
+  SWARMLET_DOMAIN=dev.mydomain.com \
+  CREATE_SWAP=true \
+  SKIP_SWARMPROM=true
 ```
-
-### SSH configuration
-*(Recommended)* Add a `Host` entry in `~/.ssh/config` to easily connect using `ssh swarm`. [[info]](#ssh-config)  
-```
-Host swarm
-    HostName 123.23.12.123
-    User root
-    IdentityFile ~/.ssh/id_rsa_swarm
-```
-Now `ssh -i ~/.ssh/id_rsa_swarm root@123.23.12.123` becomes `ssh swarm`.  
-
-### Services configuration
-To configure the built-in services such as swarmpit/traefik/registry, simply pull the `swarmlet-services` repo from your swarm. Edit the service `docker-compose.yml` file and push the changes using `git push origin master`.
-```sh
-# Clone a swarmlet services repository using 'git clone git@swarm:<service>'
-# For example:
-git clone git@swarm:loadbalancer
-cd loadbalancer
-
-# ... Edit configuration ...
-
-git add .
-git commit -m 'update configuration'
-git push origin master
-```
-
-## Commands
-```sh
-swarmlet init  # This command executes automatically on initial installation
-               # Installs dependencies (git, docker, docker-compose)
-               # Installs services (deployments, traefik, metrics)
-               # Creates the 'git' user who manages git repositories
-               # Enables git push to the server using git@<server>:<app>
-
-swarmlet repo:list             # Lists repositories stored in the swarm
-swarmlet repo:create <name>    # Creates a bare git repository where you can push to
-swarmlet repo:remove <name>    # Removes repository from the swarm
-                               # Note that this does not stop any running containers
-
-swarmlet stack:list            # Lists stacks
-swarmlet stack:build <name>    # Deploys repository as application stack in the swarm
-                               # Make sure your repository includes a docker-compose.yml file
-swarmlet stack:deploy <name>   # Remove stack, stop running containers and unmount volumes
-swarmlet stack:start <name>    # Start stopped stack
-swarmlet stack:restart <name>  # Start stopped stack
-swarmlet stack:stop <name>     # Stop running stack
-```
-
-## Setting custom headers  
-To add custom headers to one of your apps, add some labels in your project's `docker-compose.yml`.  
-Traefik will pass these headers to your application.  
-See [using security headers](https://docs.traefik.io/middlewares/headers/#using-security-headers).
-```yml
-# Custom headers example
-labels:
-  - "traefik.http.middlewares.testHeader.headers.customrequestheaders.X-Script-Name=test"
-  - "traefik.http.middlewares.testHeader.headers.customresponseheaders.X-Custom-Response-Header=value"
-
-# CORS example
-labels:
-  - "traefik.http.middlewares.testheader.headers.accesscontrolallowmethods=GET,OPTIONS,PUT"
-  - "traefik.http.middlewares.testheader.headers.accesscontrolalloworigin=origin-list-or-null"
-  - "traefik.http.middlewares.testheader.headers.accesscontrolmaxage=100"
-  - "traefik.http.middlewares.testheader.headers.addvaryheader=true"
-```
+The installation should take a few minutes to complete.  
 
 ## Examples
-This is an example of an entire application stack described in a single docker-compose.yml file. Domains and subdomains should be described in here as well. Traefik will issue SSL certificates automatically using Let's Encrypt if port 443 is specified on a service.
-```sh
-# .env
-DOMAIN=example.com
-```
-```yml
-# NOTE: include labels by default?
-version: '3.7'
 
-services:
-  web-2:
-    image: hashicorp/http-echo
-    command: ["-text", "Hello World.."]
-    deploy:
-      replicas: 1
-      labels:
-        # Specify the (sub) domain(s) for this service
-        - traefik.frontend.rule=Host:echo.${DOMAIN}
-        # The service port Traefik will expose to 'https://echo.${DOMAIN}'
-        - traefik.port=5678
-        - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
-    networks:
-      - traefik-public
-  
-networks:
-  traefik-public:
-    external: true
-```
-
-## Use swarm node as GitLab Runner
-...
+Swarmlet includes various examples of services that you can deploy to your server cluster with a simple `git push`.  
+- [Basic example - Static site](/docs/examples/static-site)
+- [Basic example - Python web server + Redis](/docs/examples/python-redis)
+- [Moderate example - NGINX + React app + Node.js API](/docs/examples/nginx-react-node)
+- [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](/docs/examples/nginx-react-node-cms)
+- [get-swarmlet](/docs/examples/get-swarmlet) (the app serving the Swarmlet install script at [get.swarmlet.dev](https://get.swarmlet.dev))
+- [GitLab CE](/docs/examples/gitlab-ce) (self-hosted)
+- [GitLab Runner](/docs/examples/gitlab-runner) (self-hosted)
+- [HAProxy](/docs/examples/haproxy) (Replacing Traefik with HAProxy)
