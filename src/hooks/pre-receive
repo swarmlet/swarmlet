@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+source "/opt/swarmlet/src/config"
+
+echo "$FPREFIX Receiving repository"
+
+# REPO_SRC=$PWD
+# REPO_BASE=$(basename $REPO_SRC)
+# REPO_NAME=${REPO_BASE/.git}
+# REPO_DEST=$USER_ROOT/$REPO_NAME
+# COMMIT_HASH=$(git rev-parse --short=6 HEAD)
+# COMPOSE_FILE=$REPO_DEST/docker-compose.yml
+# SWARMLET_REGISTRY=127.0.0.1:5000/v2
+# DOCKER_SOCKET=/var/run/docker.sock
+# USERNAME=git
