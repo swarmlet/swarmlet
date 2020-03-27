@@ -1,0 +1,91 @@
+version: '3.2'
+
+services:
+  db:
+    image: mariadb:10.2
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - matomo-network      
+    environment:
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
+      - "MYSQL_DATABASE=matomo"
+      - "MYSQL_USER=matomo"
+      - "MYSQL_PASSWORD=matomo"
+    restart: always
+
+  redis:
+    image: redis:4.0-alpine
+    restart: always
+    networks:
+      - matomo-network
+
+  geoip-updater:
+    image: crazymax/geoip-updater:latest
+    volumes:
+      - geoip-data:/data
+    networks:
+      - matomo-network
+    env_file:
+      - "./geoip-updater.env"
+    restart: always
+
+  matomo:
+    image: crazymax/matomo:latest
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - "./matomo.env"
+    restart: always
+    volumes:
+      - matomo-data:/data
+      - geoip-data:/data/geoip
+    networks:
+      - matomo-network
+      - traefik-public
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.docker.network=traefik-public
+        - traefik.matomo.enable=true
+        - traefik.matomo.port=8000
+        - traefik.matomo.frontend.rule=Host:matomo.${DOMAIN}
+        - traefik.matomo.frontend.entryPoints=http,https
+        - traefik.matomo.frontend.passHostHeader=true
+        - traefik.matomo.frontend.headers.SSLRedirect=true
+        - traefik.matomo.frontend.headers.SSLHost=matomo.${DOMAIN}
+        - traefik.matomo.frontend.headers.STSIncludeSubdomains=true
+        - traefik.matomo.frontend.headers.STSPreload=true
+
+  cron:
+    image: crazymax/matomo:latest
+    depends_on:
+      - matomo
+    volumes:
+      - matomo-data:/data
+      - geoip-data:/data/geoip
+    networks:
+      - matomo-network
+    env_file:
+      - "./matomo.env"
+    environment:
+      - "SIDECAR_CRON=1"
+      - "CRON_ARCHIVE=0 * * * *"
+      - "ARCHIVE_OPTIONS=--concurrent-requests-per-website=3"
+    healthcheck:
+      disable: true
+    restart: always
+
+volumes:
+  db-data:
+  matomo-data:
+  geoip-data:
+
+networks:
+  matomo-network:
+  traefik-public:
+    external: true

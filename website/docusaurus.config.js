@@ -5,6 +5,7 @@ module.exports = {
   baseUrl: "/",
   favicon: "favicon.ico",
   projectName: "swarmlet",
+  scripts: ['https://swarmlet.dev/matomo.js'],
   themeConfig: {
     navbar: {
       title: "Swarmlet",
