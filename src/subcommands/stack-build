@@ -12,7 +12,7 @@ cmd-stack-build() {
   if [ "$(ls -A $STACK_ROOT)" ]; then
     pushd $STACK_ROOT >/dev/null
 
-    echo "$FPREFIX Building stack $STACK_NAME"
+    echo "$PREFIX Building stack $STACK_NAME"
     docker-compose build --parallel
 
     echo "$PREFIX Pushing $STACK_NAME to swarm registry"

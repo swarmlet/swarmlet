@@ -3,7 +3,7 @@
 set -eo pipefail; [[ $DEBUG ]] && set -x
 source "/opt/swarmlet/src/config"
 
-echo "$FPREFIX Repository received"
+echo "$PREFIX Repository received"
 
 REPO_SRC=$PWD
 REPO_BASE=$(basename $REPO_SRC)

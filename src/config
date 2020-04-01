@@ -9,13 +9,13 @@ USER_ROOT="/home/$USERNAME"
 REPO_ROOT="/var/repo"
 DOCKER_SOCKET="/var/run/docker.sock"
 
-SSH_COMMAND="command=\"cd $REPO_ROOT; git-shell -c \\\"\$SSH_ORIGINAL_COMMAND\\\"\""
-SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"
-
 SWARMLET_ROOT="/opt/swarmlet"
 SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
 SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
 SWARMLET_SERVICES_ROOT="$SWARMLET_ROOT/services"
+
+SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $REPO_ROOT $SWARMLET_HOOKS\""
+SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"
 
 SWARMLET_NETWORK_NAME="swarmlet-network"
 SWARMLET_NETWORK_DRIVER="overlay"

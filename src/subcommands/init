@@ -33,7 +33,7 @@ cmd-init() {
 
   echo "$INDENT Using network interface: $ETH_LINK"
   echo "$INDENT Node IP address: $NODE_IP"
-  echo "$FPREFIX Initializing node as swarm manager"
+  echo "$PREFIX Initializing node as swarm manager"
   docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
 
   echo "$PREFIX Creating networks"
@@ -59,7 +59,7 @@ cmd-init() {
   popd >/dev/null
 
   echo "$PREFIX Installing services"
-  SWARMLET_SERVICES=(deployments loadbalancer swarmpit swarmprom)
+  SWARMLET_SERVICES=(deployments loadbalancer matomo swarmpit)
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
     if [ $SERVICE == 'deployments' ]; then

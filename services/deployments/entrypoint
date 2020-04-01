@@ -7,8 +7,8 @@ PREFIX="----->"
 INDENT="      "
 
 main() {
-  echo "$FPREFIX Starting deployment"
-  echo "$PREFIX Command: $@"
+  echo "$PREFIX Starting deployment"
+  echo "$INDENT Command: $@"
   "$@"
 }
 
@@ -22,7 +22,7 @@ deploy() {
   ENTRYPOINT_FILE="$REPO_PATH/entrypoint"
   COMPOSE_FILE="$REPO_PATH/docker-compose.yml"
 
-  echo "$FPREFIX Deploying $REPO_NAME"
+  echo "$PREFIX Deploying $REPO_NAME"
   cd $REPO_PATH
 
   if [ -f $ENV_FILE ]; then

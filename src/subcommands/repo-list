@@ -7,7 +7,7 @@ cmd-repo-list() {
   declare alias="repo:ls"
   [[ "$1" == "$cmd" || "$1" == "$alias" ]] && shift 1
 
-  echo "$FPREFIX Listing repositories"
+  echo "$PREFIX Listing repositories"
 
   for REPO in $REPO_ROOT/*; do
     REPO_BASE=$(basename $REPO)

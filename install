@@ -27,30 +27,38 @@ REPOSITORY="https://github.com/woudsma/swarmlet.git"
 DEPENDENCIES=(git apt-transport-https apache2-utils moreutils)
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
 
+if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
+  echo "$PREFIX [ERROR] Unmet requirements: Bash 4" 
+  echo "$INDENT Your Bash version is $BASH_VERSION"
+  echo "$PREFIX Exiting with error code 1" 1>&2
+  exit 1
+fi
+
 declare -A DEFAULT_OPTS=(
-  [DOMAIN]=  # (defaults to server IP address) Recommended to replace this with the domain you are going to use
-  [DEBUG]=  # (default undefined) Run installation in debug mode
-  [CREATE_SWAP]=false  # (default false) Allocate 1GB of swap space
-  [SKIP_METRICS]=false  # (default false) Skip installation of Swarmpit and Swarmprom
-  [SKIP_SWARMPIT]=false  # (default false) Skip installation of Swarmpit
-  [SKIP_SWARMPROM]=false  # (default false) Skip installation of Swarmprom
+  [DOMAIN]="$HOSTNAME"      # (defaults to server hostname) Recommended to replace this with the domain you are going to use
+  [DEBUG]=                  # (default undefined) Run installation in debug mode
+  [CREATE_SWAP]=false       # (default false) Allocate 1GB of swap space
+  [SKIP_METRICS]=false      # (default false) Skip installation of Swarmpit and Swarmprom
+  [SKIP_SWARMPIT]=false     # (default false) Skip installation of Swarmpit
+  [SKIP_SWARMPROM]=false    # (default false) Skip installation of Swarmprom
 )
 
-OPTS=$(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g')
+# Set default environment variables
 for KEY in "${!DEFAULT_OPTS[@]}"; do
-  [ -z "${DEFAULT_OPTS[$KEY]}" ] && export "$KEY=${DEFAULT_OPTS[$KEY]}";
+  [ ! -z "${DEFAULT_OPTS[$KEY]}" ] && export "$KEY=${DEFAULT_OPTS[$KEY]}";
 done
 
+# Set environment variables from arguments if given
 shopt -s extglob
 while [[ "$#" > 0 ]]; do case "${1%=*}" in
-  @($OPTS)) export "$1"; shift ;;
+  @($(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g'))) export "$1"; shift ;;
   *) echo "Unknown argument: $1"; shift ;;
 esac; done
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
 install() {
-  echo "$FPREFIX Installing Swarmlet"
+  echo "$PREFIX Installing Swarmlet"
   echo "$PREFIX Installing dependencies"
   apt-get update -y -qq
   apt-get install -y -qq "${DEPENDENCIES[@]}"
@@ -65,21 +73,24 @@ install() {
   echo "$PREFIX Linking executable"
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
 
-  echo "$FPREFIX Initializing Swarmlet"
+  echo "$PREFIX Initializing Swarmlet"
   swarmlet init "$@"
 
-  echo "$FPREFIX Installation complete"
+  echo "$PREFIX Installation complete"
   # TODO: get from compose files and handle no domain
-  echo "$FPREFIX Stacks deployed and available at:"
-  echo "$INDENT [traefik] — https://traefik.${DOMAIN:-$HOSTNAME}"
-  echo "$INDENT [consul] — https://consul.${DOMAIN:-$HOSTNAME}"
-  echo "$INDENT [swarmpit] — https://swarmpit.${DOMAIN:-$HOSTNAME}"
-  echo "$INDENT [grafana] — https://grafana.${DOMAIN:-$HOSTNAME}"
-  echo "$INDENT [unsee] — https://unsee.${DOMAIN:-$HOSTNAME}"
-  echo "$INDENT [prometheus] — https://prometheus.${DOMAIN:-$HOSTNAME}"
-  echo "$INDENT [alertmanager] — https://alertmanager.${DOMAIN:-$HOSTNAME}"
-  echo
+  echo "$FPREFIX Swarmlet services stacks deployed:"
+  echo "$INDENT https://traefik.$DOMAIN"
+  echo "$INDENT https://consul.$DOMAIN"
+  echo "$INDENT https://swarmpit.$DOMAIN"
+  echo "$INDENT https://grafana.$DOMAIN"
+  echo "$INDENT https://unsee.$DOMAIN"
+  echo "$INDENT https://prometheus.$DOMAIN"
+  echo "$INDENT https://alertmanager.$DOMAIN"
+  echo -e "\n$PREFIX Check the docs on how to set up a custom domain name"
+  echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
+  echo "$INDENT Follow the logs using:"
+  echo "$INDENT $ swarmlet logs loadbalancer_traefik -f"
   echo "$PREFIX Usage:"
   echo "$INDENT Create a repository on the swarm using:"
   echo -e "$INDENT $ swarmlet repo:create <name>\n"

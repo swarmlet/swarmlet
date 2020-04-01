@@ -36,9 +36,3 @@ create-swap() {
   sudo swapon $FILE_PATH
   echo "$FILE_PATH none swap sw 0 0" | sudo tee -a /etc/fstab
 }
-
-# Parse arguments
-# KEY="${1%=*}"
-# VALUE="${1##*=}"
-# Disable extglob
-# shopt -u extglob

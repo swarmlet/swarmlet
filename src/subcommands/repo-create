@@ -9,7 +9,7 @@ cmd-repo-create() {
   REPO_NAME="$1"
   REPO_PATH="$REPO_ROOT/$REPO_NAME.git"
 
-  echo "$FPREFIX Creating repository $REPO_NAME on swarm"
+  echo "$PREFIX Creating repository $REPO_NAME on swarm"
 
   if [ -z $REPO_NAME ]; then
     echo "$PREFIX No repository name specified"

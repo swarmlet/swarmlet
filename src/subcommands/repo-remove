@@ -9,7 +9,7 @@ cmd-repo-remove() {
   REPO_NAME="$1"
   REPO_PATH="$REPO_ROOT/$REPO_NAME.git"
 
-  echo "$FPREFIX Removing repository $REPO_NAME from swarm"
+  echo "$PREFIX Removing repository $REPO_NAME from swarm"
   echo "$INDENT [NOTE] This won't remove your stack"
 
   if [ -z $REPO_NAME ]; then

@@ -8,7 +8,6 @@ services:
       args:
         SWARMLET_REGISTRY: ${SWARMLET_REGISTRY}
     networks:
-      - default
       - swarmlet-network
     volumes:
       - git-data:/home/git
