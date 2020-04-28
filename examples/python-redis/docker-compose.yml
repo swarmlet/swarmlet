@@ -2,13 +2,13 @@ version: '3.7'
 
 services:
   web-1:
-    image: ${SWARMLET_REGISTRY}/test-app
+    image: ${SWARMLET_REGISTRY}/python-redis
     build: .
     deploy:
       mode: replicated
       replicas: 3
       labels:
-        - traefik.frontend.rule=Host:test.${DOMAIN}
+        - traefik.frontend.rule=Host:${DOMAIN}
         - traefik.enable=true
         - traefik.port=8000
         - traefik.tags=traefik-public
@@ -16,24 +16,6 @@ services:
         - traefik.redirectorservice.frontend.entryPoints=http
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         - traefik.webservice.frontend.entryPoints=https
-    networks:
-      - swarmlet-network
-      - traefik-public
-
-  web-2:
-    image: hashicorp/http-echo
-    deploy:
-      replicas: 1
-      labels:
-        - traefik.frontend.rule=Host:echo.${DOMAIN}
-        - traefik.enable=true
-        - traefik.port=5678
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
-    command: ["-text", "Hello World.."]
     networks:
       - swarmlet-network
       - traefik-public
