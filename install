@@ -10,7 +10,7 @@ cat << EOM
 
        Description:  A small tool to manage swarm deployments,
                      load balancing, SSL, metrics and more.
-       Version:      v1.0-11-ge29b126
+       Version:      *TODO*
        Author:       Tjerk Woudsma <tjerk@passionatepeople.io>
        Website:      https://swarmlet.dev
 
@@ -23,7 +23,7 @@ FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
 
-REPOSITORY="https://github.com/woudsma/swarmlet.git"
+REPOSITORY="https://github.com/swarmlet/swarmlet.git"
 DEPENDENCIES=(git apt-transport-https apache2-utils moreutils)
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
 
@@ -67,8 +67,8 @@ install() {
   chmod +x /usr/local/bin/docker-compose
 
   echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
-  mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
-  # git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
+  # mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
+  git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
 
   echo "$PREFIX Linking executable"
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
@@ -78,22 +78,12 @@ install() {
 
   echo "$PREFIX Installation complete"
   # TODO: get from compose files and handle no domain
-  echo "$FPREFIX Swarmlet services stacks deployed:"
-  echo "$INDENT https://traefik.$DOMAIN"
-  echo "$INDENT https://consul.$DOMAIN"
-  echo "$INDENT https://swarmpit.$DOMAIN"
-  echo "$INDENT https://grafana.$DOMAIN"
-  echo "$INDENT https://unsee.$DOMAIN"
-  echo "$INDENT https://prometheus.$DOMAIN"
-  echo "$INDENT https://alertmanager.$DOMAIN"
+  echo "$FPREFIX Swarmlet services stacks deployed"
   echo -e "\n$PREFIX Check the docs on how to set up a custom domain name"
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
   echo "$INDENT Follow the logs using:"
   echo "$INDENT $ swarmlet logs loadbalancer_traefik -f"
-  echo "$PREFIX Usage:"
-  echo "$INDENT Create a repository on the swarm using:"
-  echo -e "$INDENT $ swarmlet repo:create <name>\n"
 }
 
 install
