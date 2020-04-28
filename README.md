@@ -28,26 +28,26 @@ This project is aimed at developers that want to experiment with application dep
 1. Create a new VPS running Ubuntu 18.04 x64 and log in as root
 1. Install Swarmlet (optionally [with some swap]() if your server has less than 2gb of memory)
 1. [Edit your SSH config]() to be able to use `ssh swarm` instead of `ssh root@123.23.12.123`
-1. Use an existing project, or clone one of the [examples](/docs/examples/static-site)
-1. Add a `docker-compose.yml` file in the root of your project: [example docker-compose.yml](https://github.com/woudsma/swarmlet/blob/master/examples/basic-example/docker-compose.yml)
+1. Use an existing project, or clone one of the [examples](https://swarmlet.dev/docs/examples/static-site)
+1. Add a `docker-compose.yml` file in the root of your project: [example docker-compose.yml](https://github.com/swarmlet/swarmlet/blob/master/examples/basic-example/docker-compose.yml)
 1. Add a git remote: `git remote add swarm git@swarm:my-project`  
 (notice the syntax `git@<name-configured-in-ssh-config>:<project-name>`)
 1. Deploy your application stack to the swarm using `git push swarm master`
 1. SSL certificates for web facing services are generated automatically using Let's Encrypt  
 (assuming you've assigned a domain to your server in your DNS configuration)
 
-**[Example application setup and deployment guide](/docs/getting-started/deploying-applications#example-application-setup)**
+**[Example application setup and deployment guide](https://swarmlet.dev/docs/getting-started/deploying-applications#example-application-setup)**
 
 ## Installation
 **Requirements**: Bash 4.0 or higher (run `bash --version`).  
 
-**[Full installation instructions can be found here](/docs/getting-started/installation)**  
+**[Full installation instructions can be found here](https://swarmlet.dev/docs/getting-started/installation)**  
 To install the latest version of Swarmlet, log in to your server as root and run:  
 ```shell
 # Quick installation:
 curl -fsSL https://get.swarmlet.dev | bash
 ```
-Or with [options](/docs/getting-started/installation):
+Or with [options](https://swarmlet.dev/docs/getting-started/installation):
 ```shell
 # Custom installation 
 curl -fsSL https://get.swarmlet.dev | bash -s \
@@ -60,14 +60,14 @@ The installation should take a few minutes to complete.
 ## Examples
 
 Swarmlet includes various examples of services that you can deploy to your server cluster with a simple `git push`.  
-- [Basic example - Static site](/docs/examples/static-site)
-- [Basic example - Python web server + Redis](/docs/examples/python-redis)
-- [Moderate example - NGINX + React app + Node.js API](/docs/examples/nginx-react-node)
-- [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](/docs/examples/nginx-react-node-cms)
-- [get-swarmlet](/docs/examples/get-swarmlet) (the app serving the Swarmlet install script at [get.swarmlet.dev](https://get.swarmlet.dev))
-- [GitLab CE](/docs/examples/gitlab-ce) (self-hosted)
-- [GitLab Runner](/docs/examples/gitlab-runner) (self-hosted)
-- [HAProxy](/docs/examples/haproxy) (Replacing Traefik with HAProxy)
+- [Basic example - Static site](https://swarmlet.dev/docs/examples/static-site)
+- [Basic example - Python web server + Redis](https://swarmlet.dev/docs/examples/python-redis)
+- [Moderate example - NGINX + React app + Node.js API](https://swarmlet.dev/docs/examples/nginx-react-node)
+- [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
+- [get-swarmlet](https://swarmlet.dev/docs/examples/get-swarmlet) (the app serving the Swarmlet install script at [get.swarmlet.dev](https://get.swarmlet.dev))
+- [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
+- [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
+- [HAProxy](https://swarmlet.dev/docs/examples/haproxy) (Replacing Traefik with HAProxy)
 
 All these examples and the [Swarmlet documentation and website](https://swarmlet.dev) are running on a €5/mo *single* server 'cluster', using Swarmlet for deployments.  
 
