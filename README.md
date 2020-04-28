@@ -11,6 +11,9 @@ Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.
 
 ---
 
+![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
+![contributions-welcome](https://img.shields.io/badge/contributions-welcome-blue.svg)
+
 ### *TL;DR*  
 Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
