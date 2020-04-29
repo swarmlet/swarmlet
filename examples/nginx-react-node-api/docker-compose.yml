@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+  frontend:
+    image: ${SWARMLET_REGISTRY}/react-node-example-frontend
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: https://api.${DOMAIN}
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.react-node.port=5000
+        - traefik.react-node.frontend.rule=Host:${DOMAIN}
+        - traefik.react-node.frontend.entryPoints=http,https
+        - traefik.react-node.frontend.passHostHeader=true
+        - traefik.react-node.frontend.headers.SSLRedirect=true
+        - traefik.react-node.frontend.headers.SSLHost=${DOMAIN}
+        - traefik.react-node.frontend.headers.STSIncludeSubdomains=true
+        - traefik.react-node.frontend.headers.STSPreload=true
+    networks:
+      - traefik-public
+
+  api:
+    image: ${SWARMLET_REGISTRY}/react-node-example-api
+    build: ./api
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.react-node.port=8080
+        - traefik.react-node.frontend.rule=Host:api.${DOMAIN}
+        - traefik.react-node.frontend.entryPoints=http,https
+        - traefik.react-node.frontend.passHostHeader=true
+        - traefik.react-node.frontend.headers.SSLRedirect=true
+        - traefik.react-node.frontend.headers.SSLHost=api.${DOMAIN}
+        - traefik.react-node.frontend.headers.STSIncludeSubdomains=true
+        - traefik.react-node.frontend.headers.STSPreload=true
+    networks:
+      - traefik-public
+
+networks:
+  traefik-public:
+    external: true
