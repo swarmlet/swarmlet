@@ -3,7 +3,7 @@
   <h1 align="left">Swarmlet</h1>
 </div>
 
-**[Website](https://swarmlet.dev)** — **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)**  
+**[Website](https://swarmlet.dev)** — **[Documentation](https://swarmlet.dev/docs/getting-started/introduction)** — **[Demo ▶](https://vimeo.com/412918465)**  
 
 Swarmlet is a self-hosted, open-source Platform as a Service that runs on any single server.  
 It's mainly intended for use with multiple servers, a server cluster / swarm.  
