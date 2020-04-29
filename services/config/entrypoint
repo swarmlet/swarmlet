@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
+main() {
+  echo "$PREFIX Starting deployment"
+  echo "$INDENT Command: $@"
+  "$@"
+}
+
+deploy() {
+  declare cmd="deploy"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  REPO_PATH="$1"
+  REPO_NAME=$(basename $REPO_PATH)
+  ENV_FILE="$REPO_PATH/.env"
+  ENTRYPOINT_FILE="$REPO_PATH/entrypoint"
+  COMPOSE_FILE="$REPO_PATH/docker-compose.yml"
+
+  echo "$PREFIX Deploying $REPO_NAME"
+  cd $REPO_PATH
+
+  if [ -f $ENV_FILE ]; then
+    set -o allexport
+    source $ENV_FILE
+    set +o allexport
+  fi
+
+  if [[ -f $ENTRYPOINT_FILE && $REPO_NAME != "deployments" ]]; then
+    source $ENTRYPOINT_FILE
+  fi
+
+  HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*")
+  DOMAINS="${HOSTS//\$\{DOMAIN\}/$DOMAIN}"
+  DOMAINS="${DOMAINS//Host:/}"
+  # check protocol(s)
+  PROTOCOL=https://
+
+  if [ -f $COMPOSE_FILE ]; then
+    echo "$PREFIX Building $REPO_NAME"
+    docker-compose build --parallel
+    echo "$PREFIX Pushing $REPO_NAME to swarm registry"
+    docker-compose push
+    echo "$PREFIX Deploying $REPO_NAME"
+    docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
+    echo "$FPREFIX Stack deployed:"
+    for DOMAIN in ${DOMAINS[@]}; do echo "[$REPO_NAME] — $PROTOCOL$DOMAIN"; done
+    echo
+  else
+    echo "$PREFIX No docker-compose.yml found, exiting"
+    exit 1
+  fi
+}
+
+main "$@"
