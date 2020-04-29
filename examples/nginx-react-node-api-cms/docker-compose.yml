@@ -1,0 +1,85 @@
+version: '3.7'
+
+services:
+  frontend:
+    image: ${SWARMLET_REGISTRY}/react-node-cms-example-frontend
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: https://api.${DOMAIN}
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.react-node-cms.port=5000
+        - traefik.react-node-cms.frontend.rule=Host:${DOMAIN}
+        - traefik.react-node-cms.frontend.entryPoints=http,https
+        - traefik.react-node-cms.frontend.passHostHeader=true
+        - traefik.react-node-cms.frontend.headers.SSLRedirect=true
+        - traefik.react-node-cms.frontend.headers.SSLHost=${DOMAIN}
+        - traefik.react-node-cms.frontend.headers.STSIncludeSubdomains=true
+        - traefik.react-node-cms.frontend.headers.STSPreload=true
+    networks:
+      - traefik-public
+
+  api:
+    image: ${SWARMLET_REGISTRY}/react-node-cms-example-api
+    build: ./api
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.react-node-cms.port=8080
+        - traefik.react-node-cms.frontend.rule=Host:api.${DOMAIN}
+        - traefik.react-node-cms.frontend.entryPoints=http,https
+        - traefik.react-node-cms.frontend.passHostHeader=true
+        - traefik.react-node-cms.frontend.headers.SSLRedirect=true
+        - traefik.react-node-cms.frontend.headers.SSLHost=api.${DOMAIN}
+        - traefik.react-node-cms.frontend.headers.STSIncludeSubdomains=true
+        - traefik.react-node-cms.frontend.headers.STSPreload=true
+    networks:
+      - traefik-public
+
+  cms:
+    image: strapi/strapi
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: postgres
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: yourpassword
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.react-node-cms.port=1337
+        - traefik.react-node-cms.frontend.rule=Host:cms.${DOMAIN}
+        - traefik.react-node-cms.frontend.entryPoints=http,https
+        - traefik.react-node-cms.frontend.passHostHeader=true
+        - traefik.react-node-cms.frontend.headers.SSLRedirect=true
+        - traefik.react-node-cms.frontend.headers.SSLHost=cms.${DOMAIN}
+        - traefik.react-node-cms.frontend.headers.STSIncludeSubdomains=true
+        - traefik.react-node-cms.frontend.headers.STSPreload=true
+    networks:
+      - default
+      - traefik-public
+
+  db:
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: postgres
+    networks:
+      - default
+
+networks:
+  traefik-public:
+    external: true
