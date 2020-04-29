@@ -17,8 +17,6 @@ Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.
 ### *TL;DR*  
 Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
-[![Swarmlet installation and first app deployment](assets/video-thumb-s.jpg)](https://vimeo.com/412918465 "Swarmlet installation and first app deployment")
-
 ## What is Swarmlet?
 Swarmlet is a thin wrapper around [Docker Compose](https://docs.docker.com/compose/) and [Docker Swarm mode](https://docs.docker.com/engine/swarm/).  
 [Traefik](https://github.com/containous/traefik), [Let's Encrypt](https://letsencrypt.org), [Matamo](https://matomo.org/), [Swarmpit](https://swarmpit.io) and [Swarmprom](https://github.com/stefanprodan/swarmprom) are included by default.  
