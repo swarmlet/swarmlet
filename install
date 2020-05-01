@@ -23,7 +23,7 @@ FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
 
-REPOSITORY="https://github.com/sardaukar/swarmlet.git"
+REPOSITORY="https://github.com/swarmlet/swarmlet.git"
 DEPENDENCIES=(git apt-transport-https apache2-utils moreutils)
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
 
