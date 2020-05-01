@@ -4,8 +4,8 @@ check-docker() {
   systemctl show --property ActiveState docker | grep -q "ActiveState=active"
 }
 
-check-network-interface() {
-  ip a show $1 up | grep -q "state UP"
+get-network-interface-name() {
+  ip -o route show to default | awk '{print $5}'
 }
 
 git-set-config() {

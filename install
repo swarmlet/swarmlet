@@ -4,8 +4,8 @@ cat << EOM
 ——————————————————————————————————————————————————————————————————————————
 
       _______ _  _  _ _______  ______ _______        _______ _______
-      |______ |  |  | |_____| |_____/ |  |  | |      |______    |   
-      ______| |__|__| |     | |    \  |  |  | |_____ |______    |    
+      |______ |  |  | |_____| |_____/ |  |  | |      |______    |
+      ______| |__|__| |     | |    \  |  |  | |_____ |______    |
 
 
        Description:  A small tool to manage swarm deployments,
@@ -23,12 +23,12 @@ FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
 
-REPOSITORY="https://github.com/swarmlet/swarmlet.git"
+REPOSITORY="https://github.com/sardaukar/swarmlet.git"
 DEPENDENCIES=(git apt-transport-https apache2-utils moreutils)
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
 
 if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
-  echo "$PREFIX [ERROR] Unmet requirements: Bash 4" 
+  echo "$PREFIX [ERROR] Unmet requirements: Bash 4"
   echo "$INDENT Your Bash version is $BASH_VERSION"
   echo "$PREFIX Exiting with error code 1" 1>&2
   exit 1

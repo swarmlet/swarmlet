@@ -23,10 +23,7 @@ cmd-init() {
   fi
 
   echo "$PREFIX Selecting network interface"
-  if check-network-interface eth1;
-    then ETH_LINK=eth1
-    else ETH_LINK=eth0    
-  fi
+  ETH_LINK=$(get-network-interface-name)
 
   NODE_IP=$(ifconfig $ETH_LINK | grep -oP 'inet \K\S+')
   ADVERTISE_ADDR="$NODE_IP:2377"
@@ -53,7 +50,7 @@ cmd-init() {
     -o type=none \
     -o device=$USER_ROOT \
     git-data
-  
+
   pushd $SWARMLET_SERVICES_ROOT/registry >/dev/null
   docker-compose up -d
   popd >/dev/null
