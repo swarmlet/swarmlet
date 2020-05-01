@@ -25,7 +25,7 @@ cmd-init() {
   echo "$PREFIX Selecting network interface"
   ETH_LINK=$(get-network-interface-name)
 
-  NODE_IP=$(ifconfig $ETH_LINK | grep -oP 'inet \K\S+')
+  NODE_IP=$(hostname -I | awk '{print $1}')
   ADVERTISE_ADDR="$NODE_IP:2377"
 
   echo "$INDENT Using network interface: $ETH_LINK"
