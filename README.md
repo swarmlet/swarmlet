@@ -71,7 +71,7 @@ Swarmlet includes various examples of services that you can deploy to your serve
 
 All these examples and the [Swarmlet documentation and website](https://swarmlet.dev) are running on a €5/mo *single* server 'cluster', using Swarmlet for deployments.  
 
-These are all services hosted on the swarm by subdomain:
+Services you can run on your swarm (replace swarmlet.dev with your domain and [update](https://swarmlet.dev/docs/getting-started/introduction) the service configuration):
 
 [swarmlet.dev](https://swarmlet.dev)  
 [swarmpit.swarmlet.dev](https://swarmpit.swarmlet.dev)  
@@ -82,3 +82,7 @@ These are all services hosted on the swarm by subdomain:
 [prometheus.swarmlet.dev](https://prometheus.swarmlet.dev)  
 [alertmanager.swarmlet.dev](https://alertmanager.swarmlet.dev)  
 [unsee.swarmlet.dev](https://unsee.swarmlet.dev)  
+
+---
+
+[![Proudly sponsored by Passionate People](https://passionatepeople.io/image/sponsor/sponsored-by-normal-small.png)](https://passionatepeople.io/oss)
