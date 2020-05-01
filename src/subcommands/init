@@ -22,13 +22,9 @@ cmd-init() {
     else echo "Docker is not running, exiting"; exit 1
   fi
 
-  echo "$PREFIX Selecting network interface"
-  ETH_LINK=$(get-network-interface-name)
-
   NODE_IP=$(hostname -I | awk '{print $1}')
   ADVERTISE_ADDR="$NODE_IP:2377"
 
-  echo "$INDENT Using network interface: $ETH_LINK"
   echo "$INDENT Node IP address: $NODE_IP"
   echo "$PREFIX Initializing node as swarm manager"
   docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
