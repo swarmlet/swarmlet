@@ -25,5 +25,5 @@ case $COMMAND in
   stack:stop) "$SUBCOMMANDS/stack-stop" "$@" ;;
   stack:list|stack:ls) "$SUBCOMMANDS/stack-list" "$@" ;;
 
-  *) echo "$PREFIX Unknown command $COMMAND"; exit 1 ;;
+  *) echo -e "$PREFIX Unknown command $COMMAND\nThis command might not be implemented yet"; exit 1 ;;
 esac
