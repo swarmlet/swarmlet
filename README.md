@@ -14,10 +14,11 @@ Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
 ![contributions-welcome](https://img.shields.io/badge/contributions-welcome-blue.svg)
 
-### NOTE: Work In Progress
+### NOTE  
+Work In Progress.  
 This project is in beta and definitely not production-ready yet.
-Current todo's 
-- [https://github.com/swarmlet/swarmlet/issues](https://github.com/swarmlet/swarmlet/issues)
+Current todo's:  
+[https://github.com/swarmlet/swarmlet/issues](https://github.com/swarmlet/swarmlet/issues)
 
 
 ### *TL;DR*  
