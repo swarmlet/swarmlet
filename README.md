@@ -14,6 +14,12 @@ Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
 ![contributions-welcome](https://img.shields.io/badge/contributions-welcome-blue.svg)
 
+### NOTE: Work In Progress
+This project is in beta and definitely not production-ready yet.
+Current todo's 
+- [https://github.com/swarmlet/swarmlet/issues](https://github.com/swarmlet/swarmlet/issues)
+
+
 ### *TL;DR*  
 Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.  
 
@@ -66,15 +72,15 @@ Swarmlet includes various examples of services that you can deploy to your serve
 - [Basic example - Static site](https://swarmlet.dev/docs/examples/static-site)
 - [Basic example - Python web server + Redis](https://swarmlet.dev/docs/examples/python-redis)
 - [Moderate example - NGINX + React app + Node.js API](https://swarmlet.dev/docs/examples/nginx-react-node)
-- [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
+- [TODO] [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
 - [get-swarmlet](https://swarmlet.dev/docs/examples/get-swarmlet) (the app serving the Swarmlet install script at [get.swarmlet.dev](https://get.swarmlet.dev))
-- [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
-- [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
-- [HAProxy](https://swarmlet.dev/docs/examples/haproxy) (Replacing Traefik with HAProxy)
+- [TODO] [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
+- [TODO] [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
+- [TODO] [HAProxy](https://swarmlet.dev/docs/examples/haproxy) (Replacing Traefik with HAProxy)
 
 All these examples and the [Swarmlet documentation and website](https://swarmlet.dev) are running on a €5/mo *single* server 'cluster', using Swarmlet for deployments.  
 
-Services you can run on your swarm (replace swarmlet.dev with your domain and [update](https://swarmlet.dev/docs/getting-started/introduction) the service configuration):
+<!-- Services you can run on your swarm (replace swarmlet.dev with your domain and [update](https://swarmlet.dev/docs/getting-started/introduction) the service configuration):
 
 [swarmlet.dev](https://swarmlet.dev)  
 [swarmpit.swarmlet.dev](https://swarmpit.swarmlet.dev)  
@@ -84,7 +90,7 @@ Services you can run on your swarm (replace swarmlet.dev with your domain and [u
 [consul.swarmlet.dev](https://consul.swarmlet.dev)  
 [prometheus.swarmlet.dev](https://prometheus.swarmlet.dev)  
 [alertmanager.swarmlet.dev](https://alertmanager.swarmlet.dev)  
-[unsee.swarmlet.dev](https://unsee.swarmlet.dev)  
+[unsee.swarmlet.dev](https://unsee.swarmlet.dev)   -->
 
 ---
 
