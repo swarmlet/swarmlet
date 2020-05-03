@@ -41,6 +41,7 @@ declare -A DEFAULT_OPTS=(
   [SKIP_METRICS]=false      # (default false) Skip installation of Swarmpit and Swarmprom
   [SKIP_SWARMPIT]=false     # (default false) Skip installation of Swarmpit
   [SKIP_SWARMPROM]=false    # (default false) Skip installation of Swarmprom
+  [MINIMAL_INSTALL]=false   # (default false) Use the minimal installation method
 )
 
 # Set default environment variables
@@ -86,4 +87,23 @@ install() {
   echo "$INDENT $ swarmlet logs loadbalancer_traefik -f"
 }
 
-install
+minimal-install() {
+  echo "$PREFIX Installing minimal Swarmlet"
+
+  echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
+  git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
+
+  echo "$PREFIX Linking executable"
+  ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
+
+  echo "$PREFIX Initializing minimal Swarmlet"
+  swarmlet minimal-init "$@"
+
+  echo "$PREFIX Installation complete"
+}
+
+if [ "$MINIMAL_INSTALL" = true ]; then
+  minimal-install
+else
+  install
+fi;
