@@ -55,6 +55,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - swarmpit-net
+      - swarmlet-network
     deploy:
       mode: global
       resources:
@@ -69,6 +70,8 @@ networks:
   swarmpit-net:
     driver: overlay
     attachable: true
+  swarmlet-network:
+    external: true
   traefik-public:
     external: true
 
