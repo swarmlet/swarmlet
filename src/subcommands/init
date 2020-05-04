@@ -52,10 +52,10 @@ cmd-init() {
   popd >/dev/null
 
   echo "$PREFIX Installing services"
-  SWARMLET_SERVICES=(deployments loadbalancer matomo swarmpit)
+  SWARMLET_SERVICES=(deployer loadbalancer matomo swarmpit)
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
-    if [ $SERVICE == 'deployments' ]; then
+    if [ $SERVICE == 'deployer' ]; then
       swarmlet stack:build $SERVICE $SWARMLET_SERVICES_ROOT
     fi
     swarmlet repo:create $SERVICE >/dev/null

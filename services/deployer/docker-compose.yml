@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   deploy:
-    image: ${SWARMLET_REGISTRY}/deployments
+    image: ${SWARMLET_REGISTRY}/deployer
     build:
       context: .
       args:
