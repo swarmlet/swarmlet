@@ -35,12 +35,17 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
 fi
 
 declare -A DEFAULT_OPTS=(
-  [DOMAIN]="$HOSTNAME"      # (defaults to server hostname) Recommended to replace this with the domain you are going to use
-  [DEBUG]=                  # (default undefined) Run installation in debug mode
-  [CREATE_SWAP]=false       # (default false) Allocate 1GB of swap space
-  [SKIP_METRICS]=false      # (default false) Skip installation of Swarmpit and Swarmprom
-  [SKIP_SWARMPIT]=false     # (default false) Skip installation of Swarmpit
-  [SKIP_SWARMPROM]=false    # (default false) Skip installation of Swarmprom
+  [INSTALL_BRANCH]=master       # (default master) The default branch to install
+  [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
+  [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
+  [NOOP]=                       # no-op for testing purposes
+  # > TODO/FIX:
+  # [DOMAIN]="$HOSTNAME"      # (defaults to server hostname) Recommended to replace this with the domain you are going to use
+  # [DEBUG]=                  # (default undefined) Run installation in debug mode
+  # [CREATE_SWAP]=false       # (default false) Allocate 1GB of swap space
+  # [SKIP_METRICS]=false      # (default false) Skip installation of Swarmpit and Swarmprom
+  # [SKIP_SWARMPIT]=false     # (default false) Skip installation of Swarmpit
+  # [SKIP_SWARMPROM]=false    # (default false) Skip installation of Swarmprom
 )
 
 # Set default environment variables
@@ -67,8 +72,17 @@ install() {
   chmod +x /usr/local/bin/docker-compose
 
   echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
+
+  # To install manually, copy/rsync/.. swarmlet folder to server and run ./swarmlet/install
+  # Uncomment the following line
   # mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
   git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
+
+  if [ "$INSTALL_BRANCH" != "master" ]; then
+    pushd $SWARMLET_INSTALL_ROOT >/dev/null
+    git checkout "$INSTALL_BRANCH"
+    popd >/dev/null
+  fi
 
   echo "$PREFIX Linking executable"
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
@@ -77,9 +91,10 @@ install() {
   swarmlet init "$@"
 
   echo "$PREFIX Installation complete"
-  # TODO: get from compose files and handle no domain
   echo "$FPREFIX Swarmlet services stacks deployed"
-  echo -e "\n$PREFIX Check the docs on how to set up a custom domain name"
+  docker stack ls
+
+  echo -e "\n$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
   echo "$INDENT Follow the logs using:"
