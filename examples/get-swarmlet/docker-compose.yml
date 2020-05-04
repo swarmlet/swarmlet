@@ -4,18 +4,19 @@ services:
   web:
     image: nginx:1.17-alpine
     volumes:
-      - ./public:/var/www
       - ./nginx.default.conf:/etc/nginx/conf.d/default.conf
     deploy:
       labels:
-        - traefik.frontend.rule=Host:get.${DOMAIN}
         - traefik.enable=true
-        - traefik.port=80
         - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
+        - traefik.get-swarmlet.port=80
+        - traefik.get-swarmlet.frontend.rule=Host:get.${DOMAIN}
+        - traefik.get-swarmlet.frontend.entryPoints=http,https
+        - traefik.get-swarmlet.frontend.passHostHeader=true
+        - traefik.get-swarmlet.frontend.headers.SSLRedirect=true
+        - traefik.get-swarmlet.frontend.headers.SSLHost=${DOMAIN}
+        - traefik.get-swarmlet.frontend.headers.STSIncludeSubdomains=true
+        - traefik.get-swarmlet.frontend.headers.STSPreload=true
     networks:
       - traefik-public
 
