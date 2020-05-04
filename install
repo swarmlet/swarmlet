@@ -91,6 +91,8 @@ install() {
   swarmlet init "$@"
 
   echo "$PREFIX Installation complete"
+  echo "$FPREFIX Server initialized as manager node"
+  docker node ls
   echo "$FPREFIX Swarmlet services stacks deployed"
   docker stack ls
 
