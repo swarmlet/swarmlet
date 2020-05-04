@@ -3,6 +3,7 @@ version: '3.7'
 services:
   registry:
     image: registry:2
+    restart: always
     # environment:
     #   REGISTRY_AUTH: htpasswd
     #   REGISTRY_AUTH_HTPASSWD_PATH: /basicAuth/security.htpasswd
