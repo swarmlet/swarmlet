@@ -24,7 +24,7 @@ PREFIX="----->"
 INDENT="      "
 
 REPOSITORY="https://github.com/swarmlet/swarmlet.git"
-DEPENDENCIES=(git apt-transport-https apache2-utils moreutils acl)
+DEPENDENCIES=(acl curl git apt-transport-https apache2-utils moreutils)
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
 
 if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
