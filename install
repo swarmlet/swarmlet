@@ -65,7 +65,7 @@ esac; done
 # if [ "$INTERACTIVE" == true ]; then
 #   echo "Specify the SSH public key to use for git deployments"
 #   read -p "(recommended) Press enter to use the default '/root/.ssh/authorized_keys': " GIT_SSH_AUTHORIZED_KEYS
-#   GIT_SSH_AUTHORIZED_KEYS=${GIT_SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}
+#   export GIT_SSH_AUTHORIZED_KEYS="${GIT_SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}"
 
 #   read -p "(recommended) Install included services? (Y/N):" INSTALL_INCLUDED_SERVICES
 #   echo INSTALL_INCLUDED_SERVICES
