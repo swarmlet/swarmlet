@@ -33,6 +33,7 @@ This project is aimed at developers that want to experiment with application dep
 
 ## Getting started
 1. Create a new VPS running Ubuntu 18.04 x64 and log in as root
+1. Set the hostname
 1. Install Swarmlet (optionally [with some swap]() if your server has less than 2gb of memory)
 1. [Edit your SSH config]() to be able to use `ssh swarm` instead of `ssh root@123.23.12.123`
 1. Use an existing project, or clone one of the [examples](https://swarmlet.dev/docs/examples/static-site)
