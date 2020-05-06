@@ -40,6 +40,7 @@ declare -A DEFAULT_OPTS=(
   [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
   [INTERACTIVE]=false           # (default false) Use CLI wizard to setup Swarmlet
   [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
+  [INSTALL_ZSH]=false           # (default false) Install 'Oh My Zsh'
   [NOOP]=                       # no-op for testing purposes
   # > TODO/FIX:
   # [DEBUG]=                  # (default undefined) Run installation in debug mode
@@ -76,10 +77,17 @@ install() {
   git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
 
   if [[ "$INSTALL_BRANCH" != "master" ]]; then
+    echo "$PREFIX Checking out $INSTALL_BRANCH"
     pushd $SWARMLET_INSTALL_ROOT >/dev/null
     git checkout "$INSTALL_BRANCH"
     popd >/dev/null
   fi
+
+  if [[ "INSTALL_ZSH" == "true" ]]; then
+    echo "$PREFIX Installing 'Oh My Zsh'"
+    apt-get install -y zsh >/dev/null
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
+  done
 
   echo "$PREFIX Linking executable"
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
