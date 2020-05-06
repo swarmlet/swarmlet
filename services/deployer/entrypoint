@@ -41,11 +41,6 @@ deploy() {
   # TODO: check protocol instead of assuming https
   PROTOCOL=https://
 
-  echo "HOSTS: ${HOSTS}"
-  echo "DOMAINS: ${DOMAINS}"
-  cat $COMPOSE_FILE
-  printenv
-
   if [ -f $COMPOSE_FILE ]; then
     echo "$PREFIX Building $REPO_NAME"
     docker-compose build --parallel
