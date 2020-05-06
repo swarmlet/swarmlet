@@ -38,6 +38,7 @@ create-swap() {
 
 uninstall-swarmlet() {
   # TODO
+  rm /usr/local/sbin/swarmlet
   rm -rf $SWARMLET_ROOT $REPO_ROOT $USER_ROOT
   deluser $USERNAME
 }
