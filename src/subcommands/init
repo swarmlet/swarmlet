@@ -10,7 +10,7 @@ cmd-init() {
   adduser $USERNAME --disabled-password --gecos --quiet
   usermod -aG docker $USERNAME
   mkdir -p $REPO_ROOT $USER_ROOT/.ssh
-  cat "$AUTHORIZED_KEYS_FILE" | ts "$SSH_OPTIONS" > $USER_ROOT/.ssh/authorized_keys
+  cat "$AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" > $USER_ROOT/.ssh/authorized_keys
   chmod 700 $USER_ROOT/.ssh
   chmod 600 $USER_ROOT/.ssh/authorized_keys
   chown -R $USERNAME:$USERNAME $USER_ROOT/.ssh
