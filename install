@@ -83,7 +83,7 @@ install() {
     popd >/dev/null
   fi
 
-  if [[ "INSTALL_ZSH" == "true" ]]; then
+  if [[ "$INSTALL_ZSH" == "true" ]]; then
     echo "$PREFIX Installing 'Oh My Zsh'"
     apt-get install -y zsh >/dev/null
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
