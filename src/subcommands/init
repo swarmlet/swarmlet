@@ -16,6 +16,11 @@ cmd-init() {
   chown -R $USERNAME:$USERNAME $USER_ROOT/.ssh
   setfacl -m u:$USERNAME:rwx $REPO_ROOT
 
+  if [[ $CREATE_SWAP == "true" ]]; then
+    echo "$PREFIX Creating 1GB of swap space"
+    create-swap 1G /swapfile
+  fi
+
   echo "$PREFIX Checking Docker status"
   if check-docker;
     then echo "Docker is running"; docker --version
