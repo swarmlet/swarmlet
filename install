@@ -35,13 +35,13 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
 fi
 
 declare -A DEFAULT_OPTS=(
+  [FQDN]=$HOSTNAME              # (default $HOSTNAME) The fully qualified domain name of the server
   [INSTALL_BRANCH]=master       # (default master) The default branch to install
   [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
   [INTERACTIVE]=false           # (default false) Use CLI wizard to setup Swarmlet
   [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
   [NOOP]=                       # no-op for testing purposes
   # > TODO/FIX:
-  # [DOMAIN]="$HOSTNAME"      # (defaults to server hostname) Recommended to replace this with the domain you are going to use
   # [DEBUG]=                  # (default undefined) Run installation in debug mode
 )
 
@@ -71,7 +71,7 @@ install() {
   echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
 
   # To install manually, copy/rsync/.. swarmlet folder to server and run ./swarmlet/install
-  # Uncomment the following line
+  # Uncomment the following line and comment line 76
   # mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
   git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
 
