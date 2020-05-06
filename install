@@ -70,10 +70,6 @@ install() {
   chmod +x /usr/local/bin/docker-compose
 
   echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
-
-  # To install manually, copy/rsync/.. swarmlet folder to server and run ./swarmlet/install
-  # Uncomment the following line and comment line 76
-  # mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
   git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
 
   if [[ "$INSTALL_BRANCH" != "master" ]]; then
