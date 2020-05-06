@@ -4,10 +4,6 @@ check-docker() {
   systemctl show --property ActiveState docker | grep -q "ActiveState=active"
 }
 
-get-network-interface-name() {
-  ip -o route show to default | awk '{print $5}'
-}
-
 git-set-config() {
   git config user.email "git@$HOSTNAME.local"
   git config user.name "git"
