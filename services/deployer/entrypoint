@@ -4,6 +4,7 @@ set -eo pipefail; [[ $DEBUG ]] && set -x
 
 # TODO: make config configurable
 source "/opt/swarmlet/src/config"
+printenv
 
 FPREFIX="=====>"
 PREFIX="----->"
