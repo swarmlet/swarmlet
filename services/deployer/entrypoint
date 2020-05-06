@@ -5,11 +5,6 @@ set -eo pipefail; [[ $DEBUG ]] && set -x
 # TODO: make config configurable
 set -o allexport
 source "/opt/swarmlet/src/config"
-printenv
-
-FPREFIX="=====>"
-PREFIX="----->"
-INDENT="      "
 
 main() {
   echo "$PREFIX Starting deployment"
@@ -45,6 +40,11 @@ deploy() {
   DOMAINS="${DOMAINS//Host:/}"
   # TODO: check protocol instead of assuming https
   PROTOCOL=https://
+
+  echo "HOSTS: ${HOSTS}"
+  echo "DOMAINS: ${DOMAINS}"
+  cat $COMPOSE_FILE
+  printenv
 
   if [ -f $COMPOSE_FILE ]; then
     echo "$PREFIX Building $REPO_NAME"
