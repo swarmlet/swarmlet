@@ -87,7 +87,6 @@ install() {
     echo "$PREFIX Installing 'Oh My Zsh'"
     apt-get install -y -qq zsh
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
-    chsh -s $(which zsh)
   fi
 
   echo "$PREFIX Linking executable"
@@ -95,7 +94,9 @@ install() {
 
   echo "$PREFIX Initializing Swarmlet"
   swarmlet init "$@"
+
   echo "$PREFIX Installation complete"
+  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
 
   echo "$FPREFIX Server initialized as manager node"
   docker node ls
