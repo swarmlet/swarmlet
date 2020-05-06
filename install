@@ -35,7 +35,7 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
 fi
 
 declare -A DEFAULT_OPTS=(
-  [FQDN]=$HOSTNAME              # (default $HOSTNAME) The fully qualified domain name of the server
+  [ROOT_DOMAIN]=$HOSTNAME       # (default $HOSTNAME) The domain to use for deployment of included services
   [INSTALL_BRANCH]=master       # (default master) The default branch to install
   [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
   [INTERACTIVE]=false           # (default false) Use CLI wizard to setup Swarmlet
