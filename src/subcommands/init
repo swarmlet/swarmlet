@@ -30,7 +30,7 @@ cmd-init() {
   NODE_IP=$(hostname -I | awk '{print $1}')
   ADVERTISE_ADDR="$NODE_IP:2377"
 
-  echo "$INDENT Node IP address: $NODE_IP"
+  echo "$PREFIX Node IP address: $NODE_IP"
   echo "$PREFIX Initializing node as swarm manager"
   docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
 
