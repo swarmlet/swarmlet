@@ -56,8 +56,6 @@ cmd-init() {
   docker-compose up -d
   popd >/dev/null
 
-  printenv
-
   echo "$PREFIX Installing services"
   SWARMLET_SERVICES=(deployer loadbalancer matomo swarmpit)
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
