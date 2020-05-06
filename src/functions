@@ -35,3 +35,15 @@ create-swap() {
   sudo swapon $FILE_PATH
   echo "$FILE_PATH none swap sw 0 0" | sudo tee -a /etc/fstab
 }
+
+uninstall-swarmlet() {
+  # TODO
+  rm -rf $SWARMLET_ROOT $REPO_ROOT $USER_ROOT
+  deluser $USERNAME
+}
+
+reinstall-swarmlet() {
+  # TODO
+  uninstall-swarmlet
+  curl -fsSL https://get.swarmlet.dev | bash
+}
