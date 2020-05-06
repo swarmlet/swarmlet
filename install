@@ -75,7 +75,7 @@ install() {
   # mkdir -p $SWARMLET_INSTALL_ROOT; cp -R $(dirname "$0")/* $SWARMLET_INSTALL_ROOT/
   git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
 
-  if [ "$INSTALL_BRANCH" != "master" ]; then
+  if [[ "$INSTALL_BRANCH" != "master" ]]; then
     pushd $SWARMLET_INSTALL_ROOT >/dev/null
     git checkout "$INSTALL_BRANCH"
     popd >/dev/null
