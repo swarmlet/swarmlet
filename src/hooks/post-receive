@@ -11,9 +11,6 @@ REPO_NAME=${REPO_BASE/.git}
 REPO_DEST=$USER_ROOT/$REPO_NAME
 COMMIT_HASH=$(git rev-parse --short=6 HEAD)
 COMPOSE_FILE=$REPO_DEST/docker-compose.yml
-SWARMLET_REGISTRY=127.0.0.1:5000/v2
-DOCKER_SOCKET=/var/run/docker.sock
-USERNAME=git
 
 if [ -d $REPO_DEST ]; then
   echo "$PREFIX Repository already exists"
@@ -36,4 +33,4 @@ docker run --rm \
   -v $DOCKER_SOCKET:$DOCKER_SOCKET \
   -v /opt/swarmlet/src/config:/opt/swarmlet/src/config:ro \
   $SWARMLET_REGISTRY/deployer \
-  deploy $REPO_DEST || exit 1
+  deploy $REPO_DEST $ROOT_DOMAIN || exit 1
