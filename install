@@ -37,16 +37,12 @@ fi
 declare -A DEFAULT_OPTS=(
   [INSTALL_BRANCH]=master       # (default master) The default branch to install
   [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
-  [INTERACTIVE]=false           # (default true) Skip the installation wizard
+  [INTERACTIVE]=false           # (default false) Use CLI wizard to setup Swarmlet
   [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
   [NOOP]=                       # no-op for testing purposes
   # > TODO/FIX:
   # [DOMAIN]="$HOSTNAME"      # (defaults to server hostname) Recommended to replace this with the domain you are going to use
   # [DEBUG]=                  # (default undefined) Run installation in debug mode
-  # [CREATE_SWAP]=false       # (default false) Allocate 1GB of swap space
-  # [SKIP_METRICS]=false      # (default false) Skip installation of Swarmpit and Swarmprom
-  # [SKIP_SWARMPIT]=false     # (default false) Skip installation of Swarmpit
-  # [SKIP_SWARMPROM]=false    # (default false) Skip installation of Swarmprom
 )
 
 # Set default environment variables
@@ -60,21 +56,6 @@ while [[ "$#" > 0 ]]; do case "${1%=*}" in
   @($(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g'))) export "$1"; shift ;;
   *) echo "Unknown argument: $1"; shift ;;
 esac; done
-
-# CLI wizard
-# if [ "$INTERACTIVE" == true ]; then
-#   echo "Specify the SSH public key to use for git deployments"
-#   read -p "(recommended) Press enter to use the default '/root/.ssh/authorized_keys': " GIT_SSH_AUTHORIZED_KEYS
-#   export GIT_SSH_AUTHORIZED_KEYS="${GIT_SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}"
-
-#   read -p "(recommended) Install included services? (Y/N):" INSTALL_INCLUDED_SERVICES
-#   echo INSTALL_INCLUDED_SERVICES
-#   case $INSTALL_INCLUDED_SERVICES in
-#     yes|y|Y) "Install included services" ;;
-#     no|n|N) "Don't install included services" ;;
-#     *) "[ERROR] Unknown answer, exiting"
-#   esac
-# fi
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
@@ -105,14 +86,15 @@ install() {
 
   echo "$PREFIX Initializing Swarmlet"
   swarmlet init "$@"
-
   echo "$PREFIX Installation complete"
+
   echo "$FPREFIX Server initialized as manager node"
   docker node ls
+
   echo "$FPREFIX Swarmlet services stacks deployed"
   docker stack ls
 
-  echo -e "\n$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
+  echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
   echo "$INDENT Follow the logs using:"
