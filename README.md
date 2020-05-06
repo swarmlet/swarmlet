@@ -57,13 +57,16 @@ curl -fsSL https://get.swarmlet.dev | bash
 Or with [options](https://swarmlet.dev/docs/getting-started/installation):
 ```shell
 # Custom installation 
+curl -fsSL https://get.swarmlet.dev | bash -s \
+  ROOT_DOMAIN=dev.mydomain.com \
+  INSTALL_ZSH=true \
+  CREATE_SWAP=true
 
-# THIS DOES NOT WORK YET
-
-# curl -fsSL https://get.swarmlet.dev | bash -s \
-#   SWARMLET_DOMAIN=dev.mydomain.com \
-#   CREATE_SWAP=true \
-#   SKIP_SWARMPROM=true
+# Install a different branch
+BRANCH=develop
+curl -fsSL https://raw.githubusercontent.com/swarmlet/swarmlet/$BRANCH/install | bash -s \
+  ROOT_DOMAIN=dev.mydomain.com \
+  INSTALL_BRANCH=$BRANCH
 ```
 The installation should take a few minutes to complete.  
 

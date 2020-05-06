@@ -2,9 +2,9 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-FPREFIX="=====>"
-PREFIX="----->"
-INDENT="      "
+# TODO: make config configurable
+set -o allexport
+source "/opt/swarmlet/src/config"
 
 main() {
   echo "$PREFIX Starting deployment"
@@ -31,14 +31,14 @@ deploy() {
     set +o allexport
   fi
 
-  if [[ -f $ENTRYPOINT_FILE && $REPO_NAME != "deployments" ]]; then
+  if [[ -f $ENTRYPOINT_FILE && $REPO_NAME != "deployer" ]]; then
     source $ENTRYPOINT_FILE
   fi
 
   HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*")
   DOMAINS="${HOSTS//\$\{DOMAIN\}/$DOMAIN}"
   DOMAINS="${DOMAINS//Host:/}"
-  # check protocol(s)
+  # TODO: check protocol instead of assuming https
   PROTOCOL=https://
 
   if [ -f $COMPOSE_FILE ]; then

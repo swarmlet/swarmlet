@@ -4,12 +4,9 @@ check-docker() {
   systemctl show --property ActiveState docker | grep -q "ActiveState=active"
 }
 
-get-network-interface-name() {
-  ip -o route show to default | awk '{print $5}'
-}
-
 git-set-config() {
-  git config user.email "git@$HOSTNAME.local"
+  DOMAIN=${1:-"$HOSTNAME.local"}
+  git config user.email "git@$DOMAIN"
   git config user.name "git"
 }
 
@@ -18,7 +15,7 @@ git-local-push() {
   REPO_NAME=$(basename $REPO_SRC)
   pushd $REPO_SRC >/dev/null
   git init
-  git-set-config
+  git-set-config $ROOT_DOMAIN
   git add .
   git commit -m "initial"
   git push $REPO_ROOT/$REPO_NAME.git master
@@ -26,13 +23,25 @@ git-local-push() {
   popd >/dev/null
 }
 
-# temporary
 create-swap() {
-  SIZE=${1:-2G}
+  SIZE=${1:-1G}
   FILE_PATH=${2:-/swapfile}
   sudo fallocate -l $SIZE $FILE_PATH
   sudo chmod 600 $FILE_PATH
   sudo mkswap $FILE_PATH
   sudo swapon $FILE_PATH
   echo "$FILE_PATH none swap sw 0 0" | sudo tee -a /etc/fstab
+}
+
+uninstall-swarmlet() {
+  # TODO
+  rm /usr/local/sbin/swarmlet
+  rm -rf $SWARMLET_ROOT $REPO_ROOT $USER_ROOT
+  deluser $USERNAME
+}
+
+reinstall-swarmlet() {
+  # TODO
+  uninstall-swarmlet
+  curl -fsSL https://get.swarmlet.dev | bash
 }
