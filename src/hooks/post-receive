@@ -25,6 +25,8 @@ else
   chown -R $USERNAME:$USERNAME $REPO_SRC $REPO_DEST
 fi
 
+printenv
+
 # TODO: On docker error, abort git push.
 # Now it pushes successfully even when a deployment fails
 
