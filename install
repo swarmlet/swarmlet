@@ -87,7 +87,7 @@ install() {
     echo "$PREFIX Installing 'Oh My Zsh'"
     apt-get install -y zsh >/dev/null
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
-  done
+  fi
 
   echo "$PREFIX Linking executable"
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
