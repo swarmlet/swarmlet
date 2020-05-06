@@ -85,7 +85,7 @@ install() {
 
   if [[ "$INSTALL_ZSH" == "true" ]]; then
     echo "$PREFIX Installing 'Oh My Zsh'"
-    apt-get install -y zsh >/dev/null
+    apt-get install -y -qq zsh
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
   fi
 
