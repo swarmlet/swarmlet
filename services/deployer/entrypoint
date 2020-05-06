@@ -3,6 +3,7 @@
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
 # TODO: make config configurable
+set -o allexport
 source "/opt/swarmlet/src/config"
 printenv
 
