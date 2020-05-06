@@ -36,8 +36,8 @@ fi
 
 declare -A DEFAULT_OPTS=(
   [ROOT_DOMAIN]=$HOSTNAME       # (default $HOSTNAME) The domain to use for deployment of included services
-  [INSTALL_BRANCH]=master       # (default master) The default branch to install
   [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
+  [INSTALL_BRANCH]=master       # (default master) The default branch to install
   [INTERACTIVE]=false           # (default false) Use CLI wizard to setup Swarmlet
   [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
   [INSTALL_ZSH]=false           # (default false) Install 'Oh My Zsh'
