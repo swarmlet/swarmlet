@@ -69,11 +69,14 @@ init() {
     recommends/swarmpit
   )
 
-  swarmlet stack start core/registry $SWARMLET_SERVICES_ROOT
-  swarmlet stack build core/deployer $SWARMLET_SERVICES_ROOT
-
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
+    if [[ "$SERVICE" == "core/registry" ]]; then
+      swarmlet stack start core/registry $SWARMLET_SERVICES_ROOT
+      continue
+    elif [[ "$SERVICE" == "core/deployer" ]]; then
+      swarmlet stack build core/deployer $SWARMLET_SERVICES_ROOT
+    fi
     swarmlet repo create $(basename $SERVICE) >/dev/null
     git-local-push $SWARMLET_SERVICES_ROOT/$SERVICE >/dev/null
   done
