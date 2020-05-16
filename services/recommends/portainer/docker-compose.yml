@@ -1,0 +1,55 @@
+version: '3.7'
+
+services:
+  agent:
+    image: portainer/agent
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.agent
+      AGENT_PORT: 9001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - portainer-network
+    deploy:
+      mode: global
+
+  portainer:
+    image: portainer/portainer
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      - portainer-network
+      - traefik-public
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.docker.network=traefik-public
+        - traefik.portainer.enable=true
+        - traefik.portainer.port=9000
+        - traefik.portainer.frontend.rule=Host:portainer.${DOMAIN}
+        - traefik.portainer.frontend.entryPoints=http,https
+        - traefik.portainer.frontend.passHostHeader=true
+        - traefik.portainer.frontend.headers.SSLRedirect=true
+        - traefik.portainer.frontend.headers.SSLHost=portainer.${DOMAIN}
+        - traefik.portainer.frontend.headers.STSIncludeSubdomains=true
+        - traefik.portainer.frontend.headers.STSPreload=true
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  portainer-data:
+
+networks:
+  portainer-network:
+  traefik-public:
+    external: true
