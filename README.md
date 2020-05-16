@@ -26,7 +26,7 @@ Install `swarmlet` on a server. Develop projects locally, describe your project 
 
 ## What is Swarmlet?
 Swarmlet is a thin wrapper around [Docker Compose](https://docs.docker.com/compose/) and [Docker Swarm mode](https://docs.docker.com/engine/swarm/).  
-[Traefik](https://github.com/containous/traefik), [Let's Encrypt](https://letsencrypt.org), [Matamo](https://matomo.org/), [Swarmpit](https://swarmpit.io) and [Swarmprom](https://github.com/stefanprodan/swarmprom) are included by default.  
+[Traefik](https://github.com/containous/traefik), [Let's Encrypt](https://letsencrypt.org), [Matamo](https://matomo.org/), [Swarmpit](https://swarmpit.io), [Swarmprom](https://github.com/stefanprodan/swarmprom) and [Portainer](https://www.portainer.io) are included by default.  
 Swarmlet uses these to provide automatic SSL, load balancing, analytics and various metrics dashboards.  
 
 This project is aimed at developers that want to experiment with application deployment in a flexible multi-server / high-availability environment. The goal is to be able to set up your own swarm and deploy your app(s) in minutes.  
@@ -49,6 +49,7 @@ This project is aimed at developers that want to experiment with application dep
 **Requirements**: Bash 4.0 or higher (run `bash --version`).  
 
 **[Full installation instructions can be found here](https://swarmlet.dev/docs/getting-started/installation)**  
+Make sure you have a (sub) domain available which is pointed to your server, this is necessary to access the included dashboards such as Swarmpit or Matomo.
 To install the latest version of Swarmlet, log in to your server as root and run:  
 ```shell
 # Quick installation:
