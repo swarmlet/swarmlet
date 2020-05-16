@@ -37,15 +37,15 @@ deploy() {
 
   if [ -f $COMPOSE_FILE ]; then
     echo "$PREFIX Building $REPO_NAME"
-    docker-compose build --parallel
+    docker-compose build --parallel --compatibility
 
     echo "$PREFIX Pushing $REPO_NAME to swarm registry"
-    docker-compose push
+    docker-compose push --compatibility
 
     echo "$PREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
 
-    HOSTS=$(docker-compose config | grep -o "Host:.*")
+    HOSTS=$(docker-compose --compatibility config | grep -o "Host:.*")
     DOMAINS="${HOSTS//Host:/}"
     PROTOCOL=https # todo
 
