@@ -4,33 +4,25 @@ set -eo pipefail; [[ $DEBUG ]] && set -x
 source "/opt/swarmlet/src/config"
 
 echo "$PREFIX Repository received"
-
 REPO_SRC=$PWD
 REPO_BASE=$(basename $REPO_SRC)
 REPO_NAME=${REPO_BASE/.git}
 REPO_DEST=$USER_ROOT/$REPO_NAME
-COMMIT_HASH=$(git rev-parse --short=6 HEAD)
-COMPOSE_FILE=$REPO_DEST/docker-compose.yml
+# COMMIT_HASH=$(git rev-parse --short=6 HEAD)
 
 if [ -d $REPO_DEST ]; then
-  echo "$PREFIX Repository already exists"
+  echo "$PREFIX Repository $REPO_NAME already exists"
   echo "$PREFIX Pulling changes"
   pushd $REPO_DEST >/dev/null
   unset GIT_DIR
   git pull || exit 1
   popd >/dev/null
 else
-  echo "$PREFIX Copying files"
+  echo "$PREFIX Cloning repository $REPO_NAME"
   git clone -q $REPO_SRC $REPO_DEST || exit 1
   chown -R $USERNAME:$USERNAME $REPO_SRC $REPO_DEST
 fi
 
 # TODO: On docker error, abort git push.
 # Now it pushes successfully even when a deployment fails
-
-docker run --rm \
-  -v $REPO_DEST:$REPO_DEST \
-  -v $DOCKER_SOCKET:$DOCKER_SOCKET \
-  -v /opt/swarmlet/src/config:/opt/swarmlet/src/config:ro \
-  $SWARMLET_REGISTRY/deployer \
-  deploy $REPO_DEST $ROOT_DOMAIN || exit 1
+swarmlet deploy $REPO_DEST || exit 1

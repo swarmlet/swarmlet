@@ -86,6 +86,7 @@ services:
       --consul
       --consul.endpoint="consul-leader:8500"
       --acme
+      --acme.caServer="https://acme-staging-v02.api.letsencrypt.org/directory"
       --acme.email=${EMAIL}
       --acme.storage="traefik/acme/account"
       --acme.entryPoint=https

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+node() {
+  declare cmd="node"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  node-"$@"
+}
+
+node-ls() {
+  declare cmd="ls"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  docker node ls
+}
+
+node-join() {
+  declare cmd="join"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  ROLE=$1
+  NODE_IP=$2
+
+
+}
+
+node-remove() {
+  declare cmd="remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  NODE_IP=$1
+
+  
+}
+
+"$@"
