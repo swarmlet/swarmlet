@@ -10,7 +10,7 @@ source "$ROOT_DIR/config"
 source "$ROOT_DIR/functions"
 set +o allexport
 
-if [[ -f "$SUBCOMMAND" ]]; then "$SUBCOMMAND $@"; else
+if [[ -f "$SUBCOMMAND" ]]; then $SUBCOMMAND "$@"; else
   echo "$PREFIX Unknown command: $1"
   echo "$INDENT This command might not be implemented yet"
   echo "$PREFIX Executing: swarmlet $@"
