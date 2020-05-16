@@ -13,35 +13,74 @@ stack-build() {
   declare cmd="build"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  
+  STACK_NAME="$1"
+  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+
+  if [ "$(ls -A $STACK_ROOT)" ]; then
+    pushd $STACK_ROOT >/dev/null
+
+    echo "$PREFIX Building stack $STACK_NAME"
+    docker-compose build --parallel
+
+    echo "$PREFIX Pushing $STACK_NAME to swarm registry"
+    docker-compose push
+
+    popd >/dev/null
+  fi
 }
 
 stack-deploy() {
   declare cmd="deploy"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  
+  STACK_NAME="$1"
+  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  COMPOSE_FILE="$STACK_ROOT/docker-compose.yml"
+
+  pushd $STACK_ROOT >/dev/null
+
+  echo "$PREFIX Deploying $STACK_NAME"
+  docker stack deploy --compose-file $COMPOSE_FILE $STACK_NAME
+
+  popd >/dev/null
 }
 
-stack-list() {
-  declare cmd="list"
+stack-ls() {
+  declare cmd="ls"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  
+  echo "$PREFIX Listing stacks"
+  docker stack ls
 }
 
 stack-start() {
   declare cmd="start"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  
+  STACK_NAME="$1"
+  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+
+  pushd $STACK_ROOT >/dev/null
+
+  echo "$PREFIX Starting stack"
+  docker-compose up -d
+
+  popd >/dev/null
 }
 
 stack-stop() {
   declare cmd="stop"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  
+  STACK_NAME="$1"
+  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+
+  pushd $STACK_ROOT >/dev/null
+
+  echo "$PREFIX Stopping stack"
+  docker-compose down
+
+  popd >/dev/null
 }
 
 "$@"

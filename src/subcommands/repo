@@ -13,21 +13,65 @@ repo-create() {
   declare cmd="create"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  REPO_NAME="$1"
+  REPO_PATH="$REPO_ROOT/$REPO_NAME.git"
 
+  echo "$PREFIX Creating repository $REPO_NAME on swarm"
+
+  if [ -z $REPO_NAME ]; then
+    echo "$PREFIX No repository name specified"
+    echo "$INDENT Usage:"
+    echo "$INDENT swarmlet repo:create <name>"
+    exit 1
+  fi
+
+  git init --bare $REPO_PATH
+  cp -R $SWARMLET_HOOKS/* $REPO_PATH/hooks/
+  chown -R $USERNAME:$USERNAME $REPO_PATH
+
+  echo "$INDENT Created remote repository $REPO_NAME"
+  echo "$PREFIX Ready for deploy"
+  echo "$INDENT Add a git remote to your local repository:"
+  echo "$INDENT $ git remote add swarm git@swarm:$REPO_NAME"
+  echo -e "$INDENT $ git push swarm master\n"
 }
 
 repo-remove() {
   declare cmd="remove"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  
+  REPO_NAME="$1"
+  REPO_PATH="$REPO_ROOT/$REPO_NAME.git"
+
+  echo "$PREFIX Removing repository $REPO_NAME from swarm"
+  echo "$INDENT [NOTE] This won't remove your stack"
+
+  if [ -z $REPO_NAME ]; then
+    echo "$PREFIX No repository name specified"
+    echo "$INDENT Usage:"
+    echo "$INDENT swarmlet repo:remove <name>"
+    exit 1
+  fi
+
+  rm -rf $REPO_PATH
+  echo "$INDENT Repository removed from swarm"
 }
 
-repo-list() {
-  declare cmd="list"
+repo-ls() {
+  declare cmd="ls"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  
+  echo "$PREFIX Listing repositories"
+
+  for REPO in $REPO_ROOT/*; do
+    REPO_BASE=$(basename $REPO)
+    REPO_NAME=${REPO_BASE/.git}
+    if [ -d $USER_ROOT/$REPO_NAME ];
+      then DEPLOYED="Deployed"
+      else DEPLOYED="Created"
+    fi
+    echo "$INDENT $(basename $REPO) - Status: $DEPLOYED"
+  done
 }
 
 "$@"

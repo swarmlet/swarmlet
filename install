@@ -38,12 +38,12 @@ declare -A DEFAULT_OPTS=(
   [ROOT_DOMAIN]=$HOSTNAME       # (default $HOSTNAME) The domain to use for deployment of included services
   [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
   [INSTALL_BRANCH]=master       # (default master) The default branch to install
-  [INTERACTIVE]=false           # (default false) Use CLI wizard to setup Swarmlet
   [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
   [INSTALL_ZSH]=false           # (default false) Install 'Oh My Zsh'
   [NOOP]=                       # no-op for testing purposes
   # > TODO/FIX:
-  # [DEBUG]=                  # (default undefined) Run installation in debug mode
+  # [INTERACTIVE]=false         # (default false) Use CLI wizard to setup Swarmlet
+  # [DEBUG]=                    # (default undefined) Run installation in debug mode
 )
 
 # Set default environment variables
@@ -91,14 +91,14 @@ install() {
   echo "$PREFIX Initializing Swarmlet"
   swarmlet init "$@"
 
-  echo "$PREFIX Installation complete"
-  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
-
   echo "$FPREFIX Server initialized as manager node"
-  docker node ls
+  swarmlet node ls
 
   echo "$FPREFIX Swarmlet services stacks deployed"
-  docker stack ls
+  swarmlet stack ls
+
+  echo "$PREFIX Installation complete"
+  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
 
   echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"

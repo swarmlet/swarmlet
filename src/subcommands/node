@@ -9,6 +9,13 @@ node() {
   node-"$@"
 }
 
+node-ls() {
+  declare cmd="ls"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  docker node ls
+}
+
 node-join() {
   declare cmd="join"
   [[ "$1" == "$cmd" ]] && shift 1

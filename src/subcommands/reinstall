@@ -6,7 +6,7 @@ reinstall() {
   declare cmd="reinstall"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  swarmlet uninstall-swarmlet
+  swarmlet uninstall
   curl -fsSL https://get.swarmlet.dev | bash -s ROOT_DOMAIN=$ROOT_DOMAIN
 }
 
