@@ -56,13 +56,14 @@ init() {
   echo "$PREFIX Starting registry"
   swarmlet stack start core/registry $SWARMLET_SERVICES_ROOT
 
+  SWARMLET_SERVICES=()
   case $INSTALLATION_MODE in
     full) SWARMLET_SERVICES=(${SWARMLET_CORE_SERVICES[@]} ${SWARMLET_RECOMMENDS_SERVICES[@]}) ;;
     minimal) SWARMLET_SERVICES=(${SWARMLET_CORE_SERVICES[@]}) ;;
     *) echo -e "$PREFIX Unknown installation mode $INSTALLATION_MODE\nExiting"; exit 1 ;;
   esac
 
-  echo "$PREFIX Installing core services"
+  echo "$PREFIX Installing services"
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
     if [[ $SERVICE == 'core/deployer' ]]; then
