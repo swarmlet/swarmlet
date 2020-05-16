@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   frontend:
-    image: ${SWARMLET_REGISTRY}/react-node-example-frontend
+    image: ${SWARMLET_REGISTRY}/react-node-frontend
     build:
       context: ./frontend
       args:
@@ -25,7 +25,7 @@ services:
       - traefik-public
 
   api:
-    image: ${SWARMLET_REGISTRY}/react-node-example-api
+    image: ${SWARMLET_REGISTRY}/react-node-api
     build: ./api
     deploy:
       mode: replicated
