@@ -92,7 +92,7 @@ install() {
   swarmlet init "$@"
 
   echo "$PREFIX Installation complete"
-  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh) && zsh
+  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
 
   echo "$FPREFIX Server initialized as manager node"
   docker node ls

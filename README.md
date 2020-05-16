@@ -52,7 +52,7 @@ This project is aimed at developers that want to experiment with application dep
 To install the latest version of Swarmlet, log in to your server as root and run:  
 ```shell
 # Quick installation:
-curl -fsSL https://get.swarmlet.dev | bash
+curl -fsSL https://get.swarmlet.dev | bash -s ROOT_DOMAIN=mydomain.com
 ```
 Or with [options](https://swarmlet.dev/docs/getting-started/installation):
 ```shell

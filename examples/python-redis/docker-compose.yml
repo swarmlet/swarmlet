@@ -6,7 +6,7 @@ services:
     build: .
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       labels:
         - traefik.frontend.rule=Host:${DOMAIN}
         - traefik.enable=true
