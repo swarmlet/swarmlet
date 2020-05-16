@@ -11,14 +11,14 @@ REPO_DEST=$USER_ROOT/$REPO_NAME
 # COMMIT_HASH=$(git rev-parse --short=6 HEAD)
 
 if [ -d $REPO_DEST ]; then
-  echo "$PREFIX Repository already exists"
+  echo "$PREFIX Repository $REPO_NAME already exists"
   echo "$PREFIX Pulling changes"
   pushd $REPO_DEST >/dev/null
   unset GIT_DIR
   git pull || exit 1
   popd >/dev/null
 else
-  echo "$PREFIX Copying files"
+  echo "$PREFIX Cloning repository $REPO_NAME"
   git clone -q $REPO_SRC $REPO_DEST || exit 1
   chown -R $USERNAME:$USERNAME $REPO_SRC $REPO_DEST
 fi

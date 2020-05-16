@@ -62,7 +62,7 @@ stack-start() {
 
   pushd $STACK_ROOT >/dev/null
 
-  echo "$PREFIX Starting stack"
+  echo "$PREFIX Starting stack $STACK_NAME"
   docker-compose up -d
 
   popd >/dev/null

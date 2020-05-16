@@ -53,9 +53,6 @@ init() {
     -o device=$USER_ROOT \
     git-data
 
-  echo "$PREFIX Starting registry"
-  swarmlet stack start core/registry $SWARMLET_SERVICES_ROOT
-
   # TODO:
   # case $INSTALLATION_MODE in
   #   full) SWARMLET_SERVICES=(${SWARMLET_CORE_SERVICES[@]} ${SWARMLET_RECOMMENDS_SERVICES[@]}) ;;
@@ -71,6 +68,8 @@ init() {
     recommends/matomo
     recommends/swarmpit
   )
+
+  swarmlet stack start core/registry $SWARMLET_SERVICES_ROOT
 
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
