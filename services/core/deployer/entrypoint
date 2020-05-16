@@ -38,7 +38,7 @@ deploy() {
     echo "$PREFIX Building $REPO_NAME"
     docker-compose build --parallel
 
-    echo "$PREFIX Pushing $REPO_NAME to swarm registry"
+    echo "$PREFIX Pushing $REPO_NAME"
     docker-compose push
 
     echo "$PREFIX Deploying $REPO_NAME"
