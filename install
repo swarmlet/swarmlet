@@ -38,12 +38,12 @@ declare -A DEFAULT_OPTS=(
   [ROOT_DOMAIN]=$HOSTNAME       # (default $HOSTNAME) The domain to use for deployment of included services
   [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
   [INSTALL_BRANCH]=master       # (default master) The default branch to install
-  [INTERACTIVE]=false           # (default false) Use CLI wizard to setup Swarmlet
   [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
   [INSTALL_ZSH]=false           # (default false) Install 'Oh My Zsh'
   [NOOP]=                       # no-op for testing purposes
   # > TODO/FIX:
-  # [DEBUG]=                  # (default undefined) Run installation in debug mode
+  # [INTERACTIVE]=false         # (default false) Use CLI wizard to setup Swarmlet
+  # [DEBUG]=                    # (default undefined) Run installation in debug mode
 )
 
 # Set default environment variables
@@ -63,9 +63,11 @@ set -eo pipefail; [[ $DEBUG ]] && set -x
 install() {
   echo "$PREFIX Installing Swarmlet"
   echo "$PREFIX Installing dependencies"
-  apt-get update -y -qq
+  apt-get update -y -qq >/dev/null
   apt-get install -y -qq "${DEPENDENCIES[@]}"
-  wget -nv -O - https://get.docker.com/ | sh
+
+  echo "$PREFIX Installing Docker and Docker Compose"
+  wget -nv -O - https://get.docker.com/ | sh >/dev/null
   curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   chmod +x /usr/local/bin/docker-compose
 
@@ -81,7 +83,7 @@ install() {
 
   if [[ "$INSTALL_ZSH" == "true" ]]; then
     echo "$PREFIX Installing 'Oh My Zsh'"
-    apt-get install -y -qq zsh
+    apt-get install -y -qq zsh >/dev/null
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
   fi
 
@@ -91,14 +93,14 @@ install() {
   echo "$PREFIX Initializing Swarmlet"
   swarmlet init "$@"
 
-  echo "$PREFIX Installation complete"
-  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
-
   echo "$FPREFIX Server initialized as manager node"
-  docker node ls
+  swarmlet node ls
 
   echo "$FPREFIX Swarmlet services stacks deployed"
-  docker stack ls
+  swarmlet stack ls
+
+  echo "$PREFIX Installation complete"
+  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
 
   echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"

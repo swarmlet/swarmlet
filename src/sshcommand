@@ -11,5 +11,4 @@ if [ ! -d $REPO_PATH ]; then
   chown -R $USER:$USER $REPO_PATH
 fi
 
-cd $REPO_ROOT
-git-shell -c "$SSH_ORIGINAL_COMMAND"
+cd $REPO_ROOT && git-shell -c "$SSH_ORIGINAL_COMMAND"

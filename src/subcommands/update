@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+update() {
+  declare cmd="update"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  BRANCH=${1:-master}
+
+  # TODO
+  pushd $SWARMLET_ROOT >/dev/null
+
+  git pull origin $BRANCH
+
+  popd >/dev/null
+}
+
+"$@"
