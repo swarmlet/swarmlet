@@ -63,9 +63,15 @@ init() {
   #   *) echo -e "$PREFIX Unknown installation mode $INSTALLATION_MODE\nExiting"; exit 1 ;;
   # esac
 
-  SWARMLET_SERVICES=(${SWARMLET_CORE_SERVICES[@]} ${SWARMLET_RECOMMENDS_SERVICES[@]})
-
   echo "$PREFIX Installing services"
+  SWARMLET_SERVICES=(
+    core/registry 
+    core/deployer
+    core/loadbalancer
+    recommends/matomo
+    recommends/swarmpit
+  )
+
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
     if [[ $SERVICE == 'core/deployer' ]]; then

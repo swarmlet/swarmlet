@@ -19,9 +19,6 @@ SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
 SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
 SWARMLET_SERVICES_ROOT="$SWARMLET_ROOT/services"
 
-SWARMLET_CORE_SERVICES=(core/registry core/deployer core/loadbalancer)
-SWARMLET_RECOMMENDS_SERVICES=(recommends/matomo recommends/swarmpit)
-
 SWARMLET_NETWORK_NAME="swarmlet-network"
 SWARMLET_NETWORK_DRIVER="overlay"
 
