@@ -8,9 +8,6 @@ deploy() {
 
   REPO_DEST=$1
 
-  printenv
-  echo $REPO_DEST
-
   # --config $SWARMLET_CONFIG
   docker run --rm \
     -v $REPO_DEST:$REPO_DEST \
