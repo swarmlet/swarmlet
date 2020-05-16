@@ -23,7 +23,7 @@ stack-build() {
     docker-compose build --parallel
 
     echo "$PREFIX Pushing $STACK_NAME to swarm registry"
-    docker-compose push
+    docker-compose push --compatibility
 
     popd >/dev/null
   fi
@@ -63,7 +63,7 @@ stack-start() {
   pushd $STACK_ROOT >/dev/null
 
   echo "$PREFIX Starting stack $STACK_NAME"
-  docker-compose up -d
+  docker-compose up -d --compatibility
 
   popd >/dev/null
 }

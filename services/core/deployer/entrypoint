@@ -37,7 +37,7 @@ deploy() {
 
   if [ -f $COMPOSE_FILE ]; then
     echo "$PREFIX Building $REPO_NAME"
-    docker-compose build --parallel --compatibility
+    docker-compose build --parallel
 
     echo "$PREFIX Pushing $REPO_NAME to swarm registry"
     docker-compose push --compatibility
