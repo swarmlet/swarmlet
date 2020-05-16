@@ -63,9 +63,11 @@ set -eo pipefail; [[ $DEBUG ]] && set -x
 install() {
   echo "$PREFIX Installing Swarmlet"
   echo "$PREFIX Installing dependencies"
-  apt-get update -y -qq
+  apt-get update -y -qq >/dev/null
   apt-get install -y -qq "${DEPENDENCIES[@]}"
-  wget -nv -O - https://get.docker.com/ | sh
+
+  echo "$PREFIX Installing Docker and Docker Compose"
+  wget -nv -O - https://get.docker.com/ | sh >/dev/null
   curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   chmod +x /usr/local/bin/docker-compose
 
@@ -81,7 +83,7 @@ install() {
 
   if [[ "$INSTALL_ZSH" == "true" ]]; then
     echo "$PREFIX Installing 'Oh My Zsh'"
-    apt-get install -y -qq zsh
+    apt-get install -y -qq zsh >/dev/null
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
   fi
 
