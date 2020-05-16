@@ -10,11 +10,13 @@ init() {
   adduser $USERNAME --disabled-password --gecos --quiet
   usermod -aG docker $USERNAME
   mkdir -p $REPO_ROOT $USER_ROOT/.ssh
+  setfacl -m u:$USERNAME:rwx $REPO_ROOT
+
+  echo "$PREFIX Configuring git SSH options"
   cat "$AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" > $USER_ROOT/.ssh/authorized_keys
   chmod 700 $USER_ROOT/.ssh
   chmod 600 $USER_ROOT/.ssh/authorized_keys
   chown -R $USERNAME:$USERNAME $USER_ROOT/.ssh
-  setfacl -m u:$USERNAME:rwx $REPO_ROOT
 
   if [[ $CREATE_SWAP == "true" ]]; then
     echo "$PREFIX Creating 1GB of swap space"
@@ -67,15 +69,16 @@ init() {
     core/loadbalancer
     recommends/matomo
     recommends/swarmpit
+    # TODO: make configurable
   )
 
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
-    if [[ "$SERVICE" == "core/registry" ]]; then
-      swarmlet stack start core/registry $SWARMLET_SERVICES_ROOT
+    if [[ $SERVICE == "core/registry" ]]; then
+      swarmlet stack start $SERVICE $SWARMLET_SERVICES_ROOT
       continue
-    elif [[ "$SERVICE" == "core/deployer" ]]; then
-      swarmlet stack build core/deployer $SWARMLET_SERVICES_ROOT
+    elif [[ $SERVICE == "core/deployer" ]]; then
+      swarmlet stack build $SERVICE $SWARMLET_SERVICES_ROOT
     fi
     swarmlet repo create $(basename $SERVICE) >/dev/null
     git-local-push $SWARMLET_SERVICES_ROOT/$SERVICE >/dev/null
