@@ -2,7 +2,7 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-# TODO: make config configurable
+# TODO: improve configuration workflow
 set -o allexport
 source "/opt/swarmlet/src/config"
 
@@ -35,10 +35,6 @@ deploy() {
     source $ENTRYPOINT_FILE
   fi
 
-  # HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*")
-  # DOMAINS="${HOSTS//\$\{DOMAIN\}/$DOMAIN}"
-  # DOMAINS="${DOMAINS//Host:/}"
-  
   if [ -f $COMPOSE_FILE ]; then
     echo "$PREFIX Building $REPO_NAME"
     docker-compose build --parallel
@@ -49,10 +45,11 @@ deploy() {
     echo "$PREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
 
-    echo "$FPREFIX Stack deployed:"
     HOSTS=$(docker-compose config | grep -o "Host:.*")
     DOMAINS="${HOSTS//Host:/}"
     PROTOCOL=https # todo
+
+    echo "$FPREFIX Stack deployed:"
     for DOMAIN in ${DOMAINS[@]}; do echo "[$REPO_NAME] — $PROTOCOL://$DOMAIN"; done
     echo
   else
