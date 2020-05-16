@@ -6,7 +6,7 @@ info() {
   declare cmd="info"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  
+  docker info
 }
 
 "$@"

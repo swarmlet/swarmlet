@@ -6,15 +6,15 @@ deploy() {
   declare cmd="deploy"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  REPO_DEST=$1
+  REPO_PATH=$1
 
   # --config $SWARMLET_CONFIG
   docker run --rm \
-    -v $REPO_DEST:$REPO_DEST \
+    -v $REPO_PATH:$REPO_PATH \
     -v $DOCKER_SOCKET:$DOCKER_SOCKET \
     -v $SWARMLET_CONFIG:$SWARMLET_CONFIG:ro \
     $SWARMLET_REGISTRY/deployer \
-    deploy $REPO_DEST
+    deploy $REPO_PATH
 }
 
 "$@"
