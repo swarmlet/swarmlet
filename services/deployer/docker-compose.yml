@@ -3,10 +3,7 @@ version: '3.7'
 services:
   deploy:
     image: ${SWARMLET_REGISTRY}/deployer
-    build:
-      context: .
-      args:
-        SWARMLET_REGISTRY: ${SWARMLET_REGISTRY}
+    build: .
     networks:
       - swarmlet-network
     volumes:

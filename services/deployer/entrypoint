@@ -35,21 +35,25 @@ deploy() {
     source $ENTRYPOINT_FILE
   fi
 
-  HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*")
-  DOMAINS="${HOSTS//\$\{DOMAIN\}/$DOMAIN}"
-  DOMAINS="${DOMAINS//Host:/}"
-  # TODO: check protocol instead of assuming https
-  PROTOCOL=https://
-
+  # HOSTS=$(cat $COMPOSE_FILE | grep -o "Host:.*")
+  # DOMAINS="${HOSTS//\$\{DOMAIN\}/$DOMAIN}"
+  # DOMAINS="${DOMAINS//Host:/}"
+  
   if [ -f $COMPOSE_FILE ]; then
     echo "$PREFIX Building $REPO_NAME"
     docker-compose build --parallel
+
     echo "$PREFIX Pushing $REPO_NAME to swarm registry"
     docker-compose push
+
     echo "$PREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
+
     echo "$FPREFIX Stack deployed:"
-    for DOMAIN in ${DOMAINS[@]}; do echo "[$REPO_NAME] — $PROTOCOL$DOMAIN"; done
+    HOSTS=$(docker-compose config | grep -o "Host:.*")
+    DOMAINS="${HOSTS//Host:/}"
+    PROTOCOL=https # todo
+    for DOMAIN in ${DOMAINS[@]}; do echo "[$REPO_NAME] — $PROTOCOL://$DOMAIN"; done
     echo
   else
     echo "$PREFIX No docker-compose.yml found, exiting"

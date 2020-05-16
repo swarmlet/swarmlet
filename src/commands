@@ -3,27 +3,16 @@
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
 ROOT_DIR=$(dirname "$0")
-SUBCOMMANDS="$ROOT_DIR/subcommands"
+SUBCOMMAND="$ROOT_DIR/subcommands/$1"
 
 set -o allexport
 source "$ROOT_DIR/config"
 source "$ROOT_DIR/functions"
 set +o allexport
 
-COMMAND="$1"
-
-case $COMMAND in
-  init) "$SUBCOMMANDS/init" "$@" ;;
-
-  repo:create) "$SUBCOMMANDS/repo-create" "$@" ;;
-  repo:remove) "$SUBCOMMANDS/repo-remove" "$@" ;;
-  repo:list|repo:ls) "$SUBCOMMANDS/repo-list" "$@" ;;
-  
-  stack:build) "$SUBCOMMANDS/stack-build" "$@" ;;
-  stack:deploy) "$SUBCOMMANDS/stack-deploy" "$@" ;;
-  stack:start) "$SUBCOMMANDS/stack-start" "$@" ;;
-  stack:stop) "$SUBCOMMANDS/stack-stop" "$@" ;;
-  stack:list|stack:ls) "$SUBCOMMANDS/stack-list" "$@" ;;
-
-  *) echo -e "$PREFIX Unknown command $COMMAND\nThis command might not be implemented yet"; exit 1 ;;
-esac
+if [[ -f "$SUBCOMMAND" ]]; then "$SUBCOMMAND $@"; else
+  echo "$PREFIX Unknown command: $1"
+  echo "$INDENT This command might not be implemented yet"
+  echo "$PREFIX Executing: swarmlet $@"
+  "$@"
+fi

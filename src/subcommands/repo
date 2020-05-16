@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+
+repo() {
+  declare cmd="repo"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  repo-"$@"
+}
+
+repo-create() {
+  declare cmd="create"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+
+}
+
+repo-remove() {
+  declare cmd="remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  
+}
+
+repo-list() {
+  declare cmd="list"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  
+}
+
+"$@"
