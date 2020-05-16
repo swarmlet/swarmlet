@@ -73,7 +73,7 @@ cmd-init() {
     elif [[ $SERVICE == 'core/deployer' ]]; then
       swarmlet stack:build $SERVICE $SWARMLET_SERVICES_ROOT
     fi
-    swarmlet repo:create $SERVICE >/dev/null
+    swarmlet repo:create $(basename $SERVICE) >/dev/null
     git-local-push $SWARMLET_SERVICES_ROOT/$SERVICE >/dev/null
   done
 }
