@@ -83,4 +83,16 @@ stack-stop() {
   popd >/dev/null
 }
 
+stack-remove() {
+  declare cmd="remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  STACK_NAME="$1"
+  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+
+  docker stack rm $STACK_NAME
+  rm -rf $STACK_ROOT $REPO_ROOT/$STACK_NAME.git >/dev/null
+  # TODO: clean up some more
+}
+
 "$@"
