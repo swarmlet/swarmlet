@@ -99,7 +99,7 @@ install() {
   echo "$FPREFIX Swarmlet services stacks deployed"
   swarmlet stack ls
 
-  echo "$PREFIX Installation complete"
+  echo "$FPREFIX Installation complete"
   [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
 
   echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
