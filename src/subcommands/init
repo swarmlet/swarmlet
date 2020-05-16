@@ -37,13 +37,13 @@ cmd-init() {
 
   echo "$PREFIX Creating networks"
   docker network create \
-    --driver=overlay \
-    traefik-public
-
-  docker network create \
     --attachable \
     --driver $SWARMLET_NETWORK_DRIVER \
     $SWARMLET_NETWORK_NAME
+
+  docker network create \
+    --driver=overlay \
+    traefik-public
 
   echo "$PREFIX Creating volumes"
   docker volume create \
@@ -53,18 +53,27 @@ cmd-init() {
     -o device=$USER_ROOT \
     git-data
 
-  pushd $SWARMLET_SERVICES_ROOT/registry >/dev/null
-  docker-compose up -d
-  popd >/dev/null
-
   echo "$PREFIX Installing services"
-  SWARMLET_SERVICES=(deployer loadbalancer matomo swarmpit)
+  SWARMLET_SERVICES=(
+    core/registry
+    core/deployer
+    core/loadbalancer
+    # TODO: install recommends conditionally
+    recommends/matomo
+    recommends/swarmpit
+  )
+
   for SERVICE in ${SWARMLET_SERVICES[@]}; do
     echo "$PREFIX Installing $SERVICE"
-    if [[ $SERVICE == 'deployer' ]]; then
+    if [[ $SERVICE == 'core/registry' ]]; then
+      pushd $SWARMLET_SERVICES_ROOT/$SERVICE >/dev/null
+      docker-compose up -d
+      popd >/dev/null
+      continue
+    elif [[ $SERVICE == 'core/deployer' ]]; then
       swarmlet stack:build $SERVICE $SWARMLET_SERVICES_ROOT
     fi
-    swarmlet repo:create $SERVICE >/dev/null
+    swarmlet repo:create $(basename $SERVICE) >/dev/null
     git-local-push $SWARMLET_SERVICES_ROOT/$SERVICE >/dev/null
   done
 }
