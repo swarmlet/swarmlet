@@ -85,6 +85,7 @@ install() {
     echo "$PREFIX Installing 'Oh My Zsh'"
     apt-get install -y -qq zsh >/dev/null
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
+    chsh -s $(which zsh)
   fi
 
   echo "$PREFIX Linking executable"
@@ -100,8 +101,6 @@ install() {
   swarmlet stack ls
 
   echo "$FPREFIX Installation complete"
-  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
-
   echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
