@@ -33,3 +33,57 @@ create-swap() {
   echo "$FILE_PATH none swap sw 0 0" | sudo tee -a /etc/fstab
 }
 
+uninstall-swarmlet() {
+  if [[ -d "$USER_ROOT" ]]; then
+    rm -rf /home/git
+    userdel git -f
+  fi
+  [[ -f /usr/local/sbin/swarmlet ]] && unlink /usr/local/sbin/swarmlet
+  if [[ -d "$REPO_ROOT" ]]; then rm -rf $REPO_ROOT; fi
+  if [[ -d "$SWARMLET_ROOT" ]]; then rm -rf $SWARMLET_ROOT; fi
+}
+
+reinstall-swarmlet() {
+  uninstall-swarmlet
+  curl -fsSL https://get.swarmlet.dev | bash
+}
+
+check_existing() {
+if  [[ -d "$USER_ROOT" ]] ||
+    [[ -d "$REPO_ROOT" ]] ||
+    [[ -f /usr/local/sbin/swarmlet ]] ||
+    [[ -d $SWARMLET_ROOT ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+setup_ssh() {
+  if [[ ! -d ~/.ssh ]]; then
+    mkdir -p ~/.ssh/
+  fi
+
+  if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
+    ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+    echo "$INDENT Execute ssh-keygen --[done]"
+  fi
+
+  if [[ ! -f ~/.ssh/authorized_keys ]]; then
+    touch ~/.ssh/authorized_keys
+    echo "$INDENT Create ~/.ssh/authorized_keys --[done]"
+    chmod 700 ~/.ssh/authorized_keys
+    cat ~/.ssh/id_rsa.pub >>~/.ssh/authorized_keys
+    echo "$INDENT Append the public keys id_rsa into authorized keys --[done]"
+    chmod 400 ~/.ssh/authorized_keys
+    chmod 700 ~/.ssh/
+  fi
+}
+
+check-swarm(){
+    if [[ "$(docker info 2>/dev/null  | grep Swarm | sed 's/Swarm: //g')" == " active" ]]; then
+        return 1
+    else
+        return 0
+    fi
+}

@@ -1,0 +1,367 @@
+#!/usr/bin/env bash
+
+set -o allexport
+source "src/config"
+set +o allexport
+
+tmpLog="/tmp/swarmlet-install.log"
+instalLogLoc="/opt/swarmlet/install.log"
+
+### PKG Vars ###
+PKG_MANAGER="apt-get"
+PKG_CACHE="/var/lib/apt/lists/"
+UPDATE_PKG_CACHE="${PKG_MANAGER} update"
+PKG_INSTALL="${PKG_MANAGER} --yes --no-install-recommends install"
+PKG_COUNT="${PKG_MANAGER} -s -o Debug::NoLocking=true upgrade | grep -c ^Inst || true"
+SWARMLET_DEPS=(acl curl git apt-transport-https apache2-utils moreutils wget dialog)
+REPOSITORY="https://github.com/swarmlet/swarmlet.git"
+
+USERNAME="git"
+USER_ROOT="/home/$USERNAME"
+REPO_ROOT="/var/repo"
+DOCKER_SOCKET="/var/run/docker.sock"
+
+SWARMLET_ROOT="/opt/swarmlet"
+SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
+SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
+SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
+SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
+
+
+AUTHORIZED_KEYS="/root/.ssh/authorized_keys" # TODO: make configurable
+SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $REPO_ROOT $SWARMLET_HOOKS\""
+SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"
+
+SWARMLET_NETWORK_NAME="swarmlet-network"
+SWARMLET_NETWORK_DRIVER="overlay"
+
+# Find the rows and columns. Will default to 80x24 if it can not be detected.
+screen_size=$(stty size 2>/dev/null || echo 24 80)
+rows=$(echo ${screen_size} | awk '{print $1}')
+columns=$(echo ${screen_size} | awk '{print $2}')
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
+declare -A DEFAULT_OPTS=(
+  [ROOT_DOMAIN]=$HOSTNAME   # (default $HOSTNAME) The domain to use for deployment of included services
+  [CF_EMAIL]=root@$HOSTNAME # The email which you are using for cloudflare registration
+  [INSTALLATION_MODE]=full  # (default full, options: full|minimal|bare) .. TODO
+  [INSTALL_BRANCH]=master   # (default master) The default branch to install
+  [CREATE_SWAP]=false       # (default false) Allocate 1GB of swap space
+  [INSTALL_ZSH]=false       # (default false) Install 'Oh My Zsh'
+  [NOOP]=                   # no-op for testing purposes
+)
+
+for KEY in "${!DEFAULT_OPTS[@]}"; do
+  [[ ! -z "${DEFAULT_OPTS[$KEY]}" ]] && export "$KEY=${DEFAULT_OPTS[$KEY]}"
+done
+# Divide by two so the dialogs take up half of the screen, which looks nice.
+r=$((rows / 2))
+c=$((columns / 2))
+# Unless the screen is tiny
+r=$((r < 20 ? 20 : r))
+c=$((c < 70 ? 70 : c))
+
+######## FIRST CHECK ########
+# Must be root to install
+echo "$FPREFIX Checking user"
+if [[ $EUID -eq 0 ]]; then
+  echo "$PREFIX You are root."
+else
+  echo "$PREFIX sudo will be used for the install."
+  # Check if it is actually installed
+  # If it isn't, exit because the install cannot complete
+  if [[ $(dpkg-query -s sudo) ]]; then
+    export SUDO="sudo"
+    export SUDOE="sudo -E"
+  else
+    echo "$PREFIX Please install sudo or run this as root."
+    exit 1
+  fi
+fi
+####### FUNCTIONS ##########
+spinner() {
+  local pid=$1
+  local delay=0.50
+  local spinstr='/-\|'
+  while [[ "$(ps a | awk '{print $1}' | grep "${pid}")" ]]; do
+    local temp=${spinstr#?}
+    printf " [%c]  " "${spinstr}"
+    local spinstr=${temp}${spinstr%"$temp"}
+    sleep ${delay}
+    printf "\b\b\b\b\b\b"
+  done
+  printf "    \b\b\b\b"
+}
+
+helloSwarmlet() {
+  whiptail --msgbox --title "Swarmlet Automated Installer" "This installer will transform your VPS into an Swarmed server!\
+\n
+\n
+In the next sections, we will ask you for some details which will help us in configuration of your Swarmlet.
+" ${r} ${c}
+  if [[ $? != 0 ]]; then break_installation; fi
+}
+
+package_check_install() {
+  dpkg-query -W -f='${Status}' "${1}" 2>/dev/null | grep -c "ok installed" || ${PKG_INSTALL} "${1}"
+}
+
+check_bash() {
+  if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
+    echo "$PREFIX [ERROR] Unmet requirements: Bash 4"
+    echo "$INDENT Your Bash version is $BASH_VERSION"
+    echo "$PREFIX Exiting with error code 1" 1>&2
+    exit 1
+  fi
+}
+
+install_dependent_packages() {
+  # Install packages passed in via argument array
+  # No spinner - conflicts with set -e
+  declare -a argArray1=("${!1}")
+
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | ${SUDO} debconf-set-selections
+  echo iptables-persistent iptables-persistent/autosave_v6 boolean false | ${SUDO} debconf-set-selections
+
+  if command -v debconf-apt-progress &>/dev/null; then
+    ${SUDO} debconf-apt-progress -- ${PKG_INSTALL} "${argArray1[@]}"
+  else
+    for i in "${argArray1[@]}"; do
+      echo -n "$FPREFIX Checking for $i..."
+      ${SUDO} package_check_install "${i}" &>/dev/null
+      echo "$PREFIX installed!"
+    done
+  fi
+}
+update_package_cache() {
+  #Check to see if apt-get update has already been run today
+  #it needs to have been run at least once on new installs!
+  timestamp=$(stat -c %Y ${PKG_CACHE})
+  timestampAsDate=$(date -d @"${timestamp}" "+%b %e")
+  today=$(date "+%b %e")
+
+  if [ ! "${today}" == "${timestampAsDate}" ]; then
+    echo -n "$FPREFIX ${PKG_MANAGER} update has not been run today. Running now..."
+    ${SUDO} ${UPDATE_PKG_CACHE} &>/dev/null
+    echo "$PREFIX done!"
+  fi
+}
+notify_package_updates_available() {
+
+  echo -n "$FPREFIX Checking ${PKG_MANAGER} for upgraded packages"
+  echo ""
+  updatesToInstall=$(eval "${PKG_COUNT}")
+  if [[ ${updatesToInstall} -eq "0" ]]; then
+    echo "$PREFIX Your system is up to date! Continuing with Swarmlet installation..."
+  else
+    echo "$PREFIX There are ${updatesToInstall} updates available for your system!"
+    echo "$PREFIX We recommend you to update your OS after installing Swarmlet! "
+  fi
+}
+install_docker() {
+  echo "$INDENT Installing docker"
+  wget -nv -O - https://get.docker.com/ | sh
+  curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+  echo "$PREFIX Docker installed"
+}
+break_installation() {
+  echo 'aborted'
+  exit 1
+}
+do_change_hostname() {
+  whiptail --msgbox "Set your hostname" ${r} ${c}
+
+  CURRENT_HOSTNAME=$(cat /etc/hostname | tr -d " \t\n\r")
+  ROOT_DOMAIN=$(whiptail --inputbox "Please enter a hostname" 20 60 "$CURRENT_HOSTNAME" 3>&1 1>&2 2>&3)
+  if [[ $? -eq 0 ]]; then
+    ${SUDO} echo ${ROOT_DOMAIN} >/etc/hostname
+    ${SUDO} sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
+  fi
+}
+do_select_branch() {
+  USER_INSTALL_BRANCH=$(whiptail --inputbox "Select branch" 20 60 ${swarmletGitBranch} 3>&1 1>&2 2>&3)
+  if [[ $? != 0 ]]; then break_installation; fi
+}
+do_create_swap() {
+  USER_SWAP=$(whiptail --yesno " Allocate 1GB of swap space" ${r} ${c} 3>&1 1>&2 2>&3)
+}
+do_install_zssh() {
+  INSTALL_ZSH=$(whiptail --yesno " Install 'Oh My Zsh" ${r} ${c} 3>&1 1>&2 2>&3)
+}
+do_select_username() {
+  USERNAME=$(whiptail --inputbox "please enter your username, we will use it to configure services" ${r} ${c} 3>&1 1>&2 2>&3)
+  if [[ $? != 0 ]]; then break_installation; fi
+}
+do_select_cf_email() {
+  CF_EMAIL=$(whiptail --inputbox "please enter cloudflare email, we will use it to configure services" ${r} ${c} 3>&1 1>&2 2>&3)
+  if [[ $? != 0 ]]; then break_installation; fi
+}
+do_select_password() {
+  PASSWORD=$(whiptail --passwordbox "please enter your secret password, we will use it to configure services" ${r} ${c} 3>&1 1>&2 2>&3)
+  if [[ $? != 0 ]]; then break_installation; fi
+}
+do_select_services() {
+dialogbox=(whiptail
+--separate-output
+--ok-button "Install"
+--title "Auto Setup Script"
+--checklist "\nPlease select desired services:\n(Press 'Space' to Select/Deselect, 'Enter' to Install and 'Esc' to Cancel)" ${r} ${c})
+	options=(1 "Swarmlet" off
+		2 "Portainer" off
+		3 "Grafana" off
+		4 "Konsul" off)
+
+selected=$("${dialogbox[@]}" "${options[@]}" 2>&1 >/dev/tty)
+}
+install_zssh() {
+  echo "$PREFIX Installing 'Oh My Zsh'"
+  apt-get install -y -qq zsh
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
+
+}
+
+uninstall-swarmlet() {
+  if [[ -d "$USER_ROOT" ]]; then
+    rm -rf /home/git
+    userdel git -f
+  fi
+  [[ -f /usr/local/sbin/swarmlet ]] && unlink /usr/local/sbin/swarmlet
+  if [[ -d "$REPO_ROOT" ]]; then rm -rf ${REPO_ROOT}; fi
+  if [[ -d "$SWARMLET_ROOT" ]]; then rm -rf ${SWARMLET_ROOT}; fi
+}
+create-swap() {
+  SIZE=${1:-1G}
+  FILE_PATH=${2:-/swapfile}
+  sudo fallocate -l ${SIZE} ${FILE_PATH}
+  sudo chmod 600 ${FILE_PATH}
+  sudo mkswap ${FILE_PATH}
+  sudo swapon ${FILE_PATH}
+  echo "$FILE_PATH none swap sw 0 0" | sudo tee -a /etc/fstab
+}
+
+check_existing() {
+if  [[ -d "$USER_ROOT" ]] ||
+    [[ -d "$REPO_ROOT" ]] ||
+    [[ -f /usr/local/sbin/swarmlet ]] ||
+    [[ -d ${SWARMLET_ROOT} ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+setup_ssh() {
+  if [[ ! -d ~/.ssh ]]; then
+    mkdir -p ~/.ssh/
+  fi
+
+  if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
+    ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+    echo "$INDENT Execute ssh-keygen --[done]"
+  fi
+
+  if [[ ! -f ~/.ssh/authorized_keys ]]; then
+    touch ~/.ssh/authorized_keys
+    echo "$INDENT Create ~/.ssh/authorized_keys --[done]"
+    chmod 700 ~/.ssh/authorized_keys
+    cat ~/.ssh/id_rsa.pub >>~/.ssh/authorized_keys
+    echo "$INDENT Append the public keys id_rsa into authorized keys --[done]"
+    chmod 400 ~/.ssh/authorized_keys
+    chmod 700 ~/.ssh/
+  fi
+}
+
+check-swarm(){
+    if [[ "$(docker info 2>/dev/null  | grep Swarm | sed 's/Swarm: //g')" == " active" ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+do_install_selected() {
+for choices in $selected
+do
+	case $choices in
+		1)
+		echo -e "${c}Installing service 1"; $r
+		echo -e "${c}Service 1 installed."; $r
+		;;
+
+		2)
+		echo -e "${c}Installing service 2"; $r
+		echo -e "${c}Service 2 installed."; $r
+		;;
+
+		3)
+		echo -e "${c}Installing service 3"; $r
+		echo -e "${c}Service 3 installed."; $r
+		;;
+	esac
+done
+}
+
+update_package_cache
+notify_package_updates_available
+install_dependent_packages SWARMLET_DEPS[@]
+uninstall-swarmlet
+helloSwarmlet
+do_select_username
+do_change_hostname
+ do_select_password
+ do_select_cf_email
+ do_select_branch
+do_create_swap
+do_install_zssh
+install_docker
+do_select_services
+do_install_selected
+# get_code
+
+
+
+if [[ "$INSTALL_ZSH" == "true" ]]; then install_zssh; fi
+install() {
+  echo "$PREFIX Installing Swarmlet"
+  echo "$PREFIX Installing dependencies"
+
+
+  echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
+  git clone -q ${REPOSITORY} ${SWARMLET_INSTALL_ROOT}
+
+  if [[ "$INSTALL_BRANCH" != "master" ]]; then
+    echo "$PREFIX Checking out $INSTALL_BRANCH"
+    pushd ${SWARMLET_INSTALL_ROOT} >/dev/null
+    git checkout "$INSTALL_BRANCH"
+    popd >/dev/null
+    mkdir -p ${SWARMLET_INSTALL_ROOT}; cp -R $(dirname "$0")/* ${SWARMLET_INSTALL_ROOT}/
+  fi
+
+  echo "$PREFIX Linking executable"
+  ln -s ${SWARMLET_INSTALL_ROOT}/swarmlet /usr/local/sbin/
+
+  echo "$PREFIX Initializing Swarmlet"
+  swarmlet init "$@"
+
+  echo "$PREFIX Installation complete"
+  [[ "$INSTALL_ZSH" == "true" ]] && chsh -s $(which zsh)
+
+  echo "$FPREFIX Server initialized as manager node"
+  docker node ls
+
+  echo "$FPREFIX Swarmlet services stacks deployed"
+  docker stack ls
+
+  echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
+  echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
+  echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
+  echo "$INDENT Follow the logs using:"
+  echo "$INDENT $ docker service logs loadbalancer_traefik -f"
+}
+echo "$PREFIX Setup .ssh keys if needed."
+echo "$PREFIX Checking existing installation"
+if check_existing; then echo "$INDENT Removing old files"; uninstall-swarmlet; fi
+install
