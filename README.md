@@ -16,7 +16,7 @@ Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.
 
 ### NOTE  
 Work In Progress.  
-This project is in beta and definitely not production-ready yet.
+This project is in beta and definitely not production-ready yet.  
 Project board: https://github.com/orgs/swarmlet/projects
 
 ### *TL;DR*  
