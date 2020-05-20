@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  registry:
+  swarmlet-registry:
     image: registry:2
     restart: always
     environment:
@@ -21,15 +21,15 @@ services:
         - traefik.enable=true
         - traefik.tags=traefik-public
         - traefik.docker.network=traefik-public
-        - traefik.registry.enable=true
-        - traefik.registry.port=5000
-        - traefik.registry.frontend.rule=Host:registry.${DOMAIN}
-        - traefik.registry.frontend.entryPoints=http,https
-        - traefik.registry.frontend.passHostHeader=true
-        - traefik.registry.frontend.headers.SSLRedirect=true
-        - traefik.registry.frontend.headers.SSLHost=registry.${DOMAIN}
-        - traefik.registry.frontend.headers.STSIncludeSubdomains=true
-        - traefik.registry.frontend.headers.STSPreload=true
+        - traefik.swarmlet-registry.enable=true
+        - traefik.swarmlet-registry.port=5000
+        - traefik.swarmlet-registry.frontend.rule=Host:registry.${DOMAIN}
+        - traefik.swarmlet-registry.frontend.entryPoints=http,https
+        - traefik.swarmlet-registry.frontend.passHostHeader=true
+        - traefik.swarmlet-registry.frontend.headers.SSLRedirect=true
+        - traefik.swarmlet-registry.frontend.headers.SSLHost=registry.${DOMAIN}
+        - traefik.swarmlet-registry.frontend.headers.STSIncludeSubdomains=true
+        - traefik.swarmlet-registry.frontend.headers.STSPreload=true
       placement:
         constraints:
           - node.role == manager
