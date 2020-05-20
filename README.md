@@ -11,8 +11,8 @@ Heavily inspired by **[Dokku](http://dokku.viewdocs.io/dokku/)**.
 
 ---
 
-![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
-![contributions-welcome](https://img.shields.io/badge/contributions-welcome-blue.svg)
+![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg?style=flat-square)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
 
 ### NOTE  
 Work In Progress.  
