@@ -14,26 +14,7 @@ UPDATE_PKG_CACHE="${PKG_MANAGER} update"
 PKG_INSTALL="${PKG_MANAGER} --yes --no-install-recommends install"
 PKG_COUNT="${PKG_MANAGER} -s -o Debug::NoLocking=true upgrade | grep -c ^Inst || true"
 SWARMLET_DEPS=(acl curl git apt-transport-https apache2-utils moreutils wget dialog)
-REPOSITORY="https://github.com/swarmlet/swarmlet.git"
-
-USERNAME="git"
-USER_ROOT="/home/$USERNAME"
-REPO_ROOT="/var/repo"
-DOCKER_SOCKET="/var/run/docker.sock"
-
-SWARMLET_ROOT="/opt/swarmlet"
-SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
-SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
-SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
-SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
-
-
-AUTHORIZED_KEYS="/root/.ssh/authorized_keys" # TODO: make configurable
-SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $REPO_ROOT $SWARMLET_HOOKS\""
-SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"
-
-SWARMLET_NETWORK_NAME="swarmlet-network"
-SWARMLET_NETWORK_DRIVER="overlay"
+SWARMLET_REPO="https://github.com/swarmlet/swarmlet.git"
 
 # Find the rows and columns. Will default to 80x24 if it can not be detected.
 screen_size=$(stty size 2>/dev/null || echo 24 80)
@@ -223,65 +204,6 @@ install_zssh() {
 
 }
 
-uninstall-swarmlet() {
-  if [[ -d "$USER_ROOT" ]]; then
-    rm -rf /home/git
-    userdel git -f
-  fi
-  [[ -f /usr/local/sbin/swarmlet ]] && unlink /usr/local/sbin/swarmlet
-  if [[ -d "$REPO_ROOT" ]]; then rm -rf ${REPO_ROOT}; fi
-  if [[ -d "$SWARMLET_ROOT" ]]; then rm -rf ${SWARMLET_ROOT}; fi
-}
-create-swap() {
-  SIZE=${1:-1G}
-  FILE_PATH=${2:-/swapfile}
-  sudo fallocate -l ${SIZE} ${FILE_PATH}
-  sudo chmod 600 ${FILE_PATH}
-  sudo mkswap ${FILE_PATH}
-  sudo swapon ${FILE_PATH}
-  echo "$FILE_PATH none swap sw 0 0" | sudo tee -a /etc/fstab
-}
-
-check_existing() {
-if  [[ -d "$USER_ROOT" ]] ||
-    [[ -d "$REPO_ROOT" ]] ||
-    [[ -f /usr/local/sbin/swarmlet ]] ||
-    [[ -d ${SWARMLET_ROOT} ]]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-setup_ssh() {
-  if [[ ! -d ~/.ssh ]]; then
-    mkdir -p ~/.ssh/
-  fi
-
-  if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
-    ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
-    echo "$INDENT Execute ssh-keygen --[done]"
-  fi
-
-  if [[ ! -f ~/.ssh/authorized_keys ]]; then
-    touch ~/.ssh/authorized_keys
-    echo "$INDENT Create ~/.ssh/authorized_keys --[done]"
-    chmod 700 ~/.ssh/authorized_keys
-    cat ~/.ssh/id_rsa.pub >>~/.ssh/authorized_keys
-    echo "$INDENT Append the public keys id_rsa into authorized keys --[done]"
-    chmod 400 ~/.ssh/authorized_keys
-    chmod 700 ~/.ssh/
-  fi
-}
-
-check-swarm(){
-    if [[ "$(docker info 2>/dev/null  | grep Swarm | sed 's/Swarm: //g')" == " active" ]]; then
-        return 1
-    else
-        return 0
-    fi
-}
-
 do_install_selected() {
 for choices in $selected
 do
@@ -329,8 +251,8 @@ install() {
   echo "$PREFIX Installing dependencies"
 
 
-  echo "$PREFIX Cloning Swarmlet from $REPOSITORY"
-  git clone -q ${REPOSITORY} ${SWARMLET_INSTALL_ROOT}
+  echo "$PREFIX Cloning Swarmlet from $SWARMLET_REPO"
+  git clone -q ${SWARMLET_REPO} ${SWARMLET_INSTALL_ROOT}
 
   if [[ "$INSTALL_BRANCH" != "master" ]]; then
     echo "$PREFIX Checking out $INSTALL_BRANCH"

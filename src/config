@@ -10,10 +10,11 @@ REPO_ROOT="/var/repo"
 DOCKER_SOCKET="/var/run/docker.sock"
 
 SWARMLET_ROOT="/opt/swarmlet"
+SWARMLET_LOGS_ROOT="/var/log/swarmlet"
+SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
 SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
 SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
 SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
-SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
 
 AUTHORIZED_KEYS="/root/.ssh/authorized_keys" # TODO: make configurable
 SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $REPO_ROOT $SWARMLET_HOOKS\""
