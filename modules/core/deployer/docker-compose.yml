@@ -2,8 +2,7 @@ version: '3.7'
 
 services:
   deploy:
-    image: ${DEPLOYER_IMAGE_TAG}
-    build: .
+    image: swarmlet/deployer:test
     networks:
       - swarmlet-network
     volumes:

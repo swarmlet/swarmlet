@@ -35,6 +35,11 @@ deploy() {
   fi
 
   if [ -f $COMPOSE_FILE ]; then
+    echo "$PREFIX Logging into registry"
+    docker login swarmlet-registry \
+      -u $SWARMLET_REGISTRY_USER \
+      -p $SWARMLET_REGISTRY_PASSWORD
+
     echo "$PREFIX Building $REPO_NAME"
     docker-compose build --parallel
 
