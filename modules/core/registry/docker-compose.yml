@@ -4,19 +4,41 @@ services:
   registry:
     image: registry:2
     restart: always
-    # environment:
-    #   REGISTRY_AUTH: htpasswd
-    #   REGISTRY_AUTH_HTPASSWD_PATH: /basicAuth/security.htpasswd
-    #   REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-    ports:
-      - 5000:5000
-    deploy:
-      mode: global
+    environment:
+      - REGISTRY_HTTP_ADDR=0.0.0.0:5000
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
+      - REGISTRY_AUTH_HTPASSWD_PATH=/basicAuth/security.htpasswd
     volumes:
       - ./:/basicAuth
+      - registry-data:/var/lib/registry
     networks:
       - swarmlet-network
+      - traefik-public
+    deploy:
+      mode: global
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.docker.network=traefik-public
+        - traefik.registry.enable=true
+        - traefik.registry.port=5000
+        - traefik.registry.frontend.rule=Host:registry.${DOMAIN}
+        - traefik.registry.frontend.entryPoints=http,https
+        - traefik.registry.frontend.passHostHeader=true
+        - traefik.registry.frontend.headers.SSLRedirect=true
+        - traefik.registry.frontend.headers.SSLHost=registry.${DOMAIN}
+        - traefik.registry.frontend.headers.STSIncludeSubdomains=true
+        - traefik.registry.frontend.headers.STSPreload=true
+      placement:
+        constraints:
+          - node.role == manager
+
+volumes:
+  registry-data:
 
 networks:
   swarmlet-network:
+    external: true
+  traefik-public:
     external: true
