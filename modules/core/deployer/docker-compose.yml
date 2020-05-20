@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   deploy:
-    image: ${SWARMLET_REGISTRY}/deployer
+    image: ${DEPLOYER_IMAGE_TAG}
     build: .
     networks:
       - swarmlet-network
