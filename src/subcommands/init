@@ -44,6 +44,7 @@ init() {
     $SWARMLET_NETWORK_NAME
 
   docker network create \
+    --attachable \
     --driver=overlay \
     traefik-public
 
