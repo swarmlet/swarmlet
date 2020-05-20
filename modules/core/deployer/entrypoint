@@ -30,7 +30,7 @@ deploy() {
     set +o allexport
   fi
 
-  if [[ -f $ENTRYPOINT_FILE && $REPO_NAME != "deployer" ]]; then
+  if [[ -f $ENTRYPOINT_FILE ]]; then
     source $ENTRYPOINT_FILE
   fi
 
