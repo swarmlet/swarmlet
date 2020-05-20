@@ -22,19 +22,34 @@ deploy() {
   ENTRYPOINT_FILE="$REPO_PATH/entrypoint"
   COMPOSE_FILE="$REPO_PATH/docker-compose.yml"
 
-  cd $REPO_PATH
-
-  if [ -f $ENV_FILE ]; then
+  if [[ -f $ENV_FILE ]]; then
     set -o allexport
     source $ENV_FILE
     set +o allexport
+  fi
+
+  if [[ $REPO_NAME == "deployer" ]]; then
+    echo "$PREFIX Logging into local registry"
+    docker login swarmlet-registry \
+      -u $SWARMLET_REGISTRY_USER \
+      -p $SWARMLET_REGISTRY_PASSWORD
+
+    echo "$PREFIX Pulling $REPO_NAME"
+    docker pull swarmlet/deployer:test
+
+    echo "$PREFIX Tagging $REPO_NAME"
+    docker tag swarmlet/deployer:test swarmlet-registry:5000/deployer:latest
+
+    echo "$PREFIX Pushing $REPO_NAME to local registry"
+    docker push swarmlet-registry:5000/deployer:latest && return 0
   fi
 
   if [[ -f $ENTRYPOINT_FILE ]]; then
     source $ENTRYPOINT_FILE
   fi
 
-  if [ -f $COMPOSE_FILE ]; then
+  if [[ -f $COMPOSE_FILE ]]; then
+    cd $REPO_PATH
     echo "$PREFIX Logging into registry"
     docker login swarmlet-registry \
       -u $SWARMLET_REGISTRY_USER \
