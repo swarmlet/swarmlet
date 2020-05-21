@@ -7,7 +7,7 @@ deploy() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   REPO_PATH=$1
-  REPO_NAME=$(basename $REPO_NAME)
+  REPO_NAME=$(basename $REPO_PATH)
   DEPLOYER_IMAGE=$SWARMLET_REGISTRY/deployer
 
   if [[ "$REPO_NAME" == "deployer" ]]; then
