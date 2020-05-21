@@ -38,7 +38,7 @@ deploy() {
   fi
 
   if [[ -f $COMPOSE_FILE ]]; then
-    cd $REPO_PATH
+    # TODO: only log in if build step is defined in docker-compose.yml
     echo "$PREFIX Logging into local registry"
     echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
       -u $SWARMLET_REGISTRY_USER \
@@ -55,7 +55,7 @@ deploy() {
 
     HOSTS=$(docker-compose config | grep -o "Host:.*")
     DOMAINS="${HOSTS//Host:/}"
-    PROTOCOL=https # todo
+    PROTOCOL=https # TODO: detect exposed protocols
 
     echo "$FPREFIX Stack deployed:"
     for DOMAIN in ${DOMAINS[@]}; do echo "[$REPO_NAME] — $PROTOCOL://$DOMAIN"; done

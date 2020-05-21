@@ -23,7 +23,7 @@ SWARMLET_NETWORK_NAME="swarmlet-network"
 SWARMLET_NETWORK_DRIVER="overlay"
 
 SWARMLET_REGISTRY="localhost:5000/v2"
-SWARMLET_REGISTRY_USER="swarmlet"
+SWARMLET_REGISTRY_USER="swarmlet" # TODO: store in docker secrets/config
 SWARMLET_REGISTRY_PASSWORD="swarmlet"
 
 # TODO: use a different solution for storing configuration
