@@ -11,6 +11,7 @@ services:
       - 8080:8080
     networks:
       - swarmpit-net
+      - swarmlet-network
       - traefik-public
     deploy:
       resources:
