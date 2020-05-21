@@ -3,8 +3,17 @@ version: '3.7'
 services:
   web:
     image: sentry:9.1
-    ports:
-      - '8080:8080'
+    environment:
+      SENTRY_REDIS_HOST: redis
+      SENTRY_SECRET_KEY: ${SENTRY_SECRET_KEY}
+      SENTRY_POSTGRES_HOST: db
+      SENTRY_POSTGRES_PORT: 5432
+      SENTRY_DB_NAME: postgres
+      SENTRY_DB_USER: postgres
+      SENTRY_DB_PASSWORD: postgres
+    networks:
+      - sentry-network
+      - traefik-public
     deploy:
       replicas: 1
       labels:
@@ -12,7 +21,7 @@ services:
         - traefik.tags=traefik-public
         - traefik.docker.network=traefik-public
         - traefik.sentry.enable=true
-        - traefik.sentry.port=8080
+        - traefik.sentry.port=9000
         - traefik.sentry.frontend.rule=Host:sentry.${DOMAIN}
         - traefik.sentry.frontend.entryPoints=http,https
         - traefik.sentry.frontend.passHostHeader=true
@@ -20,9 +29,22 @@ services:
         - traefik.sentry.frontend.headers.SSLHost=sentry.${DOMAIN}
         - traefik.sentry.frontend.headers.STSIncludeSubdomains=true
         - traefik.sentry.frontend.headers.STSPreload=true
+
+  redis:
+      image: redis:alpine
+      networks:
+        - sentry-network
+
+  db:
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     networks:
-      - traefik-public
+      - sentry-network
 
 networks:
+  sentry-network:
   traefik-public:
     external: true

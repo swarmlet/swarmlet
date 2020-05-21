@@ -1,22 +1,76 @@
 version: '3.7'
 
 services:
-  registry:
+  swarmlet-registry:
     image: registry:2
     restart: always
-    # environment:
-    #   REGISTRY_AUTH: htpasswd
-    #   REGISTRY_AUTH_HTPASSWD_PATH: /basicAuth/security.htpasswd
-    #   REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-    ports:
-      - 5000:5000
-    deploy:
-      mode: global
+    environment:
+      - REGISTRY_HTTP_ADDR=0.0.0.0:5000
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
+      - REGISTRY_AUTH_HTPASSWD_PATH=/basicAuth/security.htpasswd
+      - REGISTRY_STORAGE_DELETE_ENABLED=true
     volumes:
       - ./:/basicAuth
+      - registry-data:/var/lib/registry
     networks:
       - swarmlet-network
+      - traefik-public
+    ports:
+      - "5000:5000"
+    # deploy:
+    #   mode: global
+    #   labels:
+    #     - traefik.enable=true
+    #     - traefik.tags=traefik-public
+    #     - traefik.docker.network=traefik-public
+    #     - traefik.swarmlet-registry.enable=true
+    #     - traefik.swarmlet-registry.port=5000
+    #     - traefik.swarmlet-registry.frontend.rule=Host:registry.${DOMAIN}
+    #     - traefik.swarmlet-registry.frontend.entryPoints=http,https
+    #     - traefik.swarmlet-registry.frontend.passHostHeader=true
+    #     - traefik.swarmlet-registry.frontend.headers.SSLRedirect=true
+    #     - traefik.swarmlet-registry.frontend.headers.SSLHost=registry.${DOMAIN}
+    #     - traefik.swarmlet-registry.frontend.headers.STSIncludeSubdomains=true
+    #     - traefik.swarmlet-registry.frontend.headers.STSPreload=true
+    #   placement:
+    #     constraints:
+    #       - node.role == manager
+
+  swarmlet-registry-frontend:
+    image: konradkleine/docker-registry-frontend:v2
+    restart: always
+    environment:
+      - ENV_DOCKER_REGISTRY_HOST=swarmlet-registry
+      - ENV_DOCKER_REGISTRY_PORT=5000
+    networks:
+      - swarmlet-network
+      - traefik-public
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.tags=traefik-public
+        - traefik.docker.network=traefik-public
+        - traefik.swarmlet-registry-frontend.enable=true
+        - traefik.swarmlet-registry-frontend.port=80
+        - traefik.swarmlet-registry-frontend.frontend.rule=Host:registry.${DOMAIN}
+        - traefik.swarmlet-registry-frontend.frontend.entryPoints=http,https
+        - traefik.swarmlet-registry-frontend.frontend.passHostHeader=true
+        - traefik.swarmlet-registry-frontend.frontend.headers.SSLRedirect=true
+        - traefik.swarmlet-registry-frontend.frontend.headers.SSLHost=registry.${DOMAIN}
+        - traefik.swarmlet-registry-frontend.frontend.headers.STSIncludeSubdomains=true
+        - traefik.swarmlet-registry-frontend.frontend.headers.STSPreload=true
+      placement:
+        constraints:
+          - node.role == manager
+
+volumes:
+  registry-data:
 
 networks:
   swarmlet-network:
+    external: true
+  traefik-public:
     external: true

@@ -10,6 +10,7 @@ deploy() {
 
   # --config $SWARMLET_CONFIG
   docker run --rm \
+    --network $SWARMLET_NETWORK_NAME \
     -v $REPO_PATH:$REPO_PATH \
     -v $DOCKER_SOCKET:$DOCKER_SOCKET \
     -v $SWARMLET_CONFIG:$SWARMLET_CONFIG:ro \
