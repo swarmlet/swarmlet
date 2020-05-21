@@ -3,7 +3,7 @@ version: '3.7'
 services:
   deploy:
     build: .
-    image: ${SWARMLET_REGISTRY}/v2/deployer
+    image: ${SWARMLET_REGISTRY}/deployer
 #     networks:
 #       - swarmlet-network
 #     volumes:

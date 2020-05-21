@@ -20,7 +20,7 @@ deploy() {
     -v $REPO_PATH:$REPO_PATH \
     -v $DOCKER_SOCKET:$DOCKER_SOCKET \
     -v $SWARMLET_CONFIG:$SWARMLET_CONFIG:ro \
-    $SWARMLET_REGISTRY/v2/deployer \
+    $SWARMLET_REGISTRY/deployer \
     deploy $REPO_PATH
 }
 
