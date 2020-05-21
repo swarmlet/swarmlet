@@ -40,9 +40,9 @@ deploy() {
   if [[ -f $COMPOSE_FILE ]]; then
     cd $REPO_PATH
     echo "$PREFIX Logging into local registry"
-    echo $SWARMLET_REGISTRY_PASSWORD | docker login $SWARMLET_REGISTRY \
+    echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
       -u $SWARMLET_REGISTRY_USER \
-      --password-stdin
+      $SWARMLET_REGISTRY
 
     echo "$PREFIX Building $REPO_NAME"
     docker-compose build --parallel
@@ -68,9 +68,11 @@ deploy() {
 
 pull-tag-push-local() {
   echo "$PREFIX Logging into local registry"
-  echo $SWARMLET_REGISTRY_PASSWORD | docker login $SWARMLET_REGISTRY \
+  echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
       -u $SWARMLET_REGISTRY_USER \
-      --password-stdin
+      $SWARMLET_REGISTRY
+
+  echo "$SWARMLET_REGISTRY_PASSWORD $SWARMLET_REGISTRY_USER $SWARMLET_REGISTRY"
 
   echo "$PREFIX Pull, tag and push"
   docker pull swarmlet/deployer:test >/dev/null
