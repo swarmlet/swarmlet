@@ -4,16 +4,3 @@ services:
   deploy:
     build: .
     image: ${SWARMLET_REGISTRY}/deployer
-#     networks:
-#       - swarmlet-network
-#     volumes:
-#       - git-data:/home/git
-#       - /var/run/docker.sock:/var/run/docker.sock
-
-# networks:
-#   swarmlet-network:
-#     external: true
-
-# volumes:
-#   git-data:
-#     external: true
