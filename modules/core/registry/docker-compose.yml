@@ -54,7 +54,7 @@ services:
         - traefik.tags=traefik-public
         - traefik.docker.network=traefik-public
         - traefik.swarmlet-registry-frontend.enable=true
-        - traefik.swarmlet-registry-frontend.port=8080
+        - traefik.swarmlet-registry-frontend.port=80
         - traefik.swarmlet-registry-frontend.frontend.rule=Host:registry.${DOMAIN}
         - traefik.swarmlet-registry-frontend.frontend.entryPoints=http,https
         - traefik.swarmlet-registry-frontend.frontend.passHostHeader=true
