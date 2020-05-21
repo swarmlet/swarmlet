@@ -4,3 +4,6 @@ services:
   deploy:
     build: .
     image: ${SWARMLET_REGISTRY}/deployer
+    deploy:
+      restart_policy:
+        condition: none
