@@ -22,8 +22,7 @@ SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SS
 SWARMLET_NETWORK_NAME="swarmlet-network"
 SWARMLET_NETWORK_DRIVER="overlay"
 
-SWARMLET_REGISTRY_NAME="swarmlet-registry"
-SWARMLET_REGISTRY="$SWARMLET_REGISTRY_NAME:5000/v2"
+SWARMLET_REGISTRY="localhost:5000/v2"
 
 # TODO: use a different solution for storing configuration
 # 

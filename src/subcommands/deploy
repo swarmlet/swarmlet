@@ -8,7 +8,7 @@ deploy() {
 
   REPO_PATH=$1
   REPO_NAME=$(basename $REPO_PATH)
-  DEPLOYER_IMAGE=$SWARMLET_REGISTRY/deployer
+  DEPLOYER_IMAGE=$SWARMLET_REGISTRY/deployer:latest
 
   if [[ "$REPO_NAME" == "deployer" ]]; then
     DEPLOYER_IMAGE=swarmlet/deployer:test
