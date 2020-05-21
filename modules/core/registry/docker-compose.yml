@@ -5,7 +5,7 @@ services:
     image: registry:2
     restart: always
     environment:
-      - REGISTRY_HTTP_ADDR=0.0.0.0:5000
+      - REGISTRY_HTTP_ADDR=0.0.0.0:443
       - REGISTRY_AUTH=htpasswd
       - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
       - REGISTRY_AUTH_HTPASSWD_PATH=/basicAuth/security.htpasswd
@@ -15,8 +15,8 @@ services:
       - registry-data:/var/lib/registry
     networks:
       - swarmlet-network
-    ports:
-      - "5000:5000"
+    # ports:
+    #   - "443:443"
 
     # - traefik-public
     # deploy:
