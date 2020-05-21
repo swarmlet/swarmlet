@@ -1,7 +1,7 @@
 version: '3.7'
 
 # Built-in environment variables
-# SWARMLET_REGISTRY // Defaults to the internal swarm registry at 127.0.0.1:5000/v2
+# SWARMLET_REGISTRY // Defaults to the internal swarm registry at localhost:5000/v2
 
 services:
   frontend:

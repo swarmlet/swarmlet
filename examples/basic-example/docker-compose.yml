@@ -1,12 +1,13 @@
 version: '3.7'
 
 # Built-in environment variables
-# SWARMLET_REGISTRY // Defaults to the internal swarm registry at 127.0.0.1:5000/v2
+# SWARMLET_REGISTRY // Defaults to the internal swarm registry at localhost:5000/v2
 
 services:
   basic-example:
     image: ${SWARMLET_REGISTRY}/basic-example
     build: .
+
   web:
     image: hashicorp/http-echo
     command: ["-text", "Hello World.."]
