@@ -15,8 +15,8 @@ services:
       - registry-data:/var/lib/registry
     networks:
       - swarmlet-network
-    expose:
-      - "5000"
+    ports:
+      - "5000:5000"
 
       # - traefik-public
     # deploy:
