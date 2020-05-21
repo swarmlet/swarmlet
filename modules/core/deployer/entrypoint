@@ -74,8 +74,8 @@ pull-tag-push-local() {
 
   echo "$PREFIX Pull, tag and push"
   docker pull swarmlet/deployer:test
-  docker tag swarmlet/deployer:test $SWARMLET_REGISTRY/v2/deployer:latest
-  docker push $SWARMLET_REGISTRY/v2/deployer:latest
+  docker tag swarmlet/deployer:test $SWARMLET_REGISTRY/deployer:latest
+  docker push $SWARMLET_REGISTRY/deployer:latest
 }
 
 main "$@"

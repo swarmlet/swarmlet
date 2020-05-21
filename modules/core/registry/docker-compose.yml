@@ -26,7 +26,7 @@ services:
         - traefik.swarmlet-registry.frontend.rule=Host:registry.${DOMAIN}
         - traefik.swarmlet-registry.frontend.entryPoints=http,https
         - traefik.swarmlet-registry.frontend.passHostHeader=true
-        - traefik.swarmlet-registry.frontend.headers.SSLRedirect=true
+        # - traefik.swarmlet-registry.frontend.headers.SSLRedirect=true
         - traefik.swarmlet-registry.frontend.headers.SSLHost=registry.${DOMAIN}
         - traefik.swarmlet-registry.frontend.headers.STSIncludeSubdomains=true
         - traefik.swarmlet-registry.frontend.headers.STSPreload=true
