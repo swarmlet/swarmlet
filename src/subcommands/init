@@ -78,9 +78,6 @@ init() {
     if [[ $MODULE == "core/registry" ]]; then
       swarmlet stack start $MODULE $SWARMLET_MODULES_ROOT
       continue
-    elif [[ $MODULE == "core/deployer" ]]; then
-      # swarmlet stack build $MODULE $SWARMLET_MODULES_ROOT
-      echo "TODO: push to local registry"
     fi
     swarmlet repo create $(basename $MODULE) >/dev/null
     git-local-push $SWARMLET_MODULES_ROOT/$MODULE >/dev/null

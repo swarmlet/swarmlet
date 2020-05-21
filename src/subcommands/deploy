@@ -7,14 +7,20 @@ deploy() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   REPO_PATH=$1
+  REPO_NAME=$(basename $REPO_NAME)
+  DEPLOYER_IMAGE=$SWARMLET_REGISTRY/deployer
+
+  if [[ "$REPO_NAME" == "deployer" ]]; then
+    DEPLOYER_IMAGE=swarmlet/deployer:test
+  fi
 
   # --config $SWARMLET_CONFIG
   docker run --rm \
+    --network $SWARMLET_NETWORK_NAME \
     -v $REPO_PATH:$REPO_PATH \
     -v $DOCKER_SOCKET:$DOCKER_SOCKET \
     -v $SWARMLET_CONFIG:$SWARMLET_CONFIG:ro \
-    $SWARMLET_REGISTRY/deployer \
-    deploy $REPO_PATH
+    $DEPLOYER_IMAGE deploy $REPO_PATH
 }
 
 "$@"

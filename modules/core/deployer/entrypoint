@@ -29,19 +29,8 @@ deploy() {
   fi
 
   if [[ $REPO_NAME == "deployer" ]]; then
-    echo "$PREFIX Logging into local registry"
-    docker login swarmlet-registry \
-      -u $SWARMLET_REGISTRY_USER \
-      -p $SWARMLET_REGISTRY_PASSWORD
-
-    echo "$PREFIX Pulling $REPO_NAME"
-    docker pull swarmlet/deployer:test
-
-    echo "$PREFIX Tagging $REPO_NAME"
-    docker tag swarmlet/deployer:test swarmlet-registry:5000/deployer:latest
-
-    echo "$PREFIX Pushing $REPO_NAME to local registry"
-    docker push swarmlet-registry:5000/deployer:latest && return 0
+    pull-tag-push-local
+    return 0
   fi
 
   if [[ -f $ENTRYPOINT_FILE ]]; then
@@ -50,7 +39,7 @@ deploy() {
 
   if [[ -f $COMPOSE_FILE ]]; then
     cd $REPO_PATH
-    echo "$PREFIX Logging into registry"
+    echo "$PREFIX Logging into local registry"
     docker login swarmlet-registry \
       -u $SWARMLET_REGISTRY_USER \
       -p $SWARMLET_REGISTRY_PASSWORD
@@ -75,6 +64,22 @@ deploy() {
     echo "$PREFIX No docker-compose.yml found, exiting"
     exit 1
   fi
+}
+
+pull-tag-push-local() {
+  echo "$PREFIX Logging into local registry"
+  docker login swarmlet-registry \
+    -u $SWARMLET_REGISTRY_USER \
+    -p $SWARMLET_REGISTRY_PASSWORD
+
+  echo "$PREFIX Pulling $REPO_NAME"
+  docker pull swarmlet/deployer:test
+
+  echo "$PREFIX Tagging $REPO_NAME"
+  docker tag swarmlet/deployer:test swarmlet-registry:5000/deployer:latest
+
+  echo "$PREFIX Pushing $REPO_NAME to local registry"
+  docker push swarmlet-registry:5000/deployer:latest
 }
 
 main "$@"

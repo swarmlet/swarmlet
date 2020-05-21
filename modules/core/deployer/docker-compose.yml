@@ -3,16 +3,18 @@ version: '3.7'
 services:
   deploy:
     image: swarmlet/deployer:test
-    networks:
-      - swarmlet-network
-    volumes:
-      - git-data:/home/git
-      - /var/run/docker.sock:/var/run/docker.sock
 
-networks:
-  swarmlet-network:
-    external: true
 
-volumes:
-  git-data:
-    external: true
+#     networks:
+#       - swarmlet-network
+#     volumes:
+#       - git-data:/home/git
+#       - /var/run/docker.sock:/var/run/docker.sock
+
+# networks:
+#   swarmlet-network:
+#     external: true
+
+# volumes:
+#   git-data:
+#     external: true
