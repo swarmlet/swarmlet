@@ -37,7 +37,7 @@ deploy() {
     echo "$PREFIX Logging into local registry"
     echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
       -u $SWARMLET_REGISTRY_USER \
-      $SWARMLET_REGISTRY
+      $SWARMLET_REGISTRY | tail -n 1 && true
 
     echo "$PREFIX Building $REPO_NAME"
     cd $REPO_PATH
