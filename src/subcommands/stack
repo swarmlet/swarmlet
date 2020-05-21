@@ -19,6 +19,10 @@ stack-build() {
   if [ "$(ls -A $STACK_ROOT)" ]; then
     pushd $STACK_ROOT >/dev/null
 
+    echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
+      -u $SWARMLET_REGISTRY_USER \
+      $SWARMLET_REGISTRY
+
     echo "$PREFIX Building stack $STACK_NAME"
     docker-compose build --parallel
 

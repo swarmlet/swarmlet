@@ -2,18 +2,8 @@ version: '3.7'
 
 services:
   deploy:
-    image: ${SWARMLET_REGISTRY}/deployer
     build: .
-    networks:
-      - swarmlet-network
-    volumes:
-      - git-data:/home/git
-      - /var/run/docker.sock:/var/run/docker.sock
-
-networks:
-  swarmlet-network:
-    external: true
-
-volumes:
-  git-data:
-    external: true
+    image: ${SWARMLET_REGISTRY}/deployer
+    deploy:
+      restart_policy:
+        condition: none

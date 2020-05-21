@@ -44,6 +44,7 @@ init() {
     $SWARMLET_NETWORK_NAME
 
   docker network create \
+    --attachable \
     --driver=overlay \
     traefik-public
 
@@ -75,10 +76,8 @@ init() {
   for MODULE in ${SWARMLET_MODULES[@]}; do
     echo "$PREFIX Installing $MODULE"
     if [[ $MODULE == "core/registry" ]]; then
-      swarmlet stack start $MODULE $SWARMLET_MODULES_ROOT
-      continue
-    elif [[ $MODULE == "core/deployer" ]]; then
-      swarmlet stack build $MODULE $SWARMLET_MODULES_ROOT
+      swarmlet stack start "core/registry" $SWARMLET_MODULES_ROOT
+      swarmlet stack build "core/deployer" $SWARMLET_MODULES_ROOT
     fi
     swarmlet repo create $(basename $MODULE) >/dev/null
     git-local-push $SWARMLET_MODULES_ROOT/$MODULE >/dev/null
