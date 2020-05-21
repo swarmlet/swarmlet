@@ -40,7 +40,7 @@ deploy() {
   if [[ -f $COMPOSE_FILE ]]; then
     cd $REPO_PATH
     echo "$PREFIX Logging into local registry"
-    docker login swarmlet-registry \
+    docker login $SWARMLET_REGISTRY \
       -u $SWARMLET_REGISTRY_USER \
       -p $SWARMLET_REGISTRY_PASSWORD
 
@@ -68,18 +68,14 @@ deploy() {
 
 pull-tag-push-local() {
   echo "$PREFIX Logging into local registry"
-  docker login swarmlet-registry \
+  docker login $SWARMLET_REGISTRY \
     -u $SWARMLET_REGISTRY_USER \
     -p $SWARMLET_REGISTRY_PASSWORD
 
-  echo "$PREFIX Pulling $REPO_NAME"
+  echo "$PREFIX Pull, tag and push"
   docker pull swarmlet/deployer:test
-
-  echo "$PREFIX Tagging $REPO_NAME"
-  docker tag swarmlet/deployer:test swarmlet-registry:5000/deployer:latest
-
-  echo "$PREFIX Pushing $REPO_NAME to local registry"
-  docker push swarmlet-registry:5000/deployer:latest
+  docker tag swarmlet/deployer:test $SWARMLET_REGISTRY/deployer:latest
+  docker push $SWARMLET_REGISTRY/deployer:latest
 }
 
 main "$@"
