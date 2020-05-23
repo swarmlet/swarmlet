@@ -60,6 +60,73 @@ esac; done
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
+# TODO: unfinished business
+# Set environment variables interactively using the CLI wizard
+if [[ "$INTERACTIVE_INSTALL" == "true" ]]; then
+  # Set whiptail color scheme and dialog constants
+  export NEWT_COLORS="window=blue"
+  DIALOG_WIDTH=20
+  DIALOG_HEIGHT=60
+
+  # Welcome message
+  SECTION_TITLE="Swarmlet installation wizard"
+  MESSAGE="\nWelcome to the Swarmlet interactive installation.\n\n\
+Swarmlet version: $SWARMLET_VERSION\n\
+Bash version: $(bash --version | head -n 1)\n\
+System: $(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
+  whiptail \
+    --title "$SECTION_TITLE" \
+    --msgbox "$MESSAGE" \
+    "$DIALOG_WIDTH" "$DIALOG_HEIGHT"
+
+  # Set the root domain name
+  SECTION_TITLE="Domain name configuration"
+  MESSAGE="\nEnter the domain name you want to use with Swarmlet.\n\n\
+Dashboards modules such as Traefik and Matomo will be hosted on subdomains of this domain.\n\
+Access the Traefik dashboard at https://traefik.yourdomain.com for example."
+  ROOT_DOMAIN=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --inputbox "$MESSAGE" \
+    "$DIALOG_WIDTH" "$DIALOG_HEIGHT" \
+    "$ROOT_DOMAIN" \
+    3>&1 1>&2 2>&3)
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
+
+  # Set the installation mode
+  SECTION_TITLE="Installation mode"
+  MESSAGE="\nChoose the installation mode:"
+  INSTALLATION_MODES=(
+    full "Full installation"
+    minimal "Minimal installation"
+    custom "Custom installation"
+  )
+  INSTALLATION_MODE=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$DIALOG_WIDTH" "$DIALOG_HEIGHT" "$((${#INSTALLATION_MODES[@]} / 2))" \
+    "${INSTALLATION_MODES[@]}" \
+    3>&1 1>&2 2>&3)
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
+
+  if [[ "$INSTALLATION_MODE" != "custom" ]]; then continue; fi
+  
+  SECTION_TITLE="Install modules"
+  MESSAGE="\nChoose which included modules to install.\nAll modules are self-hosted and open-source."
+  INSTALL_MODULES_OPTIONS=(
+    matomo "Install Matomo - Self-hosted analytics" ON
+    swarmpit "Install Swarmpit - Self-hosted swarm management and metrics" ON
+    portainer "Install Portainer - An alternative to Swarmpit" OFF
+    swarmprom "Install Swarmprom - Swarm metrics and analytics" OFF
+  )
+  INSTALL_MODULES=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --checklist "$MESSAGE" \
+    "$DIALOG_WIDTH" "$DIALOG_HEIGHT" "$((${#INSTALL_MODULES_OPTIONS[@]} / 3))" \
+    "${INSTALL_MODULES_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
+fi
+
 install() {
   echo "$PREFIX Installing Swarmlet"
   echo "$PREFIX Installing dependencies"
