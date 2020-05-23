@@ -1,24 +1,5 @@
 #!/usr/bin/env bash
 
-cat << EOM
-——————————————————————————————————————————————————————————————————————————
-
-      _______ _  _  _ _______  ______ _______        _______ _______
-      |______ |  |  | |_____| |_____/ |  |  | |      |______    |
-      ______| |__|__| |     | |    \  |  |  | |_____ |______    |
-
-
-       Description:  A small tool to manage swarm deployments,
-                     load balancing, SSL, metrics and more.
-       Version:      *TODO*
-       Author:       Tjerk Woudsma <tjerk@passionatepeople.io>
-       Website:      https://swarmlet.dev
-
-——————————————————————————————————————————————————————————————————————————
-       Thank you for installing Swarmlet!
-
-EOM
-
 FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
@@ -35,14 +16,14 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
 fi
 
 declare -A DEFAULT_OPTS=(
+  [INTERACTIVE_INSTALL]=true    # (default true) Use CLI wizard to setup Swarmlet
+  [INSTALLATION_MODE]=full      # (default full, options: full|minimal|custom)
   [ROOT_DOMAIN]=$HOSTNAME       # (default $HOSTNAME) The domain to use for deployment of included services
-  [INSTALLATION_MODE]=full      # (default full, options: full|minimal|bare) .. TODO
   [INSTALL_BRANCH]=master       # (default master) The default branch to install
   [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
   [INSTALL_ZSH]=false           # (default false) Install 'Oh My Zsh'
   [NOOP]=                       # no-op for testing purposes
   # > TODO/FIX:
-  # [INTERACTIVE]=false         # (default false) Use CLI wizard to setup Swarmlet
   # [DEBUG]=                    # (default undefined) Run installation in debug mode
 )
 
@@ -65,19 +46,21 @@ set -eo pipefail; [[ $DEBUG ]] && set -x
 if [[ "$INTERACTIVE_INSTALL" == "true" ]]; then
   # Set whiptail color scheme and dialog constants
   export NEWT_COLORS="window=blue"
-  DIALOG_WIDTH=20
-  DIALOG_HEIGHT=60
+  TTY_SIZE=$(stty size 2>/dev/null || echo 20 80)
+  TTY_ROWS=$(echo ${TTY_SIZE} | awk '{print $1}')
+  TTY_COLS=$(echo ${TTY_SIZE} | awk '{print $2}')
 
   # Welcome message
   SECTION_TITLE="Swarmlet installation wizard"
   MESSAGE="\nWelcome to the Swarmlet interactive installation.\n\n\
-Swarmlet version: $SWARMLET_VERSION\n\
-Bash version: $(bash --version | head -n 1)\n\
-System: $(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
+Installing Swarmlet $SWARMLET_VERSION\n\n\
+System:\n\
+$(bash --version | head -n 1)\n\
+$(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
   whiptail \
     --title "$SECTION_TITLE" \
     --msgbox "$MESSAGE" \
-    "$DIALOG_WIDTH" "$DIALOG_HEIGHT"
+    "$TTY_ROWS" "$TTY_COLS"
 
   # Set the root domain name
   SECTION_TITLE="Domain name configuration"
@@ -87,15 +70,15 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
   ROOT_DOMAIN=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
-    "$DIALOG_WIDTH" "$DIALOG_HEIGHT" \
-    "$ROOT_DOMAIN" \
+    "$TTY_ROWS" "$TTY_COLS" \
+    "yourdomain.com" \
     3>&1 1>&2 2>&3)
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
 
   # Set the installation mode
   SECTION_TITLE="Installation mode"
   MESSAGE="\nChoose the installation mode:"
-  INSTALLATION_MODES=(
+  INSTALLATION_MODE_OPTIONS=(
     full "Full installation"
     minimal "Minimal installation"
     custom "Custom installation"
@@ -103,26 +86,62 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
   INSTALLATION_MODE=$(whiptail \
     --title "$SECTION_TITLE" \
     --menu "$MESSAGE" \
-    "$DIALOG_WIDTH" "$DIALOG_HEIGHT" "$((${#INSTALLATION_MODES[@]} / 2))" \
-    "${INSTALLATION_MODES[@]}" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALLATION_MODE_OPTIONS[@]} / 2))" \
+    "${INSTALLATION_MODE_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
 
-  if [[ "$INSTALLATION_MODE" != "custom" ]]; then continue; fi
+  # if [[ "$INSTALLATION_MODE" != "custom" ]]; then continue; fi
   
+  # Set modules to install
   SECTION_TITLE="Install modules"
-  MESSAGE="\nChoose which included modules to install.\nAll modules are self-hosted and open-source."
+  MESSAGE="\nChoose which included modules to install.\n\
+All modules are self-hosted and open-source.\n\n\
+Press 'SPACE' to (de)select a module."
   INSTALL_MODULES_OPTIONS=(
-    matomo "Install Matomo - Self-hosted analytics" ON
-    swarmpit "Install Swarmpit - Self-hosted swarm management and metrics" ON
-    portainer "Install Portainer - An alternative to Swarmpit" OFF
-    swarmprom "Install Swarmprom - Swarm metrics and analytics" OFF
+    matomo "Install Matomo - Self-hosted analytics" on
+    swarmpit "Install Swarmpit - Swarm management" on
+    portainer "Install Portainer - Alternative to Swarmpit" off
+    swarmprom "Install Swarmprom - Swarm metrics and analytics" off
   )
   INSTALL_MODULES=$(whiptail \
     --title "$SECTION_TITLE" \
     --checklist "$MESSAGE" \
-    "$DIALOG_WIDTH" "$DIALOG_HEIGHT" "$((${#INSTALL_MODULES_OPTIONS[@]} / 3))" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALL_MODULES_OPTIONS[@]} / 3))" \
     "${INSTALL_MODULES_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
+
+  # Add swap space
+  SECTION_TITLE="Optional: Add swap space"
+  MESSAGE="\nCreate 1GB of swap space?\n\n\
+Memory installed: $(free -m  | grep Mem | awk '{print $2}') MB\n\
+Available memory: $(free -m  | grep Mem | awk '{print $4}') MB\n\n\
+If you've selected Swarmprom, consider adding some swap if you have less than 2GB of RAM."
+  CREATE_SWAP_OPTIONS=(
+    true "Allocate 1GB of swap space"
+    false "Skip this step"
+  )
+  CREATE_SWAP=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#CREATE_SWAP_OPTIONS[@]} / 2))" \
+    "${CREATE_SWAP_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
+
+  # Install zsh
+  SECTION_TITLE="Optional: Install zsh"
+  MESSAGE="\nInstall Zsh and Oh My Zsh?"
+  INSTALL_ZSH_OPTIONS=(
+    true "Install Zsh and Oh My Zsh"
+    false "Skip this step"
+  )
+  INSTALL_ZSH=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALL_ZSH_OPTIONS[@]} / 2))" \
+    "${INSTALL_ZSH_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
 fi
