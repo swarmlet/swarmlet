@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  deploy:
+    build: .
+    image: ${SWARMLET_REGISTRY}/env
+    secrets:
+      - swarmlet-user-env
+    configs:
+      - swarmlet-env
+    deploy:
+      restart_policy:
+        condition: none
+
+secrets:
+  swarmlet-user-env:
+    external: true
+
+configs:
+  swarmlet-env:
+    external: true

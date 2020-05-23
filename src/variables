@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# -------------------------
+# config: swarmlet-core-env
+# -------------------------
+
+SWARMLET_ROOT="/opt/swarmlet"
+SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
+SWARMLET_VARIABLES="$SWARMLET_ROOT/src/variables"
+SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
+SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
+SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
+SWARMLET_REGISTRY="swarmlet-registry"
+SWARMLET_NETWORK="swarmlet-network"
+SWARMLET_NETWORK_DRIVER="overlay"
+
+GIT_USER="git"
+GIT_USER_ROOT="/home/$GIT_USER"
+GIT_REPO_ROOT="/var/repo"
+DOCKER_SOCKET="/var/run/docker.sock"
+
+AUTHORIZED_KEYS="$SWARMLET_USER_ROOT/.ssh/authorized_keys"
+SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $GIT_REPO_ROOT $SWARMLET_HOOKS\""
+SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"

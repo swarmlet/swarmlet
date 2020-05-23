@@ -1,31 +1,14 @@
 #!/usr/bin/env bash
 
-FPREFIX="=====>"
-PREFIX="----->"
-INDENT="      "
+# --------------------
+# config: swarmlet-env
+# --------------------
 
-USERNAME="git"
-USER_ROOT="/home/$USERNAME"
-REPO_ROOT="/var/repo"
-DOCKER_SOCKET="/var/run/docker.sock"
+# Swarmlet configuration and secrets
+{{ secret "swarmlet-user-env" }}
+{{ config "swarmlet-core-env" }}
 
-SWARMLET_ROOT="/opt/swarmlet"
-SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
-SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
-SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
-SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
-
-AUTHORIZED_KEYS="/root/.ssh/authorized_keys" # TODO: make configurable
-SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $REPO_ROOT $SWARMLET_HOOKS\""
-SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"
-
-SWARMLET_NETWORK_NAME="swarmlet-network"
-SWARMLET_NETWORK_DRIVER="overlay"
-
-SWARMLET_REGISTRY="localhost:5000/v2"
-SWARMLET_REGISTRY_USER="swarmlet" # TODO: store in docker secrets/config
-SWARMLET_REGISTRY_PASSWORD="swarmlet"
-
-# TODO: use a different solution for storing configuration
-# 
-# --- VARIABLES ADDED DURING INSTALLATION BELOW ---
+# SWARMLET_USER={{ secret "swarmlet-user" }}
+# SWARMLET_USER_ROOT={{ secret "swarmlet-user-root" }}
+# SWARMLET_REGISTRY_USER={{ secret "swarmlet-registry-user" }}
+# SWARMLET_REGISTRY_PASSWORD={{ secret "swarmlet-registry-password" }}

@@ -2,9 +2,13 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
+ls -al /
+cat /swarmlet-config
+for f in /run/secrets/*; do cat $f; done
+
 # TODO: improve configuration workflow
 set -o allexport
-source "/opt/swarmlet/src/config"
+source "/swarmlet-config"
 
 main() {
   echo "$PREFIX Starting deployment"

@@ -4,6 +4,21 @@ services:
   deploy:
     build: .
     image: ${SWARMLET_REGISTRY}/deployer
+    secrets:
+      - swarmlet-registry-user
+      - swarmlet-registry-password
+    configs:
+      - swarmlet-config
     deploy:
       restart_policy:
         condition: none
+
+secrets:
+  swarmlet-registry-user:
+    external: true
+  swarmlet-registry-password:
+    external: true
+
+configs:
+  swarmlet-config:
+    external: true

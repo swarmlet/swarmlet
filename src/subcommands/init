@@ -56,11 +56,13 @@ init() {
     -o device=$GIT_USER_ROOT \
     git-data
 
-  echo "$PREFIX Creating docker configs"
-  cat $SWARMLET_CONFIG | docker config create --template-driver=golang swarmlet-config -
+  echo "$PREFIX Creating secrets"
+  # TODO: get from user input or arguments
+  swarmlet secret create swarmlet-user-env $SWARMLET_SECRETS
 
-  echo "$PREFIX Creating docker secrets"
-  cat $SWARMLET_SECRETS | docker secret create swarmlet-secrets -
+  echo "$PREFIX Creating configs"
+  swarmlet config create swarmlet-core-env $SWARMLET_VARIABLES
+  swarmlet config create swarmlet-env $SWARMLET_CONFIG
 
   # TODO:
   # case $INSTALLATION_MODE in
