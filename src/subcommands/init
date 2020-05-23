@@ -64,21 +64,11 @@ init() {
     -o device=$USER_ROOT \
     git-data
 
-  # TODO:
-  # case $INSTALLATION_MODE in
-  #   full) SWARMLET_MODULES=(${SWARMLET_CORE_MODULES[@]} ${SWARMLET_RECOMMENDS_MODULES[@]}) ;;
-  #   minimal) SWARMLET_MODULES=(${SWARMLET_CORE_MODULES[@]}) ;;
-  #   *) echo -e "$PREFIX Unknown installation mode $INSTALLATION_MODE\nExiting"; exit 1 ;;
-  # esac
-
   echo "$PREFIX Installing services"
   SWARMLET_MODULES=(
     core/registry
     core/deployer
     core/loadbalancer
-    recommends/matomo
-    recommends/swarmpit
-    # TODO: make configurable
   )
 
   for MODULE in ${SWARMLET_MODULES[@]}; do
