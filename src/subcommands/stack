@@ -95,7 +95,7 @@ stack-remove() {
   STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
 
   docker stack rm $STACK_NAME
-  rm -rf $STACK_ROOT $REPO_ROOT/$STACK_NAME.git >/dev/null
+  rm -rf $STACK_ROOT $GIT_REPO_ROOT/$STACK_NAME.git >/dev/null
   # TODO: clean up some more
 }
 

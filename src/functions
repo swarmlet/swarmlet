@@ -6,8 +6,8 @@ check-docker() {
 
 git-set-config() {
   DOMAIN=${1:-"$HOSTNAME.local"}
-  git config user.email "git@$DOMAIN"
-  git config user.name "git"
+  git config user.email $GIT_USER@$DOMAIN
+  git config user.name $GIT_USER
 }
 
 git-local-push() {
@@ -18,8 +18,8 @@ git-local-push() {
   git-set-config $ROOT_DOMAIN
   git add .
   git commit -m "initial"
-  git push $REPO_ROOT/$REPO_NAME.git master
-  chown -R $USRNAME:$USERNAME $USER_ROOT/$REPO_NAME
+  git push $GIT_REPO_ROOT/$REPO_NAME.git master
+  chown -R $GIT_USER:$GIT_USER $GIT_USER_ROOT/$REPO_NAME
   popd >/dev/null
 }
 

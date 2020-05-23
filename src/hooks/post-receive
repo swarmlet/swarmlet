@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
-source "/opt/swarmlet/src/config"
+source "/opt/swarmlet/src/variables"
 
 echo "$PREFIX Repository received"
 REPO_SRC=$PWD
 REPO_BASE=$(basename $REPO_SRC)
 REPO_NAME=${REPO_BASE/.git}
-REPO_DEST=$USER_ROOT/$REPO_NAME
+REPO_DEST=$GIT_USER_ROOT/$REPO_NAME
 # COMMIT_HASH=$(git rev-parse --short=6 HEAD)
 
 if [ -d $REPO_DEST ]; then
@@ -20,7 +20,7 @@ if [ -d $REPO_DEST ]; then
 else
   echo "$PREFIX Cloning repository $REPO_NAME"
   git clone -q $REPO_SRC $REPO_DEST || exit 1
-  chown -R $USERNAME:$USERNAME $REPO_SRC $REPO_DEST
+  chown -R $GIT_USER:$GIT_USER $REPO_SRC $REPO_DEST
 fi
 
 # TODO: On docker error, abort git push.

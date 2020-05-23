@@ -7,8 +7,8 @@ uninstall() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   rm /usr/local/sbin/swarmlet
-  rm -rf $SWARMLET_ROOT $REPO_ROOT $USER_ROOT
-  deluser $USERNAME
+  rm -rf $SWARMLET_ROOT $GIT_REPO_ROOT $GIT_USER_ROOT
+  deluser $GIT_USER
 }
 
 "$@"

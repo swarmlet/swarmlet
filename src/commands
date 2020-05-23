@@ -2,11 +2,15 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
+export FPREFIX="=====>"
+export PREFIX="----->"
+export INDENT="      "
+
 ROOT_DIR=$(dirname "$0")
 SUBCOMMAND="$ROOT_DIR/subcommands/$1"
 
 set -o allexport
-source "$ROOT_DIR/config"
+source "$ROOT_DIR/variables"
 source "$ROOT_DIR/functions"
 set +o allexport
 

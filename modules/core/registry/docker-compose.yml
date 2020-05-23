@@ -18,24 +18,6 @@ services:
       - traefik-public
     ports:
       - "5000:5000"
-    # deploy:
-    #   mode: global
-    #   labels:
-    #     - traefik.enable=true
-    #     - traefik.tags=traefik-public
-    #     - traefik.docker.network=traefik-public
-    #     - traefik.swarmlet-registry.enable=true
-    #     - traefik.swarmlet-registry.port=5000
-    #     - traefik.swarmlet-registry.frontend.rule=Host:registry.${DOMAIN}
-    #     - traefik.swarmlet-registry.frontend.entryPoints=http,https
-    #     - traefik.swarmlet-registry.frontend.passHostHeader=true
-    #     - traefik.swarmlet-registry.frontend.headers.SSLRedirect=true
-    #     - traefik.swarmlet-registry.frontend.headers.SSLHost=registry.${DOMAIN}
-    #     - traefik.swarmlet-registry.frontend.headers.STSIncludeSubdomains=true
-    #     - traefik.swarmlet-registry.frontend.headers.STSPreload=true
-    #   placement:
-    #     constraints:
-    #       - node.role == manager
 
   swarmlet-registry-frontend:
     image: konradkleine/docker-registry-frontend:v2
