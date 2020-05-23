@@ -1,7 +1,7 @@
 version: '3.7'
 
 # Built-in environment variables
-# SWARMLET_REGISTRY // Defaults to the internal swarm registry at 127.0.0.1:5000/v2
+# SWARMLET_REGISTRY // Defaults to the internal swarm registry at localhost:5000/v2
 
 services:
   frontend:
@@ -10,19 +10,18 @@ services:
     deploy:
       replicas: 1
       labels:
-        # Specify the (sub) domain for this service
-        - traefik.frontend.rule=Host:static-site.${DOMAIN}
-        # Enable Traefik for thiis service
         - traefik.enable=true
-        # The service port Traefik will expose to ${DOMAIN}:80 (and ${DOMAIN}:443)
-        - traefik.port=5000
-        # Expose service to public
         - traefik.tags=traefik-public
         - traefik.docker.network=traefik-public
-        # Enable SSL and redirect HTTP to HTTPS
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
+        - traefik.static-site.enable=true
+        - traefik.static-site.port=5000
+        - traefik.static-site.frontend.rule=Host:static-site.${DOMAIN}
+        - traefik.static-site.frontend.entryPoints=http,https
+        - traefik.static-site.frontend.passHostHeader=true
+        - traefik.static-site.frontend.headers.SSLRedirect=true
+        - traefik.static-site.frontend.headers.SSLHost=static-site.${DOMAIN}
+        - traefik.static-site.frontend.headers.STSIncludeSubdomains=true
+        - traefik.static-site.frontend.headers.STSPreload=true
     networks:
       - traefik-public
 

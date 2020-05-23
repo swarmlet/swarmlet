@@ -14,7 +14,7 @@ services:
         - traefik.enable=true
         - traefik.tags=traefik-public
         - traefik.react-node.port=5000
-        - traefik.react-node.frontend.rule=Host:${DOMAIN}
+        - traefik.react-node.frontend.rule=Host:react-node.${DOMAIN}
         - traefik.react-node.frontend.entryPoints=http,https
         - traefik.react-node.frontend.passHostHeader=true
         - traefik.react-node.frontend.headers.SSLRedirect=true
@@ -34,7 +34,7 @@ services:
         - traefik.enable=true
         - traefik.tags=traefik-public
         - traefik.react-node.port=8080
-        - traefik.react-node.frontend.rule=Host:api.${DOMAIN}
+        - traefik.react-node.frontend.rule=Host:api.react-node.${DOMAIN}
         - traefik.react-node.frontend.entryPoints=http,https
         - traefik.react-node.frontend.passHostHeader=true
         - traefik.react-node.frontend.headers.SSLRedirect=true
