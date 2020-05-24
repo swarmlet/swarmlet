@@ -37,23 +37,22 @@ declare -A DEFAULT_OPTS=(
   # [DEBUG]=                       # (default undefined) Run installation in debug mode
 )
 
+# Set default environment variables
+for KEY in "${!DEFAULT_OPTS[@]}"; do
+  [[ ! -z "${DEFAULT_OPTS[$KEY]}" ]] && export "$KEY=${DEFAULT_OPTS[$KEY]}"
+done
+
+# Set environment variables from arguments if given
+shopt -s extglob
+while [[ "$#" > 0 ]]; do case "${1%=*}" in
+  @($(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g'))) export "$1"; shift ;;
+  *) echo "Unknown argument: $1"; shift ;;
+esac; done
+
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
 install() {
   echo "$FPREFIX Installing Swarmlet"
-
-  # Set default environment variables
-  for KEY in "${!DEFAULT_OPTS[@]}"; do
-    [[ ! -z "${DEFAULT_OPTS[$KEY]}" ]] && export "$KEY=${DEFAULT_OPTS[$KEY]}"
-  done
-
-  # Set environment variables from arguments if given
-  shopt -s extglob
-  while [[ "$#" > 0 ]]; do case "${1%=*}" in
-    @($(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g'))) export "$1"; shift ;;
-    *) echo "Unknown argument: $1"; shift ;;
-  esac; done
-
   echo "$PREFIX Installing required packages"
   # TODO: support other package managers
   $SUDO apt-get update -y -qq &>/dev/null
