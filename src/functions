@@ -42,7 +42,7 @@ update-package-cache() {
 }
 
 notify-package-updates-available() {
-  echo -n "$PREFIX Checking $PKG_MANAGER for upgraded packages"
+  echo "$PREFIX Checking $PKG_MANAGER for upgraded packages"
   PKG_COUNT="$PKG_MANAGER -s -o Debug::NoLocking=true upgrade | grep -c ^Inst || true"
   UPDATES_TO_INSTALL=$(eval "$PKG_COUNT")
   if [[ $UPDATES_TO_INSTALL -eq 0 ]]; then
