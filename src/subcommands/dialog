@@ -32,7 +32,7 @@ $(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
 }
 
 section-set-username() {
-  SECTION_TITLE="User configuration"
+  SECTION_TITLE="User configuration - username"
   MESSAGE="\nEnter your username.\nDefault: swarmlet"
 
   SWARMLET_USERNAME=$(whiptail \
@@ -46,7 +46,7 @@ section-set-username() {
 }
 
 section-set-password() {
-  SECTION_TITLE="User configuration"
+  SECTION_TITLE="User configuration - password"
   MESSAGE="\nChoose a password.\nDefault (not recommended): swarmlet"
 
   # TODO: use whiptail password input
