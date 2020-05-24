@@ -13,14 +13,14 @@ init-interactive() {
   echo "$PREFIX Starting interactive installation"
 
   swarmlet dialog welcome
-  swarmlet dialog set-username
-  # swarmlet dialog set-password
-  swarmlet dialog domain-config
-  # swarmlet dialog installation-mode
-  swarmlet dialog install-modules
-  swarmlet dialog add-swap
-  swarmlet dialog install-zsh
-  swarmlet dialog are-you-sure
+  SWARMLET_USERNAME=$(swarmlet dialog set-username)
+  SWARMLET_PASSWORD=$(swarmlet dialog set-password)
+  ROOT_DOMAIN=$(swarmlet dialog domain-config)
+  # INSTALLATION_MODE=$(swarmlet dialog installation-mode)
+  INSTALL_MODULES=$(swarmlet dialog install-modules)
+  CREATE_SWAP=$(swarmlet dialog add-swap)
+  INSTALL_ZSH=$(swarmlet dialog install-zsh)
+  # swarmlet dialog are-you-sure
 
   echo "$FPREFIX Environment"
   printenv

@@ -43,6 +43,7 @@ section-set-username() {
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $SWARMLET_USERNAME
 }
 
 section-set-password() {
@@ -58,6 +59,7 @@ section-set-password() {
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $SWARMLET_PASSWORD
 }
 
 section-domain-config() {
@@ -74,6 +76,7 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $ROOT_DOMAIN
 }
 
 section-installation-mode() {
@@ -94,6 +97,7 @@ section-installation-mode() {
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $INSTALLATION_MODE
 }
 
 section-install-modules() {
@@ -117,6 +121,7 @@ Press 'SPACE' to (de)select a module."
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $INSTALL_MODULES
 }
 
 section-add-swap() {
@@ -139,6 +144,7 @@ If you've selected Swarmprom, consider adding some swap if you have less than 2G
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $CREATE_SWAP
 }
 
 section-install-zsh() {
@@ -158,6 +164,7 @@ section-install-zsh() {
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $INSTALL_ZSH
 }
 
 "$@"
