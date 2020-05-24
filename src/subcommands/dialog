@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+
+dialog() {
+  declare cmd="dialog"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  set-dialog-appearance
+  section-"$@"
+}
+
+set-dialog-appearance() {
+  export NEWT_COLORS="window=blue"
+  TTY_SIZE=$(stty size 2>/dev/null || echo 20 80)
+  TTY_ROWS=$(echo $TTY_SIZE | awk '{print $1}')
+  TTY_COLS=$(echo $TTY_SIZE | awk '{print $2}')
+  TTY_ROWS=$(($TTY_ROWS-4))
+  TTY_COLS=$(($TTY_COLS-2))
+}
+
+section-welcome() {
+  SECTION_TITLE="Swarmlet installation wizard"
+  MESSAGE="\nWelcome to the Swarmlet interactive installation.\n\n\
+Installing Swarmlet $(check-swarmlet-version)\n\n\
+System:\n\
+$(bash --version | head -n 1)\n\
+$(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
+
+  whiptail \
+    --title "$SECTION_TITLE" \
+    --msgbox "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS"
+}
+
+section-set-username() {
+  SECTION_TITLE="User configuration - username"
+  MESSAGE="\nEnter your username.\nDefault: swarmlet"
+
+  SWARMLET_USERNAME=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --inputbox "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" \
+    "swarmlet" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $SWARMLET_USERNAME
+}
+
+section-set-password() {
+  SECTION_TITLE="User configuration - password"
+  MESSAGE="\nChoose a password.\nDefault (not recommended): swarmlet"
+
+  # TODO: use whiptail password input
+  SWARMLET_PASSWORD=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --inputbox "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" \
+    "swarmlet" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $SWARMLET_PASSWORD
+}
+
+section-set-hostname() {
+  SECTION_TITLE="Hostname configuration"
+  MESSAGE="\nChoose a hostname for this host.\nDefault: $(hostname)"
+
+  # TODO: use whiptail password input
+  NEW_HOSTNAME=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --inputbox "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" \
+    "$(hostname)" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $NEW_HOSTNAME
+}
+
+section-domain-config() {
+  SECTION_TITLE="Domain name configuration"
+  MESSAGE="\nEnter the domain name you want to use with Swarmlet.\n\n\
+Dashboards modules such as Traefik and Matomo will be hosted on subdomains of this domain.\n\
+Access the Traefik dashboard at https://traefik.yourdomain.com for example."
+
+  ROOT_DOMAIN=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --inputbox "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" \
+    "yourdomain.com" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $ROOT_DOMAIN
+}
+
+section-installation-mode() {
+  SECTION_TITLE="Installation mode"
+  MESSAGE="\nChoose the installation mode:"
+
+  INSTALLATION_MODE_OPTIONS=(
+    full "Full installation"
+    minimal "Minimal installation"
+    custom "Custom installation"
+  )
+
+  INSTALLATION_MODE=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALLATION_MODE_OPTIONS[@]} / 2))" \
+    "${INSTALLATION_MODE_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $INSTALLATION_MODE
+}
+
+section-install-modules() {
+  SECTION_TITLE="Install modules"
+  MESSAGE="\nChoose which included modules to install.\n\
+All modules are self-hosted and open-source.\n\n\
+Press 'SPACE' to (de)select a module."
+
+  INSTALL_MODULES_OPTIONS=(
+    matomo "Install Matomo - Self-hosted analytics" on
+    swarmpit "Install Swarmpit - Swarm management" on
+    portainer "Install Portainer - Alternative to Swarmpit" off
+    swarmprom "Install Swarmprom - Swarm metrics and analytics" off
+  )
+
+  INSTALL_MODULES=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --checklist "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALL_MODULES_OPTIONS[@]} / 3))" \
+    "${INSTALL_MODULES_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $INSTALL_MODULES
+}
+
+section-add-swap() {
+  SECTION_TITLE="Optional: Add swap space"
+  MESSAGE="\nCreate 1GB of swap space?\n\n\
+Memory installed: $(free -m | grep Mem | awk '{print $2}') MB\n\
+Available memory: $(free -m | grep Mem | awk '{print $4}') MB\n\n\
+If you've selected Swarmprom, consider adding some swap if you have less than 2GB of RAM."
+
+  CREATE_SWAP_OPTIONS=(
+    true "Allocate 1GB of swap space"
+    false "Skip this step"
+  )
+
+  CREATE_SWAP=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#CREATE_SWAP_OPTIONS[@]} / 2))" \
+    "${CREATE_SWAP_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $CREATE_SWAP
+}
+
+section-install-zsh() {
+  SECTION_TITLE="Optional: Install Zsh"
+  MESSAGE="\nInstall Zsh and Oh My Zsh?"
+
+  INSTALL_ZSH_OPTIONS=(
+    true "Install Zsh and Oh My Zsh"
+    false "Skip this step"
+  )
+
+  INSTALL_ZSH=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALL_ZSH_OPTIONS[@]} / 2))" \
+    "${INSTALL_ZSH_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $INSTALL_ZSH
+}
+
+"$@"

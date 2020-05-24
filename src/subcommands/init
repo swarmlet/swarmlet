@@ -6,6 +6,37 @@ init() {
   declare cmd="init"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  init-"$@"
+}
+
+init-interactive() {
+  echo "$PREFIX Starting interactive installation"
+
+  swarmlet dialog welcome
+  SWARMLET_USERNAME=$(swarmlet dialog set-username)
+  SWARMLET_PASSWORD=$(swarmlet dialog set-password)
+  NEW_HOSTNAME=$(swarmlet dialog set-hostname)
+  ROOT_DOMAIN=$(swarmlet dialog domain-config)
+  # INSTALLATION_MODE=$(swarmlet dialog installation-mode)
+  INSTALL_MODULES=$(swarmlet dialog install-modules)
+  CREATE_SWAP=$(swarmlet dialog add-swap)
+  INSTALL_ZSH=$(swarmlet dialog install-zsh)
+  # swarmlet dialog are-you-sure
+
+  echo "$FPREFIX Wizard complete"
+  update-package-cache
+  notify-package-updates-available
+  # TODO: fix
+  # install-dependencies "${SWARMLET_DEPENDENCIES[@]}" "$SWARMLET_DEPENDENCIES" $SWARMLET_DEPENDENCIES
+  SWARMLET_DEPENDENCIES=(acl curl apache2-utils moreutils wget)
+  $SUDO apt-get install -y -qq "${SWARMLET_DEPENDENCIES[@]}" &>/dev/null
+  set-hostname $NEW_HOSTNAME $ROOT_DOMAIN
+
+  $INSTALL_DOCKER && install-docker
+  $CREATE_SWAP && create-swap
+  $INSTALL_ZSH && install-zsh
+
+  # do-select-cf-email # NOTE: What is this for?
   echo "$PREFIX Setting up the git user"
   adduser $GIT_USER --disabled-password --gecos --quiet
   usermod -aG docker $GIT_USER
@@ -17,6 +48,92 @@ init() {
   chmod 700 $GIT_USER_ROOT/.ssh
   chmod 600 $GIT_USER_ROOT/.ssh/authorized_keys
   chown -R $GIT_USER:$GIT_USER $GIT_USER_ROOT/.ssh
+
+  echo "$PREFIX Checking Docker status"
+  if check-docker;
+    then echo "Docker is running"; docker --version
+    else echo "Docker is not running, exiting"; exit 1
+  fi
+
+  NODE_IP=$(hostname -I | awk '{print $1}')
+  ADVERTISE_ADDR="$NODE_IP:2377"
+  echo "ROOT_DOMAIN=$ROOT_DOMAIN" >> $SWARMLET_CONFIG
+  echo "SWARMLET_USERNAME=$SWARMLET_USERNAME" >> $SWARMLET_CONFIG
+  echo "SWARMLET_PASSWORD=$SWARMLET_PASSWORD" >> $SWARMLET_CONFIG
+
+  echo "$PREFIX Node IP address: $NODE_IP"
+  echo "$PREFIX Initializing node as swarm manager"
+  if [[ check-swarm ]]; then docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true; fi
+
+  cat << EOM | docker secret create user-env -
+SWARMLET_USERNAME=$SWARMLET_USERNAME
+SWARMLET_PASSWORD=$SWARMLET_PASSWORD
+EOM
+
+  cat << EOM | docker config create user-config -
+ROOT_DOMAIN=$ROOT_DOMAIN
+INSTALL_MODULES=$INSTALL_MODULES
+CREATE_SWAP=$CREATE_SWAP
+INSTALL_ZSH=$INSTALL_ZSH
+EOM
+
+  echo "$PREFIX Creating networks"
+  if [[ ! "$(docker network ls | grep traefik-public)" ]]; then
+    docker network create \
+      --attachable \
+      --driver=overlay \
+      traefik-public
+  else
+    echo "$PREFIX traefik-public network exists."
+  fi
+  if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK_NAME)" ]]; then
+    docker network create \
+      --attachable \
+      --driver $SWARMLET_NETWORK_DRIVER \
+      $SWARMLET_NETWORK_NAME
+  else
+    echo "$PREFIX $SWARMLET_NETWORK_NAME network exists."
+  fi
+
+  echo "$PREFIX Creating volumes"
+  docker volume create \
+    --driver "local" \
+    -o o=bind \
+    -o type=none \
+    -o device=$USER_ROOT \
+    git-data
+
+  echo "$PREFIX Installing services"
+  SWARMLET_MODULES=(
+    core/registry
+    core/deployer
+    core/loadbalancer
+  )
+
+  for MODULE in ${SWARMLET_MODULES[@]}; do
+    echo "$PREFIX Installing $MODULE"
+    if [[ $MODULE == "core/registry" ]]; then
+      swarmlet stack start "core/registry" $SWARMLET_MODULES_ROOT
+      swarmlet stack build "core/deployer" $SWARMLET_MODULES_ROOT
+    fi
+    swarmlet repo create $(basename $MODULE) >/dev/null
+    git-local-push $SWARMLET_MODULES_ROOT/$MODULE >/dev/null
+  done
+}
+
+init-noninteractive() {
+  echo "$PREFIX Starting noninteractive installation"
+  echo "$PREFIX Setting up the git user"
+  adduser $USERNAME --disabled-password --gecos --quiet
+  usermod -aG docker $USERNAME
+  mkdir -p $REPO_ROOT $USER_ROOT/.ssh
+  setfacl -m u:$USERNAME:rwx $REPO_ROOT
+
+  echo "$PREFIX Configuring git SSH options"
+  cat "$AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" > $USER_ROOT/.ssh/authorized_keys
+  chmod 700 $USER_ROOT/.ssh
+  chmod 600 $USER_ROOT/.ssh/authorized_keys
+  chown -R $USERNAME:$USERNAME $USER_ROOT/.ssh
 
   if [[ $CREATE_SWAP == "true" ]]; then
     echo "$PREFIX Creating 1GB of swap space"
@@ -35,18 +152,26 @@ init() {
 
   echo "$PREFIX Node IP address: $NODE_IP"
   echo "$PREFIX Initializing node as swarm manager"
-  docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
+  if [[ check-swarm ]]; then docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true; fi
 
-  echo "$PREFIX Creating networks"
-  docker network create \
-    --attachable \
-    --driver $SWARMLET_NETWORK_DRIVER \
-    $SWARMLET_NETWORK
-
-  docker network create \
-    --attachable \
-    --driver overlay \
-    $TRAEFIK_NETWORK
+  if [[ ! "$(docker network ls | grep traefik-public)" ]]; then
+    echo "$PREFIX Creating traefik-public network ..."
+    docker network create \
+      --driver=overlay \
+      --attachable \
+      traefik-public
+  else
+    echo "$PREFIX traefik-public network exists."
+  fi
+  if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK_NAME)" ]]; then
+    echo "$PREFIX Creating traefik-public network ..."
+    docker network create \
+      --attachable \
+      --driver $SWARMLET_NETWORK_DRIVER \
+      $SWARMLET_NETWORK_NAME
+  else
+    echo "$PREFIX $SWARMLET_NETWORK_NAME network exists."
+  fi
 
   echo "$PREFIX Creating volumes"
   docker volume create \
@@ -73,12 +198,9 @@ init() {
 
   echo "$PREFIX Installing services"
   SWARMLET_MODULES=(
-    core/registry 
+    core/registry
     core/deployer
     core/loadbalancer
-    recommends/matomo
-    recommends/swarmpit
-    # TODO: make configurable
   )
 
   for MODULE in ${SWARMLET_MODULES[@]}; do
