@@ -24,19 +24,10 @@ init-interactive() {
   # swarmlet dialog are-you-sure
 
   echo "$FPREFIX Wizard complete"
-
-  echo $SWARMLET_USERNAME
-  echo $SWARMLET_PASSWORD
-  echo $ROOT_DOMAIN
-  echo $INSTALL_MODULES
-  echo $CREATE_SWAP
-  echo $INSTALL_ZSH
-
   update-package-cache
   notify-package-updates-available
   # TODO: fix
   # install-dependencies "${SWARMLET_DEPENDENCIES[@]}" "$SWARMLET_DEPENDENCIES" $SWARMLET_DEPENDENCIES
-
   SWARMLET_DEPENDENCIES=(acl curl apache2-utils moreutils wget)
   $SUDO apt-get install -y -qq "${SWARMLET_DEPENDENCIES[@]}" &>/dev/null
   set-hostname $NEW_HOSTNAME $ROOT_DOMAIN
@@ -73,6 +64,18 @@ init-interactive() {
   echo "$PREFIX Node IP address: $NODE_IP"
   echo "$PREFIX Initializing node as swarm manager"
   if [[ check-swarm ]]; then docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true; fi
+
+  cat << EOM | docker secret create user-env -
+SWARMLET_USERNAME=$SWARMLET_USERNAME
+SWARMLET_PASSWORD=$SWARMLET_PASSWORD
+EOM
+
+  cat << EOM | docker config create user-config -
+ROOT_DOMAIN=$ROOT_DOMAIN
+INSTALL_MODULES=$INSTALL_MODULES
+CREATE_SWAP=$CREATE_SWAP
+INSTALL_ZSH=$INSTALL_ZSH
+EOM
 
   echo "$PREFIX Creating networks"
   if [[ ! "$(docker network ls | grep traefik-public)" ]]; then
