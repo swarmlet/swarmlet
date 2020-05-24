@@ -147,7 +147,7 @@ uninstall-swarmlet() {
   [[ -d "$USER_ROOT" ]] && rm -rf $USER_ROOT && userdel git -f
   [[ -d "$REPO_ROOT" ]] && rm -rf $REPO_ROOT
   [[ -d "$SWARMLET_ROOT" ]] && rm -rf $SWARMLET_ROOT
-  [[ -f /usr/local/sbin/swarmlet ]] && unlink /usr/local/sbin/swarmlet
+  [[ -f /usr/local/sbin/swarmlet ]] && rm /usr/local/sbin/swarmlet
 }
 
 reinstall-swarmlet() {

@@ -40,13 +40,6 @@ init-interactive() {
   $INSTALL_ZSH && install-zsh
 
   # do-select-cf-email # NOTE: What is this for?
-
-  echo "$PREFIX Wizard complete"
-  for OPTION in ${!DEFAULT_OPTS[@]}; do
-    echo "$OPTION=$(printenv $OPTION)"
-  done
-
-  uninstall-swarmlet
 }
 
 init-noninteractive() {
