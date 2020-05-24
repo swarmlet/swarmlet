@@ -14,7 +14,7 @@ init-interactive() {
 
   swarmlet dialog welcome
   swarmlet dialog set-username
-  swarmlet dialog set-password
+  # swarmlet dialog set-password
   swarmlet dialog domain-config
   # swarmlet dialog installation-mode
   swarmlet dialog install-modules
