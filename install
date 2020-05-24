@@ -4,9 +4,17 @@ FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
 
-REPOSITORY="https://github.com/swarmlet/swarmlet.git"
-DEPENDENCIES=(acl curl git apt-transport-https apache2-utils moreutils)
+SWARMLET_REPO="https://github.com/swarmlet/swarmlet.git"
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
+
+if [[ $EUID -ne 0 ]]; then
+  if [[ $(dpkg-query -s sudo) ]]; then
+    echo "$PREFIX User is not root, using sudo"
+    export SUDO="sudo"
+  else 
+    echo "$PREFIX [ERROR] Please install sudo or run installer as root" && exit 1
+  fi
+fi
 
 if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
   echo "$PREFIX [ERROR] Unmet requirements: Bash 4"
@@ -16,149 +24,43 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
 fi
 
 declare -A DEFAULT_OPTS=(
-  [INTERACTIVE_INSTALL]=true    # (default true) Use CLI wizard to setup Swarmlet
-  [INSTALLATION_MODE]=full      # (default full, options: full|minimal|custom)
-  [ROOT_DOMAIN]=$HOSTNAME       # (default $HOSTNAME) The domain to use for deployment of included services
-  [INSTALL_BRANCH]=master       # (default master) The default branch to install
-  [CREATE_SWAP]=false           # (default false) Allocate 1GB of swap space
-  [INSTALL_ZSH]=false           # (default false) Install 'Oh My Zsh'
-  [NOOP]=                       # no-op for testing purposes
-  # > TODO/FIX:
-  # [DEBUG]=                    # (default undefined) Run installation in debug mode
+  [INSTALLATION_TYPE]=interactive  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
+  [INSTALLATION_MODE]=full         # (default full, options: full|minimal|.. TODO)
+  [ROOT_DOMAIN]=$HOSTNAME          # (default $HOSTNAME) The domain to use for deployment of included services
+  [INSTALL_BRANCH]=master          # (default master) The default branch to install
+  [INSTALL_DOCKER]=true            # (default true) Install Docker and Docker Compose (recommended)
+  [INSTALL_MODULES]=               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by comma to install multiple modules
+  [CREATE_SWAP]=false              # (default false) Allocate 1GB of swap space
+  [INSTALL_ZSH]=false              # (default false) Install 'Oh My Zsh'
+  [NOOP]=                          # no-op for testing purposes
+  # > TODO:
+  # [DEBUG]=                       # (default undefined) Run installation in debug mode
 )
-
-# Set default environment variables
-for KEY in "${!DEFAULT_OPTS[@]}"; do
-  [ ! -z "${DEFAULT_OPTS[$KEY]}" ] && export "$KEY=${DEFAULT_OPTS[$KEY]}";
-done
-
-# Set environment variables from arguments if given
-shopt -s extglob
-while [[ "$#" > 0 ]]; do case "${1%=*}" in
-  @($(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g'))) export "$1"; shift ;;
-  *) echo "Unknown argument: $1"; shift ;;
-esac; done
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-# TODO: unfinished business
-# Set environment variables interactively using the CLI wizard
-if [[ "$INTERACTIVE_INSTALL" == "true" ]]; then
-  # Set whiptail color scheme and dialog constants
-  export NEWT_COLORS="window=blue"
-  TTY_SIZE=$(stty size 2>/dev/null || echo 20 80)
-  TTY_ROWS=$(echo ${TTY_SIZE} | awk '{print $1}')
-  TTY_COLS=$(echo ${TTY_SIZE} | awk '{print $2}')
-
-  # Welcome message
-  SECTION_TITLE="Swarmlet installation wizard"
-  MESSAGE="\nWelcome to the Swarmlet interactive installation.\n\n\
-Installing Swarmlet $SWARMLET_VERSION\n\n\
-System:\n\
-$(bash --version | head -n 1)\n\
-$(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
-  whiptail \
-    --title "$SECTION_TITLE" \
-    --msgbox "$MESSAGE" \
-    "$TTY_ROWS" "$TTY_COLS"
-
-  # Set the root domain name
-  SECTION_TITLE="Domain name configuration"
-  MESSAGE="\nEnter the domain name you want to use with Swarmlet.\n\n\
-Dashboards modules such as Traefik and Matomo will be hosted on subdomains of this domain.\n\
-Access the Traefik dashboard at https://traefik.yourdomain.com for example."
-  ROOT_DOMAIN=$(whiptail \
-    --title "$SECTION_TITLE" \
-    --inputbox "$MESSAGE" \
-    "$TTY_ROWS" "$TTY_COLS" \
-    "yourdomain.com" \
-    3>&1 1>&2 2>&3)
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
-
-  # Set the installation mode
-  SECTION_TITLE="Installation mode"
-  MESSAGE="\nChoose the installation mode:"
-  INSTALLATION_MODE_OPTIONS=(
-    full "Full installation"
-    minimal "Minimal installation"
-    custom "Custom installation"
-  )
-  INSTALLATION_MODE=$(whiptail \
-    --title "$SECTION_TITLE" \
-    --menu "$MESSAGE" \
-    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALLATION_MODE_OPTIONS[@]} / 2))" \
-    "${INSTALLATION_MODE_OPTIONS[@]}" \
-    3>&1 1>&2 2>&3)
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
-
-  # if [[ "$INSTALLATION_MODE" != "custom" ]]; then continue; fi
-  
-  # Set modules to install
-  SECTION_TITLE="Install modules"
-  MESSAGE="\nChoose which included modules to install.\n\
-All modules are self-hosted and open-source.\n\n\
-Press 'SPACE' to (de)select a module."
-  INSTALL_MODULES_OPTIONS=(
-    matomo "Install Matomo - Self-hosted analytics" on
-    swarmpit "Install Swarmpit - Swarm management" on
-    portainer "Install Portainer - Alternative to Swarmpit" off
-    swarmprom "Install Swarmprom - Swarm metrics and analytics" off
-  )
-  INSTALL_MODULES=$(whiptail \
-    --title "$SECTION_TITLE" \
-    --checklist "$MESSAGE" \
-    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALL_MODULES_OPTIONS[@]} / 3))" \
-    "${INSTALL_MODULES_OPTIONS[@]}" \
-    3>&1 1>&2 2>&3)
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
-
-  # Add swap space
-  SECTION_TITLE="Optional: Add swap space"
-  MESSAGE="\nCreate 1GB of swap space?\n\n\
-Memory installed: $(free -m  | grep Mem | awk '{print $2}') MB\n\
-Available memory: $(free -m  | grep Mem | awk '{print $4}') MB\n\n\
-If you've selected Swarmprom, consider adding some swap if you have less than 2GB of RAM."
-  CREATE_SWAP_OPTIONS=(
-    true "Allocate 1GB of swap space"
-    false "Skip this step"
-  )
-  CREATE_SWAP=$(whiptail \
-    --title "$SECTION_TITLE" \
-    --menu "$MESSAGE" \
-    "$TTY_ROWS" "$TTY_COLS" "$((${#CREATE_SWAP_OPTIONS[@]} / 2))" \
-    "${CREATE_SWAP_OPTIONS[@]}" \
-    3>&1 1>&2 2>&3)
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
-
-  # Install zsh
-  SECTION_TITLE="Optional: Install zsh"
-  MESSAGE="\nInstall Zsh and Oh My Zsh?"
-  INSTALL_ZSH_OPTIONS=(
-    true "Install Zsh and Oh My Zsh"
-    false "Skip this step"
-  )
-  INSTALL_ZSH=$(whiptail \
-    --title "$SECTION_TITLE" \
-    --menu "$MESSAGE" \
-    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALL_ZSH_OPTIONS[@]} / 2))" \
-    "${INSTALL_ZSH_OPTIONS[@]}" \
-    3>&1 1>&2 2>&3)
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" == "1" ]] && exit 1
-fi
-
 install() {
-  echo "$PREFIX Installing Swarmlet"
-  echo "$PREFIX Installing dependencies"
-  apt-get update -y -qq >/dev/null
-  apt-get install -y -qq "${DEPENDENCIES[@]}"
+  echo "$FPREFIX Installing Swarmlet"
 
-  echo "$PREFIX Installing Docker and Docker Compose"
-  wget -nv -O - https://get.docker.com/ | sh >/dev/null
-  curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  chmod +x /usr/local/bin/docker-compose
+  # Set default environment variables
+  for KEY in "${!DEFAULT_OPTS[@]}"; do
+    [[ ! -z "${DEFAULT_OPTS[$KEY]}" ]] && export "$KEY=${DEFAULT_OPTS[$KEY]}"
+  done
 
-  echo "$PREFIX Cloning $REPOSITORY"
-  git clone -q $REPOSITORY $SWARMLET_INSTALL_ROOT
+  # Set environment variables from arguments if given
+  shopt -s extglob
+  while [[ "$#" > 0 ]]; do case "${1%=*}" in
+    @($(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g'))) export "$1"; shift ;;
+    *) echo "Unknown argument: $1"; shift ;;
+  esac; done
+
+  echo "$PREFIX Installing required packages"
+  # TODO: support other package managers
+  $SUDO apt-get update -y -qq &>/dev/null
+  $SUDO apt-get install -y -qq apt-transport-https git
+
+  echo "$PREFIX Cloning $SWARMLET_REPO"
+  git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
 
   if [[ "$INSTALL_BRANCH" != "master" ]]; then
     echo "$PREFIX Checking out $INSTALL_BRANCH"
@@ -167,18 +69,11 @@ install() {
     popd >/dev/null
   fi
 
-  if [[ "$INSTALL_ZSH" == "true" ]]; then
-    echo "$PREFIX Installing 'Oh My Zsh'"
-    apt-get install -y -qq zsh >/dev/null
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
-    chsh -s $(which zsh)
-  fi
-
   echo "$PREFIX Linking executable"
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
 
   echo "$PREFIX Initializing Swarmlet"
-  swarmlet init "$@"
+  swarmlet init $INSTALLATION_TYPE "$@"
 
   echo "$FPREFIX Server initialized as manager node"
   swarmlet node ls
@@ -194,4 +89,4 @@ install() {
   echo "$INDENT $ docker service logs loadbalancer_traefik -f"
 }
 
-install
+install "$@"

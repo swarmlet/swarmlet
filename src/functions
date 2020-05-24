@@ -1,5 +1,115 @@
 #!/usr/bin/env bash
 
+ensure-root() {
+  if [[ $EUID -ne 0 ]]; then
+    if [[ $(dpkg-query -s sudo) ]]; then
+      echo "$PREFIX User is not root, using sudo"
+      export SUDO="sudo"
+    else 
+      echo "$PREFIX [ERROR] Please install sudo or run as root" && exit 1
+    fi
+  fi
+}
+
+check-bash-version() {
+  if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
+    echo "$PREFIX [ERROR] Unmet requirements: Bash 4"
+    echo "$INDENT Your Bash version is $BASH_VERSION"
+    echo "$PREFIX Exiting with error code 1" 1>&2
+    exit 1
+  fi
+}
+
+check-swarmlet-version() {
+  pushd $SWARMLET_INSTALL_ROOT >/dev/null
+  git describe --match "v*" $INSTALL_BRANCH
+  popd >/dev/null
+}
+
+update-package-cache() {
+  # Check to see if apt-get update has already been run today
+  PKG_CACHE="/var/lib/apt/lists/"
+  UPDATE_PKG_CACHE="$PKG_MANAGER update"
+
+  TIMESTAMP=$(stat -c %Y $PKG_CACHE)
+  TIMESTAMP_AS_DATE=$(date -d @"$TIMESTAMP" "+%b %e")
+  TODAY=$(date "+%b %e")
+
+  if [ ! "$TODAY" == "$TIMESTAMP_AS_DATE" ]; then
+    echo -n "$PREFIX $PKG_MANAGER update has not been run today, updating"
+    $SUDO $UPDATE_PKG_CACHE &>/dev/null
+  fi
+}
+
+notify-package-updates-available() {
+  echo -n "$PREFIX Checking $PKG_MANAGER for upgraded packages"
+  PKG_COUNT="$PKG_MANAGER -s -o Debug::NoLocking=true upgrade | grep -c ^Inst || true"
+  UPDATES_TO_INSTALL=$(eval "$PKG_COUNT")
+  if [[ $UPDATES_TO_INSTALL -eq 0 ]]; then
+    echo "$PREFIX System up to date, continuing installation"
+  else
+    echo "$PREFIX There are $UPDATES_TO_INSTALL updates available"
+    # TODO: explain why and how to update
+    # echo "$PREFIX Please update your packages"
+  fi
+}
+
+pkg-check-and-install() {
+  PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
+  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "$1 installed" || $PKG_INSTALL "$1"
+}
+
+install-dependencies() {
+  echo "$PREFIX Installing dependencies"
+  DEPENDENCIES=$1
+  PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
+
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | $SUDO debconf-set-selections
+  echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
+
+  if command -v debconf-apt-progress &>/dev/null; then
+    $SUDO debconf-apt-progress -- $PKG_INSTALL "${DEPENDENCIES[@]}"
+  else
+    for PKG in "${DEPENDENCIES[@]}"; do
+      echo -n "$PREFIX Checking and installing $PKG"
+      $SUDO pkg-check-and-install $PKG &>/dev/null
+    done
+  fi
+}
+
+set-hostname() {
+  echo "$PREFIX Setting hostname"
+  NEW_HOSTNAME=$1
+
+  if command -v hostnamectl &>/dev/null; then
+    # Prefer hostnamectl, no restart required
+    hostnamectl set-hostname $NEW_HOSTNAME
+  else
+    # Fall back on manual hostname configuration, restart required
+    $SUDO echo $NEW_HOSTNAME >/etc/hostname && echo "you need to reboot for hostname changes to take effect"
+    $SUDO sed -i "s/127.0.1.1.*$NEW_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
+  fi
+}
+
+install-docker() {
+  echo "$PREFIX Installing Docker and Docker Compose"
+  wget -nv -O - https://get.docker.com/ | sh &>/dev/null
+  curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+}
+
+install-zsh() {
+  echo "$PREFIX Installing 'Oh My Zsh'"
+  $SUDO apt-get install -y -qq zsh &>/dev/null
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &>/dev/null
+  chsh -s $(which zsh)
+}
+
+abort-installation() {
+  echo "$PREFIX Aborting installation"
+  exit 1
+}
+
 check-docker() {
   systemctl show --property ActiveState docker | grep -q "ActiveState=active"
 }
@@ -26,21 +136,18 @@ git-local-push() {
 create-swap() {
   SIZE=${1:-1G}
   FILE_PATH=${2:-/swapfile}
-  sudo fallocate -l $SIZE $FILE_PATH
-  sudo chmod 600 $FILE_PATH
-  sudo mkswap $FILE_PATH
-  sudo swapon $FILE_PATH
-  echo "$FILE_PATH none swap sw 0 0" | sudo tee -a /etc/fstab
+  $SUDO fallocate -l $SIZE $FILE_PATH
+  $SUDO chmod 600 $FILE_PATH
+  $SUDO mkswap $FILE_PATH
+  $SUDO swapon $FILE_PATH
+  echo "$FILE_PATH none swap sw 0 0" | $SUDO tee -a /etc/fstab
 }
 
 uninstall-swarmlet() {
-  if [[ -d "$USER_ROOT" ]]; then
-    rm -rf /home/git
-    userdel git -f
-  fi
+  [[ -d "$USER_ROOT" ]] && rm -rf $USER_ROOT && userdel git -f
+  [[ -d "$REPO_ROOT" ]] && rm -rf $REPO_ROOT
+  [[ -d "$SWARMLET_ROOT" ]] && rm -rf $SWARMLET_ROOT
   [[ -f /usr/local/sbin/swarmlet ]] && unlink /usr/local/sbin/swarmlet
-  if [[ -d "$REPO_ROOT" ]]; then rm -rf $REPO_ROOT; fi
-  if [[ -d "$SWARMLET_ROOT" ]]; then rm -rf $SWARMLET_ROOT; fi
 }
 
 reinstall-swarmlet() {
@@ -48,7 +155,7 @@ reinstall-swarmlet() {
   curl -fsSL https://get.swarmlet.dev | bash
 }
 
-check_existing() {
+check-existing() {
 if  [[ -d "$USER_ROOT" ]] ||
     [[ -d "$REPO_ROOT" ]] ||
     [[ -f /usr/local/sbin/swarmlet ]] ||
@@ -59,31 +166,37 @@ if  [[ -d "$USER_ROOT" ]] ||
   fi
 }
 
-setup_ssh() {
-  if [[ ! -d ~/.ssh ]]; then
-    mkdir -p ~/.ssh/
-  fi
-
-  if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
-    ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
-    echo "$INDENT Execute ssh-keygen --[done]"
-  fi
-
-  if [[ ! -f ~/.ssh/authorized_keys ]]; then
-    touch ~/.ssh/authorized_keys
-    echo "$INDENT Create ~/.ssh/authorized_keys --[done]"
-    chmod 700 ~/.ssh/authorized_keys
-    cat ~/.ssh/id_rsa.pub >>~/.ssh/authorized_keys
-    echo "$INDENT Append the public keys id_rsa into authorized keys --[done]"
-    chmod 400 ~/.ssh/authorized_keys
-    chmod 700 ~/.ssh/
+check-swarm() {
+  if [[ "$(docker info 2>/dev/null  | grep Swarm | sed 's/Swarm: //g')" == " active" ]]; then
+    return 1
+  else
+    return 0
   fi
 }
 
-check-swarm(){
-    if [[ "$(docker info 2>/dev/null  | grep Swarm | sed 's/Swarm: //g')" == " active" ]]; then
-        return 1
-    else
-        return 0
-    fi
+nuke() {
+  uninstall-swarmlet
+  $SUDO apt-get remove --purge docker docker-compose
+  $SUDO apt autoremove
 }
+
+# setup-ssh() {
+#   if [[ ! -d ~/.ssh ]]; then
+#     mkdir -p ~/.ssh/
+#   fi
+
+#   if [[ ! -f ~/.ssh/id_rsa.pub ]]; then
+#     ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+#     echo "$INDENT Execute ssh-keygen --[done]"
+#   fi
+
+#   if [[ ! -f ~/.ssh/authorized_keys ]]; then
+#     touch ~/.ssh/authorized_keys
+#     echo "$INDENT Create ~/.ssh/authorized_keys --[done]"
+#     chmod 700 ~/.ssh/authorized_keys
+#     cat ~/.ssh/id_rsa.pub >>~/.ssh/authorized_keys
+#     echo "$INDENT Append the public keys id_rsa into authorized keys --[done]"
+#     chmod 400 ~/.ssh/authorized_keys
+#     chmod 700 ~/.ssh/
+#   fi
+# }

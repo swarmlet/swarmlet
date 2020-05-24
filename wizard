@@ -13,7 +13,7 @@ PKG_CACHE="/var/lib/apt/lists/"
 UPDATE_PKG_CACHE="${PKG_MANAGER} update"
 PKG_INSTALL="${PKG_MANAGER} --yes --no-install-recommends install"
 PKG_COUNT="${PKG_MANAGER} -s -o Debug::NoLocking=true upgrade | grep -c ^Inst || true"
-SWARMLET_DEPS=(acl curl git apt-transport-https apache2-utils moreutils wget dialog)
+SWARMLET_DEPS=(acl curl git apt-transport-https apache2-utils moreutils wget)
 SWARMLET_REPO="https://github.com/swarmlet/swarmlet.git"
 
 # Find the rows and columns. Will default to 80x24 if it can not be detected.
@@ -44,127 +44,9 @@ c=$((columns / 2))
 r=$((r < 20 ? 20 : r))
 c=$((c < 70 ? 70 : c))
 
-######## FIRST CHECK ########
-# Must be root to install
-echo "$FPREFIX Checking user"
-if [[ $EUID -eq 0 ]]; then
-  echo "$PREFIX You are root."
-else
-  echo "$PREFIX sudo will be used for the install."
-  # Check if it is actually installed
-  # If it isn't, exit because the install cannot complete
-  if [[ $(dpkg-query -s sudo) ]]; then
-    export SUDO="sudo"
-    export SUDOE="sudo -E"
-  else
-    echo "$PREFIX Please install sudo or run this as root."
-    exit 1
-  fi
-fi
-####### FUNCTIONS ##########
-spinner() {
-  local pid=$1
-  local delay=0.50
-  local spinstr='/-\|'
-  while [[ "$(ps a | awk '{print $1}' | grep "${pid}")" ]]; do
-    local temp=${spinstr#?}
-    printf " [%c]  " "${spinstr}"
-    local spinstr=${temp}${spinstr%"$temp"}
-    sleep ${delay}
-    printf "\b\b\b\b\b\b"
-  done
-  printf "    \b\b\b\b"
-}
-
-helloSwarmlet() {
-  whiptail --msgbox --title "Swarmlet Automated Installer" "This installer will transform your VPS into an Swarmed server!\
-\n
-\n
-In the next sections, we will ask you for some details which will help us in configuration of your Swarmlet.
-" ${r} ${c}
-  if [[ $? != 0 ]]; then break_installation; fi
-}
-
-package_check_install() {
-  dpkg-query -W -f='${Status}' "${1}" 2>/dev/null | grep -c "ok installed" || ${PKG_INSTALL} "${1}"
-}
-
-check_bash() {
-  if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
-    echo "$PREFIX [ERROR] Unmet requirements: Bash 4"
-    echo "$INDENT Your Bash version is $BASH_VERSION"
-    echo "$PREFIX Exiting with error code 1" 1>&2
-    exit 1
-  fi
-}
-
-install_dependent_packages() {
-  # Install packages passed in via argument array
-  # No spinner - conflicts with set -e
-  declare -a argArray1=("${!1}")
-
-  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | ${SUDO} debconf-set-selections
-  echo iptables-persistent iptables-persistent/autosave_v6 boolean false | ${SUDO} debconf-set-selections
-
-  if command -v debconf-apt-progress &>/dev/null; then
-    ${SUDO} debconf-apt-progress -- ${PKG_INSTALL} "${argArray1[@]}"
-  else
-    for i in "${argArray1[@]}"; do
-      echo -n "$FPREFIX Checking for $i..."
-      ${SUDO} package_check_install "${i}" &>/dev/null
-      echo "$PREFIX installed!"
-    done
-  fi
-}
-update_package_cache() {
-  #Check to see if apt-get update has already been run today
-  #it needs to have been run at least once on new installs!
-  timestamp=$(stat -c %Y ${PKG_CACHE})
-  timestampAsDate=$(date -d @"${timestamp}" "+%b %e")
-  today=$(date "+%b %e")
-
-  if [ ! "${today}" == "${timestampAsDate}" ]; then
-    echo -n "$FPREFIX ${PKG_MANAGER} update has not been run today. Running now..."
-    ${SUDO} ${UPDATE_PKG_CACHE} &>/dev/null
-    echo "$PREFIX done!"
-  fi
-}
-notify_package_updates_available() {
-
-  echo -n "$FPREFIX Checking ${PKG_MANAGER} for upgraded packages"
-  echo ""
-  updatesToInstall=$(eval "${PKG_COUNT}")
-  if [[ ${updatesToInstall} -eq "0" ]]; then
-    echo "$PREFIX Your system is up to date! Continuing with Swarmlet installation..."
-  else
-    echo "$PREFIX There are ${updatesToInstall} updates available for your system!"
-    echo "$PREFIX We recommend you to update your OS after installing Swarmlet! "
-  fi
-}
-install_docker() {
-  echo "$INDENT Installing docker"
-  wget -nv -O - https://get.docker.com/ | sh
-  curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  chmod +x /usr/local/bin/docker-compose
-  echo "$PREFIX Docker installed"
-}
-break_installation() {
-  echo 'aborted'
-  exit 1
-}
-do_change_hostname() {
-  whiptail --msgbox "Set your hostname" ${r} ${c}
-
-  CURRENT_HOSTNAME=$(cat /etc/hostname | tr -d " \t\n\r")
-  ROOT_DOMAIN=$(whiptail --inputbox "Please enter a hostname" 20 60 "$CURRENT_HOSTNAME" 3>&1 1>&2 2>&3)
-  if [[ $? -eq 0 ]]; then
-    ${SUDO} echo ${ROOT_DOMAIN} >/etc/hostname
-    ${SUDO} sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
-  fi
-}
 do_select_branch() {
   USER_INSTALL_BRANCH=$(whiptail --inputbox "Select branch" 20 60 ${swarmletGitBranch} 3>&1 1>&2 2>&3)
-  if [[ $? != 0 ]]; then break_installation; fi
+  if [[ $? != 0 ]]; then abort-installation; fi
 }
 do_create_swap() {
   USER_SWAP=$(whiptail --yesno " Allocate 1GB of swap space" ${r} ${c} 3>&1 1>&2 2>&3)
@@ -174,15 +56,15 @@ do_install_zssh() {
 }
 do_select_username() {
   USERNAME=$(whiptail --inputbox "please enter your username, we will use it to configure services" ${r} ${c} 3>&1 1>&2 2>&3)
-  if [[ $? != 0 ]]; then break_installation; fi
+  if [[ $? != 0 ]]; then abort-installation; fi
 }
 do_select_cf_email() {
   CF_EMAIL=$(whiptail --inputbox "please enter cloudflare email, we will use it to configure services" ${r} ${c} 3>&1 1>&2 2>&3)
-  if [[ $? != 0 ]]; then break_installation; fi
+  if [[ $? != 0 ]]; then abort-installation; fi
 }
 do_select_password() {
   PASSWORD=$(whiptail --passwordbox "please enter your secret password, we will use it to configure services" ${r} ${c} 3>&1 1>&2 2>&3)
-  if [[ $? != 0 ]]; then break_installation; fi
+  if [[ $? != 0 ]]; then abort-installation; fi
 }
 do_select_services() {
 dialogbox=(whiptail
@@ -243,13 +125,10 @@ do_select_services
 do_install_selected
 # get_code
 
-
-
 if [[ "$INSTALL_ZSH" == "true" ]]; then install_zssh; fi
 install() {
   echo "$PREFIX Installing Swarmlet"
   echo "$PREFIX Installing dependencies"
-
 
   echo "$PREFIX Cloning Swarmlet from $SWARMLET_REPO"
   git clone -q ${SWARMLET_REPO} ${SWARMLET_INSTALL_ROOT}

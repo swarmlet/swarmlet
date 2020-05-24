@@ -6,6 +6,46 @@ init() {
   declare cmd="init"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  init-"$@"
+}
+
+init-interactive() {
+  echo "$PREFIX Starting interactive installation"
+
+  swarmlet dialog welcome
+  swarmlet dialog set-username
+  swarmlet dialog set-password
+  swarmlet dialog domain-config
+  # swarmlet dialog installation-mode
+  swarmlet dialog install-modules
+  swarmlet dialog add-swap
+  swarmlet dialog install-zsh
+  swarmlet dialog are-you-sure
+
+  echo "$FPREFIX Environment"
+  printenv
+
+  update-package-cache
+  notify-package-updates-available
+  install-dependencies $SWARMLET_DEPENDENCIES
+  set-hostname $NEW_HOSTNAME
+
+  $INSTALL_DOCKER && install-docker
+  $CREATE_SWAP && create-swap
+  $INSTALL_ZSH && install-zsh
+
+  # do-select-cf-email # NOTE: What is this for?
+
+  echo "$PREFIX Wizard complete"
+  for OPTION in ${!DEFAULT_OPTS[@]}; do
+    echo "$OPTION=$(printenv $OPTION)"
+  done
+
+  uninstall-swarmlet
+}
+
+init-noninteractive() {
+  echo "$PREFIX Starting noninteractive installation"
   echo "$PREFIX Setting up the git user"
   adduser $USERNAME --disabled-password --gecos --quiet
   usermod -aG docker $USERNAME

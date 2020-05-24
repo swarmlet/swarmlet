@@ -15,6 +15,8 @@ SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
 SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
 SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
 SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
+SWARMLET_DEPENDENCIES=(acl curl apache2-utils moreutils wget)
+PKG_MANAGER="apt-get"
 
 AUTHORIZED_KEYS="/root/.ssh/authorized_keys" # TODO: make configurable
 SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $REPO_ROOT $SWARMLET_HOOKS\""
