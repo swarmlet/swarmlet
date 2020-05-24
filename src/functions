@@ -65,6 +65,7 @@ install-dependencies() {
   echo "${SWARMLET_DEPENDENCIES[@]}" $PKG_MANAGER
   SWARMLET_DEPENDENCIES2="$1"
   SWARMLET_DEPENDENCIES3="$2"
+  SWARMLET_DEPENDENCIES4="$3"
 
   echo iptables-persistent iptables-persistent/autosave_v4 boolean true | $SUDO debconf-set-selections
   echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
