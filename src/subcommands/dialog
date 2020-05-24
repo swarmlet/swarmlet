@@ -62,6 +62,22 @@ section-set-password() {
   echo $SWARMLET_PASSWORD
 }
 
+section-set-hostname() {
+  SECTION_TITLE="Hostname configuration"
+  MESSAGE="\nChoose a hostname for this host.\nDefault: $(hostname)"
+
+  # TODO: use whiptail password input
+  NEW_HOSTNAME=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --inputbox "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" \
+    "$(hostname)" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $NEW_HOSTNAME
+}
+
 section-domain-config() {
   SECTION_TITLE="Domain name configuration"
   MESSAGE="\nEnter the domain name you want to use with Swarmlet.\n\n\

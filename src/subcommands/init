@@ -15,15 +15,13 @@ init-interactive() {
   swarmlet dialog welcome
   SWARMLET_USERNAME=$(swarmlet dialog set-username)
   SWARMLET_PASSWORD=$(swarmlet dialog set-password)
+  NEW_HOSTNAME=$(swarmlet dialog set-hostname)
   ROOT_DOMAIN=$(swarmlet dialog domain-config)
   # INSTALLATION_MODE=$(swarmlet dialog installation-mode)
   INSTALL_MODULES=$(swarmlet dialog install-modules)
   CREATE_SWAP=$(swarmlet dialog add-swap)
   INSTALL_ZSH=$(swarmlet dialog install-zsh)
   # swarmlet dialog are-you-sure
-
-  echo "$FPREFIX Environment"
-  printenv
 
   echo $SWARMLET_USERNAME
   echo $SWARMLET_PASSWORD
@@ -34,8 +32,8 @@ init-interactive() {
 
   update-package-cache
   notify-package-updates-available
-  install-dependencies $SWARMLET_DEPENDENCIES
-  set-hostname $NEW_HOSTNAME
+  install-dependencies "${SWARMLET_DEPENDENCIES[@]}"
+  set-hostname $NEW_HOSTNAME $ROOT_DOMAIN
 
   $INSTALL_DOCKER && install-docker
   $CREATE_SWAP && create-swap
