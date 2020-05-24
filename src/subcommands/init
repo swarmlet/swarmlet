@@ -25,6 +25,13 @@ init-interactive() {
   echo "$FPREFIX Environment"
   printenv
 
+  echo $SWARMLET_USERNAME
+  echo $SWARMLET_PASSWORD
+  echo $ROOT_DOMAIN
+  echo $INSTALL_MODULES
+  echo $CREATE_SWAP
+  echo $INSTALL_ZSH
+
   update-package-cache
   notify-package-updates-available
   install-dependencies $SWARMLET_DEPENDENCIES
