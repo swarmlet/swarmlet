@@ -23,6 +23,8 @@ init-interactive() {
   INSTALL_ZSH=$(swarmlet dialog install-zsh)
   # swarmlet dialog are-you-sure
 
+  echo "$FPREFIX Wizard complete"
+
   echo $SWARMLET_USERNAME
   echo $SWARMLET_PASSWORD
   echo $ROOT_DOMAIN
@@ -32,7 +34,7 @@ init-interactive() {
 
   update-package-cache
   notify-package-updates-available
-  install-dependencies "${SWARMLET_DEPENDENCIES[@]}"
+  install-dependencies $SWARMLET_DEPENDENCIES
   set-hostname $NEW_HOSTNAME $ROOT_DOMAIN
 
   $INSTALL_DOCKER && install-docker
