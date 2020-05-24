@@ -68,7 +68,7 @@ install-dependencies() {
   echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
 
   if command -v debconf-apt-progress &>/dev/null; then
-    $SUDO debconf-apt-progress -- $PKG_INSTALL "${DEPENDENCIES[@]}"
+    $SUDO debconf-apt-progress -- $PKG_INSTALL "${DEPENDENCIES[@]}" &>/dev/null
   else
     for PKG in "${DEPENDENCIES[@]}"; do
       echo -n "$PREFIX Checking and installing $PKG"
@@ -80,6 +80,7 @@ install-dependencies() {
 set-hostname() {
   echo "$PREFIX Setting hostname"
   NEW_HOSTNAME=$1
+  ROOT_DOMAIN=$2
 
   if command -v hostnamectl &>/dev/null; then
     # Prefer hostnamectl, no restart required
