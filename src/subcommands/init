@@ -34,7 +34,7 @@ init-interactive() {
 
   update-package-cache
   notify-package-updates-available
-  install-dependencies $SWARMLET_DEPENDENCIES
+  install-dependencies
   set-hostname $NEW_HOSTNAME $ROOT_DOMAIN
 
   $INSTALL_DOCKER && install-docker

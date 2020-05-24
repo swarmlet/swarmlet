@@ -61,16 +61,15 @@ pkg-check-and-install() {
 
 install-dependencies() {
   echo "$PREFIX Installing dependencies"
-  DEPENDENCIES=$1
   PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
 
   echo iptables-persistent iptables-persistent/autosave_v4 boolean true | $SUDO debconf-set-selections
   echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
 
   if command -v debconf-apt-progress &>/dev/null; then
-    $SUDO debconf-apt-progress -- $PKG_INSTALL "${DEPENDENCIES[@]}" &>/dev/null
+    $SUDO debconf-apt-progress -- $PKG_INSTALL "${SWARMLET_DEPENDENCIES[@]}" &>/dev/null
   else
-    for PKG in "${DEPENDENCIES[@]}"; do
+    for PKG in "${SWARMLET_DEPENDENCIES[@]}"; do
       echo -n "$PREFIX Checking and installing $PKG"
       $SUDO pkg-check-and-install $PKG &>/dev/null
     done
