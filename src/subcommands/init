@@ -36,6 +36,8 @@ init-interactive() {
   notify-package-updates-available
   # TODO: fix
   # install-dependencies "${SWARMLET_DEPENDENCIES[@]}" "$SWARMLET_DEPENDENCIES" $SWARMLET_DEPENDENCIES
+
+  SWARMLET_DEPENDENCIES=(acl curl apache2-utils moreutils wget)
   $SUDO apt-get install -y -qq "${SWARMLET_DEPENDENCIES[@]}" &>/dev/null
   set-hostname $NEW_HOSTNAME $ROOT_DOMAIN
 
