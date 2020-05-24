@@ -42,7 +42,7 @@ section-set-username() {
     "swarmlet" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ $EXIT_STATUS -ne 0 ]] && abort-installation
+  EXIT_STATUS=$?; [[ $EXIT_STATUS -eq 1 ]] && abort-installation
 }
 
 section-set-password() {
@@ -57,7 +57,7 @@ section-set-password() {
     "swarmlet" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ $EXIT_STATUS -ne 0 ]] && abort-installation
+  EXIT_STATUS=$?; [[ $EXIT_STATUS -eq 1 ]] && abort-installation
 }
 
 section-domain-config() {
@@ -73,7 +73,7 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
     "yourdomain.com" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ $EXIT_STATUS -ne 0 ]] && abort-installation
+  EXIT_STATUS=$?; [[ $EXIT_STATUS -eq 1 ]] && abort-installation
 }
 
 section-installation-mode() {
@@ -93,7 +93,7 @@ section-installation-mode() {
     "${INSTALLATION_MODE_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ $EXIT_STATUS -ne 0 ]] && abort-installation
+  EXIT_STATUS=$?; [[ $EXIT_STATUS -eq 1 ]] && abort-installation
 }
 
 section-install-modules() {
@@ -116,7 +116,7 @@ Press 'SPACE' to (de)select a module."
     "${INSTALL_MODULES_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ $EXIT_STATUS -ne 0 ]] && abort-installation
+  EXIT_STATUS=$?; [[ $EXIT_STATUS -eq 1 ]] && abort-installation
 }
 
 section-add-swap() {
@@ -138,7 +138,7 @@ If you've selected Swarmprom, consider adding some swap if you have less than 2G
     "${CREATE_SWAP_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ $EXIT_STATUS -ne 0 ]] && abort-installation
+  EXIT_STATUS=$?; [[ $EXIT_STATUS -eq 1 ]] && abort-installation
 }
 
 section-install-zsh() {
@@ -157,7 +157,7 @@ section-install-zsh() {
     "${INSTALL_ZSH_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ $EXIT_STATUS -ne 0 ]] && abort-installation
+  EXIT_STATUS=$?; [[ $EXIT_STATUS -eq 1 ]] && abort-installation
 }
 
 "$@"
