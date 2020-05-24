@@ -21,7 +21,7 @@ check-bash-version() {
 }
 
 check-swarmlet-version() {
-  pushd $SWARMLET_INSTALL_ROOT >/dev/null
+  pushd $SWARMLET_ROOT >/dev/null
   git describe --match "v*" $INSTALL_BRANCH
   popd >/dev/null
 }
