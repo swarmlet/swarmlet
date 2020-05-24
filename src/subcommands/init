@@ -34,7 +34,9 @@ init-interactive() {
 
   update-package-cache
   notify-package-updates-available
-  install-dependencies "${SWARMLET_DEPENDENCIES[@]}" "$SWARMLET_DEPENDENCIES" $SWARMLET_DEPENDENCIES
+  # TODO: fix
+  # install-dependencies "${SWARMLET_DEPENDENCIES[@]}" "$SWARMLET_DEPENDENCIES" $SWARMLET_DEPENDENCIES
+  $SUDO apt-get install -y -qq "${SWARMLET_DEPENDENCIES[@]}" &>/dev/null
   set-hostname $NEW_HOSTNAME $ROOT_DOMAIN
 
   $INSTALL_DOCKER && install-docker

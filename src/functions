@@ -70,26 +70,7 @@ install-dependencies() {
   echo iptables-persistent iptables-persistent/autosave_v4 boolean true | $SUDO debconf-set-selections
   echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
 
-  echo 0
   for PKG in "${SWARMLET_DEPENDENCIES[@]}"; do
-    echo "$PREFIX Checking and installing $PKG"
-    $SUDO pkg-check-and-install $PKG
-  done
-
-  echo 1
-  for PKG in "${SWARMLET_DEPENDENCIES2[@]}"; do
-    echo "$PREFIX Checking and installing $PKG"
-    $SUDO pkg-check-and-install $PKG
-  done
-
-  echo 2
-  for PKG in "${SWARMLET_DEPENDENCIES3[@]}"; do
-    echo "$PREFIX Checking and installing $PKG"
-    $SUDO pkg-check-and-install $PKG
-  done
-
-  echo 3
-  for PKG in "${SWARMLET_DEPENDENCIES3[@]}"; do
     echo "$PREFIX Checking and installing $PKG"
     $SUDO pkg-check-and-install $PKG
   done
