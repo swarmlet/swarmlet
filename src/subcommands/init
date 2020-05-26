@@ -78,15 +78,15 @@ init-interactive() {
   fi
 
   echo "$PREFIX Creating secrets"
-  cat << EOM | swarmlet secret create swarmlet-user-secrets -
+  cat << EOM | docker secret create swarmlet-user-secrets -
 # User-defined secret environment variables
 SWARMLET_USERNAME=$SWARMLET_USERNAME
 SWARMLET_PASSWORD=$SWARMLET_PASSWORD
 EOM
 
   echo "$PREFIX Creating configs"
-  swarmlet config create swarmlet-core-config $SWARMLET_CONSTANTS
-  cat << EOM | swarmlet config create swarmlet-user-config -
+  docker config create swarmlet-core-config $SWARMLET_CONSTANTS
+  cat << EOM | docker config create --template-driver golang swarmlet-user-config -
 # User-defined config environment variables
 SSH_AUTHORIZED_KEYS=$SSH_AUTHORIZED_KEYS
 NEW_HOSTNAME=$NEW_HOSTNAME
