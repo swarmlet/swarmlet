@@ -65,16 +65,22 @@ init-interactive() {
   echo "$PREFIX Initializing node as swarm manager"
   if [[ check-swarm ]]; then docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true; fi
 
-  cat << EOM | docker secret create user-env -
+  swarmlet config create swarmlet-core-config $SWARMLET_VARIABLES
+
+  cat << EOM | docker secret create swarmlet-user-secrets -
 SWARMLET_USERNAME=$SWARMLET_USERNAME
 SWARMLET_PASSWORD=$SWARMLET_PASSWORD
 EOM
 
-  cat << EOM | docker config create user-config -
+  cat << EOM | docker config create --template-driver golang swarmlet-user-config -
+# User configuration variables
 ROOT_DOMAIN=$ROOT_DOMAIN
 INSTALL_MODULES=$INSTALL_MODULES
 CREATE_SWAP=$CREATE_SWAP
 INSTALL_ZSH=$INSTALL_ZSH
+
+# Swarmlet configuration variables
+{{ config "swarmlet-core-config" }}
 EOM
 
   echo "$PREFIX Creating networks"

@@ -34,6 +34,9 @@ config-rm() {
   declare cmd="rm"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  # TODO: list and update all services using this config
+  docker service update --config-rm $CONFIG_NAME $SERVICE
+  docker config rm $CONFIG_NAME
 }
 
 config-update() {
