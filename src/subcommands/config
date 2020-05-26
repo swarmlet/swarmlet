@@ -25,7 +25,7 @@ config-create() {
 
   if [[ -f "$CONFIG" ]]; then
     cat "$CONFIG" | docker config create --template-driver golang $CONFIG_NAME -
-  elif
+  else
     echo "$CONFIG" | docker config create --template-driver golang $CONFIG_NAME -
   fi
 }
@@ -52,7 +52,7 @@ config-update() {
 
   if [[ -f "$CONFIG" ]]; then
     cat "$CONFIG" | docker config create --template-driver golang $CONFIG_NAME -
-  elif
+  else
     echo "$CONFIG" | docker config create --template-driver golang $CONFIG_NAME -
   fi
 
