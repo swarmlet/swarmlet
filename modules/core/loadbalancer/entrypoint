@@ -11,15 +11,6 @@ NAME=$(basename $PWD)
 main() {
   echo "$PREFIX Running $NAME entrypoint script"
   # echo "$PREFIX Environment:"; printenv
-
-  if [[ ! "$(docker network ls | grep $TRAEFIK_NETWORK)" ]]; then
-    docker network create \
-      --attachable \
-      --driver=overlay \
-      $TRAEFIK_NETWORK
-  else
-    echo "$PREFIX $TRAEFIK_NETWORK network already exists"
-  fi
 }
 
 main "$@"
