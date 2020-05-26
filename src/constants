@@ -16,10 +16,12 @@ SWARMLET_REGISTRY="swarmlet-registry"
 SWARMLET_NETWORK="swarmlet-network"
 SWARMLET_NETWORK_DRIVER="overlay"
 
+DOCKER_SOCKET="/var/run/docker.sock"
+TRAEFIK_NETWORK=traefik-public
+
 GIT_USER="git"
 GIT_USER_ROOT="/home/$GIT_USER"
 GIT_REPO_ROOT="/var/repo"
-DOCKER_SOCKET="/var/run/docker.sock"
 
 SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $GIT_REPO_ROOT $SWARMLET_HOOKS\""
 SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"

@@ -109,6 +109,15 @@ EOM
     echo "$PREFIX $SWARMLET_NETWORK network already exists"
   fi
 
+  if [[ ! "$(docker network ls | grep $TRAEFIK_NETWORK)" ]]; then
+    docker network create \
+      --attachable \
+      --driver=overlay \
+      $TRAEFIK_NETWORK
+  else
+    echo "$PREFIX $TRAEFIK_NETWORK network already exists"
+  fi
+
   echo "$PREFIX Creating volumes"
   docker volume create \
     --driver "local" \
