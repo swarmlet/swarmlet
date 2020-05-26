@@ -6,6 +6,17 @@ init() {
   declare cmd="init"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  declare -A PKG_MANAGERS
+  PKG_MANAGERS[/etc/redhat-release]=yum
+  PKG_MANAGERS[/etc/arch-release]=pacman
+  PKG_MANAGERS[/etc/gentoo-release]=emerge
+  PKG_MANAGERS[/etc/SuSE-release]=zypp
+  PKG_MANAGERS[/etc/debian_version]=apt-get
+
+  for MANAGER in ${!PKG_MANAGERS[@]}; do
+    [[ -f $MANAGER ]] && export PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
+  done
+
   init-"$@"
 }
 
