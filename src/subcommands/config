@@ -23,10 +23,10 @@ config-create() {
   CONFIG_NAME="$1"
   CONFIG="$2"
 
-  if [[ -f $CONFIG ]]; then
-    cat $CONFIG | docker config create --template-driver golang $CONFIG_NAME -
+  if [[ -f "$CONFIG" ]]; then
+    cat "$CONFIG" | docker config create --template-driver golang $CONFIG_NAME -
   elif
-    echo $CONFIG | docker config create --template-driver golang $CONFIG_NAME -
+    echo "$CONFIG" | docker config create --template-driver golang $CONFIG_NAME -
   fi
 }
 
@@ -50,10 +50,10 @@ config-update() {
   docker service update --config-rm $CONFIG_NAME $SERVICE
   docker config rm $CONFIG_NAME
 
-  if [[ -f $CONFIG ]]; then
-    cat $CONFIG | docker config create --template-driver golang $CONFIG_NAME -
+  if [[ -f "$CONFIG" ]]; then
+    cat "$CONFIG" | docker config create --template-driver golang $CONFIG_NAME -
   elif
-    echo $CONFIG | docker config create --template-driver golang $CONFIG_NAME -
+    echo "$CONFIG" | docker config create --template-driver golang $CONFIG_NAME -
   fi
 
   docker service update --config-add source=$CONFIG_NAME,target=$CONFIG_NAME $SERVICE
