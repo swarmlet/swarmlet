@@ -84,14 +84,6 @@ INSTALL_ZSH=$INSTALL_ZSH
 EOM
 
   echo "$PREFIX Creating networks"
-  if [[ ! "$(docker network ls | grep traefik-public)" ]]; then
-    docker network create \
-      --attachable \
-      --driver=overlay \
-      traefik-public
-  else
-    echo "$PREFIX traefik-public network exists."
-  fi
   if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK_NAME)" ]]; then
     docker network create \
       --attachable \
