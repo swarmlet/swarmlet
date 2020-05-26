@@ -6,7 +6,10 @@ stack() {
   declare cmd="stack"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  stack-"$@"
+  if [[ "$2" == "env" ]];
+   then stack-"$@"
+   else docker container exec $(docker ps --filter name=env -q) stack-"$@"
+  fi
 }
 
 stack-build() {
@@ -18,9 +21,9 @@ stack-build() {
 
   if [ "$(ls -A $STACK_ROOT)" ]; then
     pushd $STACK_ROOT >/dev/null
-
+    
     echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
-      -u $SWARMLET_REGISTRY_USER \
+      -u $SWARMLET_REGISTRY_USERNAME \
       $SWARMLET_REGISTRY
 
     echo "$PREFIX Building stack $STACK_NAME"

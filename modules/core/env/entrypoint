@@ -3,7 +3,7 @@
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
 ls -al /
-cat /swarmlet-env
+cat /swarmlet-config
 for f in /run/secrets/*; do echo $f; cat $f; done
 
 printenv
@@ -14,7 +14,13 @@ main() {
 
   # docker container exec $(docker ps --filter name=$SERVICE -q) cat /my-config
 
-  sleep 5
+  sleep 60
+
+  date
+  ls -al /
+  cat /swarmlet-config
+  for f in /run/secrets/*; do echo $f; cat $f; done
+
   main
 }
 

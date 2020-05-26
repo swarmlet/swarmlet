@@ -5,17 +5,17 @@ services:
     build: .
     image: ${SWARMLET_REGISTRY}/env
     secrets:
-      - swarmlet-user-env
+      - swarmlet-user-secrets
     configs:
-      - swarmlet-env
+      - swarmlet-config
     deploy:
       restart_policy:
         condition: none
 
 secrets:
-  swarmlet-user-env:
+  swarmlet-user-secrets:
     external: true
 
 configs:
-  swarmlet-env:
+  swarmlet-config:
     external: true
