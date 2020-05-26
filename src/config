@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-# --------------------
-# config: swarmlet-env
-# --------------------
+# -----------------------
+# config: swarmlet-config
+# -----------------------
+# Run the following command if you update this file after installation:
+# TODO: swarmlet config update swarmlet-config
 
-# Swarmlet configuration and secrets
-{{ secret "swarmlet-user-env" }}
-{{ config "swarmlet-core-env" }}
+# User-defined secret environment variables
+{{ secret "swarmlet-user-secrets" }}
 
-# SWARMLET_USER={{ secret "swarmlet-user" }}
-# SWARMLET_USER_ROOT={{ secret "swarmlet-user-root" }}
-# SWARMLET_REGISTRY_USER={{ secret "swarmlet-registry-user" }}
-# SWARMLET_REGISTRY_PASSWORD={{ secret "swarmlet-registry-password" }}
+# Swarmlet core and user-defined configuration environment variables
+{{ config "swarmlet-user-config" }}

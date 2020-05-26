@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
-source "/opt/swarmlet/src/variables"
+source "/opt/swarmlet/src/constants"
 
 echo "$PREFIX Repository received"
 REPO_SRC=$PWD

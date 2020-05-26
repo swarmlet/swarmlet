@@ -10,7 +10,7 @@ ROOT_DIR=$(dirname "$0")
 SUBCOMMAND="$ROOT_DIR/subcommands/$1"
 
 set -o allexport
-source "$ROOT_DIR/variables"
+source "$ROOT_DIR/constants"
 source "$ROOT_DIR/functions"
 set +o allexport
 
