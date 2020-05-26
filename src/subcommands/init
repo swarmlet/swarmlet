@@ -100,13 +100,13 @@ INSTALL_ZSH=$INSTALL_ZSH
 EOM
 
   echo "$PREFIX Creating networks"
-  if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK_NAME)" ]]; then
+  if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK)" ]]; then
     docker network create \
       --attachable \
       --driver $SWARMLET_NETWORK_DRIVER \
-      $SWARMLET_NETWORK_NAME
+      $SWARMLET_NETWORK
   else
-    echo "$PREFIX $SWARMLET_NETWORK_NAME network already exists"
+    echo "$PREFIX $SWARMLET_NETWORK network already exists"
   fi
 
   echo "$PREFIX Creating volumes"
@@ -176,13 +176,13 @@ init-noninteractive() {
   swarmlet config create swarmlet-env $SWARMLET_CONFIG
 
   echo "$PREFIX Creating networks"
-  if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK_NAME)" ]]; then
+  if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK)" ]]; then
     docker network create \
       --attachable \
       --driver $SWARMLET_NETWORK_DRIVER \
-      $SWARMLET_NETWORK_NAME
+      $SWARMLET_NETWORK
   else
-    echo "$PREFIX $SWARMLET_NETWORK_NAME network exists"
+    echo "$PREFIX $SWARMLET_NETWORK network exists"
   fi
 
   echo "$PREFIX Creating volumes"

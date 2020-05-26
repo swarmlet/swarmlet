@@ -7,7 +7,7 @@ env() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   docker run --rm \
-    --network $SWARMLET_NETWORK_NAME \
+    --network $SWARMLET_NETWORK \
     -v $DOCKER_SOCKET:$DOCKER_SOCKET \
     -v $REPO_PATH:$REPO_PATH \
     $SWARMLET_REGISTRY/env "$@"
