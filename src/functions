@@ -178,8 +178,8 @@ check-swarm() {
 
 nuke() {
   uninstall-swarmlet
-  $SUDO apt-get remove --purge docker docker-compose
-  $SUDO apt autoremove
+  $SUDO apt-get remove -y --purge docker docker-compose
+  $SUDO apt autoremove -y
 }
 
 # setup-ssh() {
