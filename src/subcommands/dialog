@@ -32,9 +32,8 @@ System: $(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
 section-auth-info() {
   SECTION_TITLE="User configuration - info"
   MESSAGE="\nConfigure your Swarmlet username and password.\n\n\
-These will only be used to authenticate to the swarm registry and to provice access to included modules web dashboards.\n\
-You can update your username and password after installation using the Swarmlet CLI.\n\
-Instructions can be found in the documentation."
+You can use these to authenticate to the swarm registry and to access the included modules web dashboards.\n\n\
+You can update your username and password after installation using the Swarmlet CLI. Further instructions can be found in the documentation."
 
   whiptail \
     --title "$SECTION_TITLE" \
@@ -94,7 +93,7 @@ section-set-hostname() {
   SECTION_TITLE="Hostname configuration"
   MESSAGE="\nOptional: Set a new hostname for this host.\n\n\
 Example: swarm-manager-1\n\
-Default: $(hostname)"
+Current: $(hostname)"
 
   # TODO: use whiptail password input
   NEW_HOSTNAME=$(whiptail \
