@@ -6,17 +6,6 @@ init() {
   declare cmd="init"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  declare -A PKG_MANAGERS
-  PKG_MANAGERS[/etc/redhat-release]=yum
-  PKG_MANAGERS[/etc/arch-release]=pacman
-  PKG_MANAGERS[/etc/gentoo-release]=emerge
-  PKG_MANAGERS[/etc/SuSE-release]=zypp
-  PKG_MANAGERS[/etc/debian_version]=apt-get
-
-  for MANAGER in ${!PKG_MANAGERS[@]}; do
-    [[ -f $MANAGER ]] && export PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
-  done
-
   init-"$@"
 }
 
@@ -82,6 +71,8 @@ init-interactive() {
 # User-defined secret environment variables
 SWARMLET_USERNAME=$SWARMLET_USERNAME
 SWARMLET_PASSWORD=$SWARMLET_PASSWORD
+SWARMLET_REGISTRY_USERNAME=$SWARMLET_USERNAME
+SWARMLET_REGISTRY_PASSWORD=$SWARMLET_PASSWORD
 EOM
 
   echo "$PREFIX Creating configs"

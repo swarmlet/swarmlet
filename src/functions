@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+declare -A PKG_MANAGERS
+PKG_MANAGERS[/etc/redhat-release]=yum
+PKG_MANAGERS[/etc/arch-release]=pacman
+PKG_MANAGERS[/etc/gentoo-release]=emerge
+PKG_MANAGERS[/etc/SuSE-release]=zypp
+PKG_MANAGERS[/etc/debian_version]=apt-get
+
+for MANAGER in ${!PKG_MANAGERS[@]}; do
+  [[ -f $MANAGER ]] && PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
+done
+
 ensure-root() {
   if [[ $EUID -ne 0 ]]; then
     if [[ $(dpkg-query -s sudo) ]]; then
