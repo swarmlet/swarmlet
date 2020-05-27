@@ -60,6 +60,11 @@ services:
         - traefik.matomo.frontend.headers.SSLHost=matomo.${DOMAIN}
         - traefik.matomo.frontend.headers.STSIncludeSubdomains=true
         - traefik.matomo.frontend.headers.STSPreload=true
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   cron:
     image: crazymax/matomo:latest

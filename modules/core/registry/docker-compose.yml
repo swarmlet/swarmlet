@@ -24,6 +24,12 @@ services:
       - swarmlet-config
     ports:
       - "5000:5000"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   swarmlet-registry-frontend:
     image: konradkleine/docker-registry-frontend:v2
@@ -53,6 +59,11 @@ services:
       placement:
         constraints:
           - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
 volumes:
   registry-data:

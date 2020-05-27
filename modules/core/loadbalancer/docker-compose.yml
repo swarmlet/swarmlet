@@ -40,6 +40,11 @@ services:
       placement:
         preferences:
           - spread: node.id
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   traefik:
     image: traefik:v1.7
@@ -50,23 +55,6 @@ services:
       - target: 443
         published: 443
         mode: host
-    deploy:
-      replicas: ${TRAEFIK_REPLICAS:-3}
-      placement:
-        constraints:
-          - node.role == manager
-        preferences:
-          - spread: node.id
-      labels:
-        - traefik.frontend.rule=Host:traefik.${DOMAIN}
-        - traefik.enable=true
-        - traefik.port=8080
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
     volumes:
       - ./:/basicAuth
       - /var/run/docker.sock:/var/run/docker.sock
@@ -101,7 +89,29 @@ services:
       - swarmlet-network
     depends_on:
       - consul-leader
-    
+    deploy:
+      replicas: ${TRAEFIK_REPLICAS:-3}
+      placement:
+        constraints:
+          - node.role == manager
+        preferences:
+          - spread: node.id
+      labels:
+        - traefik.frontend.rule=Host:traefik.${DOMAIN}
+        - traefik.enable=true
+        - traefik.port=8080
+        - traefik.tags=traefik-public
+        - traefik.docker.network=traefik-public
+        - traefik.redirectorservice.frontend.entryPoints=http
+        - traefik.redirectorservice.frontend.redirect.entryPoint=https
+        - traefik.webservice.frontend.entryPoints=https
+        - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
+
   certdumper:
     image: svendowideit/traefik-certdumper:latest
     environment:

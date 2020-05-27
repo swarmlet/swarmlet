@@ -35,6 +35,11 @@ services:
       resources:
         limits:
           memory: 128M
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   cadvisor:
     image: google/cadvisor
@@ -52,6 +57,11 @@ services:
       resources:
         limits:
           memory: 128M
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   grafana:
     image: stefanprodan/swarmprom-grafana:5.3.4
@@ -92,6 +102,11 @@ services:
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   alertmanager:
     image: stefanprodan/swarmprom-alertmanager:v0.14.0
@@ -130,6 +145,11 @@ services:
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
         - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   unsee:
     image: cloudflare/unsee:v0.8.0
@@ -156,6 +176,11 @@ services:
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
         - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   node-exporter:
     image: stefanprodan/swarmprom-node-exporter:v0.16.0
@@ -179,6 +204,11 @@ services:
       resources:
         limits:
           memory: 128M
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
   prometheus:
     image: stefanprodan/swarmprom-prometheus:v2.5.0
@@ -219,3 +249,8 @@ services:
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
         - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s

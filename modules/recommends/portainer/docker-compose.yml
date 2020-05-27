@@ -45,6 +45,11 @@ services:
         - traefik.portainer.frontend.headers.STSPreload=true
       placement:
         constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
 volumes:
   portainer-data:

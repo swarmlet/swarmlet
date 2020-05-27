@@ -20,6 +20,11 @@ services:
       - swarmlet-config
     deploy:
       mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
 
 networks:
   swarmlet-network:
