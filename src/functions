@@ -142,6 +142,17 @@ check-docker() {
   fi
 }
 
+is-service-healthy() {
+  SERVICE="$1"
+  CONTAINER_ID=$(docker-compose ps -q $SERVICE)
+  HEALTH_STATUS=$(docker inspect -f "{{.State.Health.Status}}" $CONTAINER_ID)
+
+  if [[ "$HEALTH_STATUS" == "healthy" ]];
+    then return 0
+    else return 1
+  fi
+}
+
 git-set-config() {
   DOMAIN=${1:-"$HOSTNAME.local"}
   git config user.email $GIT_USER@$DOMAIN
