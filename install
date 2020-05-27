@@ -28,9 +28,12 @@ fi
 # Define default environment variables
 declare -A DEFAULT_OPTS=(
   [INSTALLATION_TYPE]=interactive  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
-  [INSTALLATION_MODE]=full         # (default full, options: full|minimal|.. TODO)
-  [ROOT_DOMAIN]=$HOSTNAME          # (default $HOSTNAME) The domain to use for deployment of included services
   [INSTALL_BRANCH]=master          # (default master) The default branch to install
+  [SWARMLET_USERNAME]=swarmlet     # (default swarmlet) Used for authentication with the registry and web services / dashboards
+  [SWARMLET_PASSWORD]=swarmlet     # (default swarmlet) Used for authentication with the registry and web services / dashboards
+  [SSH_AUTHORIZED_KEYS]=/root/.ssh/authorized_keys # (default root) The git SSH authorized keys
+  [NEW_HOSTNAME]=$HOSTNAME         # (default $HOSTNAME) Optional: set a new hostname
+  [ROOT_DOMAIN]=$HOSTNAME          # (default $HOSTNAME) The domain to use for deployment of included services
   [INSTALL_DOCKER]=true            # (default true) Install Docker and Docker Compose (recommended)
   [INSTALL_MODULES]=               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by comma to install multiple modules
   [CREATE_SWAP]=false              # (default false) Allocate 1GB of swap space
@@ -73,10 +76,12 @@ install() {
   # TODO: support other package managers
   $SUDO $PKG_MANAGER update -y -qq &>/dev/null
   $SUDO $PKG_MANAGER install -y -qq apt-transport-https &>/dev/null
-  [[ ! -z $(type -t git) ]] && $SUDO $PKG_MANAGER install -y -qq git
+  [[ $(command -v git) ]] || $SUDO $PKG_MANAGER install -y -qq git
 
   echo "$PREFIX Cloning $SWARMLET_REPO"
-  git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
+  if [[ ! -d $SWARMLET_INSTALL_ROOT ]]; then
+    git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
+  fi
 
   if [[ "$INSTALL_BRANCH" != "master" ]]; then
     echo "$PREFIX Checking out $INSTALL_BRANCH"
@@ -89,7 +94,7 @@ install() {
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
 
   echo "$PREFIX Initializing Swarmlet"
-  swarmlet init $INSTALLATION_TYPE "$@"
+  swarmlet init "$@"
 
   echo "$FPREFIX Server initialized as manager node"
   swarmlet node ls
