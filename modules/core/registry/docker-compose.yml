@@ -16,6 +16,12 @@ services:
     networks:
       - swarmlet-network
       - traefik-public
+    secrets:
+      - swarmlet-user-secrets
+    configs:
+      - swarmlet-core-config
+      - swarmlet-user-config
+      - swarmlet-config
     ports:
       - "5000:5000"
 
@@ -55,4 +61,16 @@ networks:
   swarmlet-network:
     external: true
   traefik-public:
+    external: true
+
+secrets:
+  swarmlet-user-secrets:
+    external: true
+
+configs:
+  swarmlet-core-config:
+    external: true
+  swarmlet-user-config:
+    external: true
+  swarmlet-config:
     external: true

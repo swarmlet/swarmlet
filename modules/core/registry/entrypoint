@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DEBUG ]] && set -x
+set -o allexport
+source "/swarmlet-config"
+
+main() {
+  rm security.htpasswd
+  htpasswd -c security.htpasswd $SWARMLET_REGISTRY_USERNAME $SWARMLET_REGISTRY_PASSWORD
+}
+
+main "$@"
