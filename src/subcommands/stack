@@ -8,7 +8,7 @@ stack() {
 
   if [[ "$2" == "core/env" ]];
    then stack-"$@"
-   else docker container exec $(docker ps --filter name=env -q) stack-"$@"
+   else docker container exec $(docker ps --filter name=core/env -q) stack-"$@"
   fi
 }
 
@@ -21,7 +21,7 @@ stack-build() {
 
   if [ "$(ls -A $STACK_ROOT)" ]; then
     pushd $STACK_ROOT >/dev/null
-    
+
     echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
       -u $SWARMLET_REGISTRY_USERNAME \
       $SWARMLET_REGISTRY
