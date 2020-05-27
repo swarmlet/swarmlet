@@ -8,12 +8,7 @@ deploy() {
 
   REPO_PATH=$1
 
-  docker run --rm \
-    --network $SWARMLET_NETWORK \
-    -v $DOCKER_SOCKET:$DOCKER_SOCKET \
-    -v $REPO_PATH:$REPO_PATH \
-    $SWARMLET_REGISTRY/deployer \
-    deploy $REPO_PATH
+  docker container exec $(docker ps --filter name=deployer -q) /run deploy $REPO_PATH
 }
 
 "$@"
