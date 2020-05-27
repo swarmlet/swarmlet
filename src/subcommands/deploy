@@ -9,7 +9,7 @@ deploy() {
   REPO_PATH=$1
 
   # Wait for deployer to start
-  while ! is-service-healthy deployer_agent; do sleep 1; done
+  while ! $(swarmlet is-service-healthy deployer_agent); do sleep 1; done
   DEPLOYER_AGENT=$(docker ps --filter name=deployer_agent -q)
 
   docker container exec $DEPLOYER_AGENT /entrypoint deploy $REPO_PATH
