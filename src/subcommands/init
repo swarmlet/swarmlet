@@ -121,7 +121,7 @@ EOM
     -o o=bind \
     -o type=none \
     -o device=$GIT_USER_ROOT \
-    $VOLUME_NAME)
+    $VOLUME_NAME
 
   echo "$PREFIX Starting core modules"
   swarmlet stack start "core/env" $SWARMLET_MODULES_ROOT
