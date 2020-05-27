@@ -4,7 +4,7 @@ services:
   agent:
     build: .
     image: ${SWARMLET_REGISTRY}/deployer
-    entrypoint: /run
+    entrypoint: /entrypoint
     command: tail -f /dev/null
     networks:
       - swarmlet-network
