@@ -21,8 +21,6 @@ GIT_USER_ROOT="/home/$GIT_USER"
 GIT_REPO_ROOT="/var/repo"
 
 TRAEFIK_NETWORK=traefik-public
-NODE_IP=$(hostname -I | awk '{print $1}')
-ADVERTISE_ADDR="$NODE_IP:2377"
 DOCKER_SOCKET="/var/run/docker.sock"
 
 SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $GIT_REPO_ROOT $SWARMLET_HOOKS\""

@@ -40,9 +40,13 @@ init() {
   echo "$PREFIX Setting up the git user" && create-git-user
   echo "$PREFIX Configuring git SSH options" && add-ssh-authorized-keys "$SSH_AUTHORIZED_KEYS"
   echo "$PREFIX Checking Docker status" && check-docker
-  echo "$PREFIX Node IP address: $NODE_IP"
-  echo "$PREFIX Initializing node as swarm manager"
+
   if check-swarm; then
+    NODE_IP=$(hostname -I | awk '{print $1}')
+    ADVERTISE_ADDR="$NODE_IP:2377"
+
+    echo "$PREFIX Node IP address: $NODE_IP"
+    echo "$PREFIX Initializing node as swarm manager"
     docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
   fi
 
@@ -88,8 +92,9 @@ EOM
   fi
 
   echo "$PREFIX Installing modules"
-  swarmlet stack start "core/registry" $SWARMLET_MODULES_ROOT
-  swarmlet stack build "core/deployer" $SWARMLET_MODULES_ROOT $SWARMLET_USERNAME $SWARMLET_PASSWORD
+  swarmlet stack start registry $SWARMLET_MODULES_ROOT/core
+  swarmlet stack build deployer $SWARMLET_MODULES_ROOT/core $SWARMLET_USERNAME $SWARMLET_PASSWORD
+  swarmlet stack deploy deployer $SWARMLET_MODULES_ROOT/core
 
   SWARMLET_MODULES=(
     $(ls $SWARMLET_MODULES_ROOT/core | xargs -n1 echo core/ | sed 's/ //')
