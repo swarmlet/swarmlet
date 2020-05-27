@@ -8,6 +8,7 @@ for f in /run/secrets/*; do cat $f; done
 
 # TODO: improve configuration workflow
 set -o allexport
+source "/opt/swarmlet/src/constants"
 source "/swarmlet-config"
 
 main() {

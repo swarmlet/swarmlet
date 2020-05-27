@@ -12,7 +12,7 @@ SWARMLET_CONSTANTS="$SWARMLET_ROOT/src/constants"
 SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
 SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
 SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
-SWARMLET_REGISTRY="swarmlet-registry"
+SWARMLET_REGISTRY="localhost:5000/v2"
 SWARMLET_NETWORK="swarmlet-network"
 
 DOCKER_SOCKET="/var/run/docker.sock"
