@@ -92,7 +92,7 @@ install() {
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
 
   echo "$PREFIX Initializing Swarmlet"
-  swarmlet init "$@"
+  swarmlet init
 
   echo "$FPREFIX Server initialized as manager node"
   swarmlet node ls
