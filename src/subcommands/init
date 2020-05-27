@@ -113,8 +113,8 @@ EOM
     git-data
 
   echo "$PREFIX Starting core modules"
-  swarmlet stack start "core/env" $SWARMLET_MODULES_ROOT
-  swarmlet stack deploy "core/env" $SWARMLET_MODULES_ROOT
+  SWARMLET_REGISTRY_USERNAME=$SWARMLET_USERNAME
+  SWARMLET_REGISTRY_PASSWORD=$SWARMLET_PASSWORD
   swarmlet stack start "core/registry" $SWARMLET_MODULES_ROOT
   swarmlet stack build "core/deployer" $SWARMLET_MODULES_ROOT
 

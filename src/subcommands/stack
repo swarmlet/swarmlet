@@ -6,10 +6,12 @@ stack() {
   declare cmd="stack"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  if [[ "$2" == "core/env" ]];
-   then stack-"$@"
-   else docker container exec $(docker ps --filter name=core/env -q) stack-"$@"
-  fi
+  # if [[ "$2" == "core/env" ]];
+  #  then stack-"$@"
+  #  else docker container exec $(docker ps --filter name=env -q) stack-"$@"
+  # fi
+
+  stack-"$@"
 }
 
 stack-build() {
