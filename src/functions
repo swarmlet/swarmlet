@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
 
-declare -A PKG_MANAGERS
-PKG_MANAGERS[/etc/redhat-release]=yum
-PKG_MANAGERS[/etc/arch-release]=pacman
-PKG_MANAGERS[/etc/gentoo-release]=emerge
-PKG_MANAGERS[/etc/SuSE-release]=zypp
-PKG_MANAGERS[/etc/debian_version]=apt-get
+# Select package manager
+select-pkg-manager() {
+  [[ ! -z $PKG_MANAGER ]] && return 0
+  declare -A PKG_MANAGERS
+  PKG_MANAGERS[/etc/redhat-release]=yum
+  PKG_MANAGERS[/etc/arch-release]=pacman
+  PKG_MANAGERS[/etc/gentoo-release]=emerge
+  PKG_MANAGERS[/etc/SuSE-release]=zypp
+  PKG_MANAGERS[/etc/debian_version]=apt-get
 
-for MANAGER in ${!PKG_MANAGERS[@]}; do
-  [[ -f $MANAGER ]] && PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
-done
+  for MANAGER in ${!PKG_MANAGERS[@]}; do
+    [[ -f $MANAGER ]] && export PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
+  done
+}
 
+select-pkg-manager
+
+# Utility functions
 ensure-root() {
   if [[ $EUID -ne 0 ]]; then
     if [[ $(dpkg-query -s sudo) ]]; then
@@ -38,10 +45,8 @@ check-swarmlet-version() {
 }
 
 update-package-cache() {
-  # Check to see if apt-get update has already been run today
   PKG_CACHE="/var/lib/apt/lists/"
   UPDATE_PKG_CACHE="$PKG_MANAGER update"
-
   TIMESTAMP=$(stat -c %Y $PKG_CACHE)
   TIMESTAMP_AS_DATE=$(date -d @"$TIMESTAMP" "+%b %e")
   TODAY=$(date "+%b %e")
@@ -75,8 +80,6 @@ install-dependencies() {
   PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
   echo "${SWARMLET_DEPENDENCIES[@]}" $PKG_MANAGER
   SWARMLET_DEPENDENCIES2="$1"
-  SWARMLET_DEPENDENCIES3="$2"
-  SWARMLET_DEPENDENCIES4="$3"
 
   echo iptables-persistent iptables-persistent/autosave_v4 boolean true | $SUDO debconf-set-selections
   echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
@@ -89,17 +92,32 @@ install-dependencies() {
 
 set-hostname() {
   echo "$PREFIX Setting hostname"
-  NEW_HOSTNAME=$1
-  ROOT_DOMAIN=$2
+  NEW_HOSTNAME="$1"
+  ROOT_DOMAIN="$2"
 
-  if command -v hostnamectl &>/dev/null; then
+  if command -v hostnamectl &>/dev/null;
     # Prefer hostnamectl, no restart required
-    hostnamectl set-hostname $NEW_HOSTNAME
-  else
+    then hostnamectl set-hostname $NEW_HOSTNAME
     # Fall back on manual hostname configuration, restart required
-    $SUDO echo $NEW_HOSTNAME >/etc/hostname && echo "you need to reboot for hostname changes to take effect"
-    $SUDO sed -i "s/127.0.1.1.*$NEW_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
+    else $SUDO echo $NEW_HOSTNAME >/etc/hostname
   fi
+
+  $SUDO sed -i "s/127.0.1.1.*$NEW_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
+}
+
+create-git-user() {
+  adduser $GIT_USER --disabled-password --gecos --quiet
+  usermod -aG docker $GIT_USER
+  mkdir -p $GIT_REPO_ROOT $GIT_USER_ROOT/.ssh
+  setfacl -m u:$GIT_USER:rwx $GIT_REPO_ROOT
+}
+
+add-ssh-authorized-keys() {
+  SSH_AUTHORIZED_KEYS="$1"
+  cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >> $GIT_USER_ROOT/.ssh/authorized_keys
+  chmod 700 $GIT_USER_ROOT/.ssh
+  chmod 600 $GIT_USER_ROOT/.ssh/authorized_keys
+  chown -R $GIT_USER:$GIT_USER $GIT_USER_ROOT/.ssh
 }
 
 install-docker() {
@@ -122,7 +140,10 @@ abort-installation() {
 }
 
 check-docker() {
-  systemctl show --property ActiveState docker | grep -q "ActiveState=active"
+  if $(systemctl show --property ActiveState docker | grep -q "ActiveState=active");
+    then echo "Docker is running"; docker --version
+    else echo "Docker is not running, exiting"; exit 1
+  fi
 }
 
 git-set-config() {
