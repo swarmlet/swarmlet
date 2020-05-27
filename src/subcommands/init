@@ -114,6 +114,7 @@ EOM
 
   echo "$PREFIX Starting core modules"
   swarmlet stack start "core/env" $SWARMLET_MODULES_ROOT
+  swarmlet stack deploy "core/env" $SWARMLET_MODULES_ROOT
   swarmlet stack start "core/registry" $SWARMLET_MODULES_ROOT
   swarmlet stack build "core/deployer" $SWARMLET_MODULES_ROOT
 
