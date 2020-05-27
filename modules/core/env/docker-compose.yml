@@ -9,8 +9,9 @@ services:
     configs:
       - swarmlet-config
     deploy:
+      mode: global
       restart_policy:
-        condition: none
+        condition: always
 
 secrets:
   swarmlet-user-secrets:
