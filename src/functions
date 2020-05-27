@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 
 # Select package manager
-select-pkg-manager() {
-  [[ ! -z $PKG_MANAGER ]] && return 0
-  declare -A PKG_MANAGERS
-  PKG_MANAGERS[/etc/redhat-release]=yum
-  PKG_MANAGERS[/etc/arch-release]=pacman
-  PKG_MANAGERS[/etc/gentoo-release]=emerge
-  PKG_MANAGERS[/etc/SuSE-release]=zypp
-  PKG_MANAGERS[/etc/debian_version]=apt-get
+[[ ! -z $PKG_MANAGER ]] && return 0
+declare -A PKG_MANAGERS
+PKG_MANAGERS[/etc/redhat-release]=yum
+PKG_MANAGERS[/etc/arch-release]=pacman
+PKG_MANAGERS[/etc/gentoo-release]=emerge
+PKG_MANAGERS[/etc/SuSE-release]=zypp
+PKG_MANAGERS[/etc/debian_version]=apt-get
 
-  for MANAGER in ${!PKG_MANAGERS[@]}; do
-    [[ -f $MANAGER ]] && export PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
-  done
-}
-
-select-pkg-manager
+for MANAGER in ${!PKG_MANAGERS[@]}; do
+  [[ -f $MANAGER ]] && export PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
+done
 
 # Utility functions
 ensure-root() {
