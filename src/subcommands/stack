@@ -6,11 +6,6 @@ stack() {
   declare cmd="stack"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  # if [[ "$2" == "core/env" ]];
-  #  then stack-"$@"
-  #  else docker container exec $(docker ps --filter name=env -q) stack-"$@"
-  # fi
-
   stack-"$@"
 }
 
@@ -19,7 +14,9 @@ stack-build() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
+  SWARMLET_REGISTRY_USERNAME="${3:-$SWARMLET_REGISTRY_USERNAME}"
+  SWARMLET_REGISTRY_PASSWORD="${4:-$SWARMLET_REGISTRY_PASSWORD}"
 
   if [ "$(ls -A $STACK_ROOT)" ]; then
     pushd $STACK_ROOT >/dev/null
@@ -43,7 +40,7 @@ stack-deploy() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
   COMPOSE_FILE="$STACK_ROOT/docker-compose.yml"
 
   pushd $STACK_ROOT >/dev/null
@@ -67,7 +64,7 @@ stack-start() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
   pushd $STACK_ROOT >/dev/null
 
@@ -82,7 +79,7 @@ stack-stop() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
   pushd $STACK_ROOT >/dev/null
 
@@ -97,7 +94,7 @@ stack-remove() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
   docker stack rm $STACK_NAME
   rm -rf $STACK_ROOT $GIT_REPO_ROOT/$STACK_NAME.git >/dev/null
