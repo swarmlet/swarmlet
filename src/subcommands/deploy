@@ -8,7 +8,7 @@ deploy() {
 
   REPO_PATH=$1
 
-  docker container exec $(docker ps --filter name=deployer -q) /run deploy $REPO_PATH
+  docker container exec $(docker ps --filter name=deployer_agent -q) /run deploy $REPO_PATH
 }
 
 "$@"
