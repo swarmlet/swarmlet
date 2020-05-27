@@ -25,10 +25,8 @@ init() {
     echo "$FPREFIX Wizard complete"
   fi
 
-  echo "$PREFIX Setting up"
   # TODO: fix
   # install-dependencies $SWARMLET_DEPENDENCIES
-
   update-package-cache
   notify-package-updates-available
   $SUDO $PKG_MANAGER install -y -qq acl curl apache2-utils moreutils wget &>/dev/null
