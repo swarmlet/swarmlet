@@ -1,24 +1,42 @@
 version: '3.7'
 
 services:
-  deploy:
+  worker:
     build: .
     image: ${SWARMLET_REGISTRY}/deployer
+    entrypoint: /run
+    command: tail -f /dev/null
+    networks:
+      - swarmlet-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/swarmlet:/opt/swarmlet
+      - git-data:/home/git
     secrets:
-      - swarmlet-registry-user
-      - swarmlet-registry-password
+      - swarmlet-user-secrets
     configs:
+      - swarmlet-core-config
+      - swarmlet-user-config
       - swarmlet-config
     deploy:
-      restart_policy:
-        condition: none
+      mode: global
+
+networks:
+  swarmlet-network:
+    external: true
+
+volumes:
+  git-data:
+    external: true
 
 secrets:
-  swarmlet-registry-user:
-    external: true
-  swarmlet-registry-password:
+  swarmlet-user-secrets:
     external: true
 
 configs:
+  swarmlet-core-config:
+    external: true
+  swarmlet-user-config:
+    external: true
   swarmlet-config:
     external: true

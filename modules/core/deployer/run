@@ -1,25 +1,19 @@
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
-
-ls -al /
-cat /swarmlet-config
-for f in /run/secrets/*; do cat $f; done
-
-# TODO: improve configuration workflow
 set -o allexport
-source "/opt/swarmlet/src/constants"
 source "/swarmlet-config"
 
 main() {
-  echo "$PREFIX Starting deployment"
-  echo "$INDENT Command: $@"
-  "$@"
+  tail -f /dev/null
 }
 
 deploy() {
   declare cmd="deploy"
   [[ "$1" == "$cmd" ]] && shift 1
+
+  echo "$PREFIX Starting deployment"
+  echo "$INDENT Command: $@"
 
   REPO_PATH="$1"
   REPO_NAME=$(basename $REPO_PATH)
@@ -41,7 +35,7 @@ deploy() {
     # TODO: only log in if build step is defined in docker-compose.yml
     echo "$PREFIX Logging into local registry"
     echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
-      -u $SWARMLET_REGISTRY_USER \
+      -u $SWARMLET_REGISTRY_USERNAME \
       $SWARMLET_REGISTRY
 
     echo "$PREFIX Building $REPO_NAME"
@@ -67,4 +61,4 @@ deploy() {
   fi
 }
 
-main "$@"
+"$@"
