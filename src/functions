@@ -47,7 +47,7 @@ update-package-cache() {
   TODAY=$(date "+%b %e")
 
   if [ ! "$TODAY" == "$TIMESTAMP_AS_DATE" ]; then
-    echo -n "$PREFIX $PKG_MANAGER update has not been run today, updating"
+    echo "$PREFIX $PKG_MANAGER update has not been run today, updating"
     $SUDO $UPDATE_PKG_CACHE &>/dev/null
   fi
 }
