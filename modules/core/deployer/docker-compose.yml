@@ -19,7 +19,8 @@ services:
       - swarmlet-user-config
       - swarmlet-config
     deploy:
-      mode: global
+      mode: replicated
+      replicas: 1
       restart_policy:
         condition: on-failure
         delay: 2s

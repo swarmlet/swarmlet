@@ -2,12 +2,11 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-is-service-healthy() {
+is-stack-healthy() {
   SERVICE="$1"
-  CONTAINER_ID=$(docker-compose ps -q $SERVICE)
-  HEALTH_STATUS=$(docker inspect -f "{{.State.Health.Status}}" $CONTAINER_ID)
+  REPLICAS=$(docker stack services $SERVICE --format='{{.Replicas}}')
 
-  if [[ "$HEALTH_STATUS" == "healthy" ]];
+  if [[ $REPLICAS == "1/1" ]];
     then return 0
     else return 1
   fi
@@ -20,7 +19,7 @@ deploy() {
   REPO_PATH=$1
 
   # Wait for deployer to start
-  while ! is-service-healthy deployer_agent; do sleep 1; done
+  while ! is-stack-healthy deployer; do sleep 1; done
   DEPLOYER_AGENT=$(docker ps --filter name=deployer_agent -q)
 
   docker container exec $DEPLOYER_AGENT /entrypoint deploy $REPO_PATH
