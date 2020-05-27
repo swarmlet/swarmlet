@@ -10,4 +10,5 @@
 {{ secret "swarmlet-user-secrets" }}
 
 # Swarmlet core and user-defined configuration environment variables
+{{ config "swarmlet-core-config" }}
 {{ config "swarmlet-user-config" }}

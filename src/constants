@@ -15,12 +15,15 @@ SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
 SWARMLET_REGISTRY="localhost:5000/v2"
 SWARMLET_NETWORK="swarmlet-network"
 
-DOCKER_SOCKET="/var/run/docker.sock"
-TRAEFIK_NETWORK=traefik-public
-
 GIT_USER="git"
+GIT_DATA="git-data"
 GIT_USER_ROOT="/home/$GIT_USER"
 GIT_REPO_ROOT="/var/repo"
+
+TRAEFIK_NETWORK=traefik-public
+NODE_IP=$(hostname -I | awk '{print $1}')
+ADVERTISE_ADDR="$NODE_IP:2377"
+DOCKER_SOCKET="/var/run/docker.sock"
 
 SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $GIT_REPO_ROOT $SWARMLET_HOOKS\""
 SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"
