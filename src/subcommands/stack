@@ -46,7 +46,11 @@ stack-deploy() {
   pushd $STACK_ROOT >/dev/null
 
   echo "$PREFIX Deploying $STACK_NAME"
-  docker stack deploy --compose-file $COMPOSE_FILE $STACK_NAME
+
+  if [[ $STACK_NAME == "deployer" ]];
+    then docker stack deploy --with-registry-auth --compose-file $COMPOSE_FILE $STACK_NAME
+    else docker stack deploy --compose-file $COMPOSE_FILE $STACK_NAME
+  fi
 
   popd >/dev/null
 }
