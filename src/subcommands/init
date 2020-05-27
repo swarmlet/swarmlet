@@ -15,8 +15,9 @@ init-interactive() {
   # Installation wizard dialogs
   swarmlet dialog welcome
   swarmlet dialog auth-info
+  # INSTALLATION_MODE=$(swarmlet dialog set-installation-mode)
   SWARMLET_USERNAME=$(swarmlet dialog set-username)
-  SWARMLET_PASSWORD=$(swarmlet dialog set-password)
+  SWARMLET_PASSWORD=$(swarmlet dialog set-password)  
   SSH_AUTHORIZED_KEYS=$(swarmlet dialog set-ssh-authorized-keys)
   NEW_HOSTNAME=$(swarmlet dialog set-hostname)
   ROOT_DOMAIN=$(swarmlet dialog domain-config)
@@ -67,17 +68,23 @@ init-interactive() {
   fi
 
   echo "$PREFIX Creating secrets"
-  cat << EOM | docker secret create swarmlet-user-secrets -
+  SECRET_NAME=swarmlet-user-secrets
+  cat << EOM | SECRET_ID=$(docker secret create $SECRET_NAME -)
 # User-defined secret environment variables
 SWARMLET_USERNAME=$SWARMLET_USERNAME
 SWARMLET_PASSWORD=$SWARMLET_PASSWORD
 SWARMLET_REGISTRY_USERNAME=$SWARMLET_USERNAME
 SWARMLET_REGISTRY_PASSWORD=$SWARMLET_PASSWORD
 EOM
+  echo "$PREFIX Created secret $SECRET_ID - $SECRET_NAME"
 
   echo "$PREFIX Creating configs"
-  docker config create swarmlet-core-config $SWARMLET_CONSTANTS
-  cat << EOM | docker config create --template-driver golang swarmlet-user-config -
+  CONFIG_NAME=swarmlet-core-config
+  docker config create $CONFIG_NAME $SWARMLET_CONSTANTS
+  echo "$PREFIX Created config $CONFIG_ID - $CONFIG_NAME"
+
+  CONFIG_NAME=swarmlet-user-config
+  cat << EOM | CONFIG_ID=$(docker config create --template-driver golang $CONFIG_NAME -)
 # User-defined config environment variables
 SSH_AUTHORIZED_KEYS=$SSH_AUTHORIZED_KEYS
 NEW_HOSTNAME=$NEW_HOSTNAME
@@ -89,33 +96,32 @@ INSTALL_ZSH=$INSTALL_ZSH
 # Inject Swarmlet config environment variables
 {{ config "swarmlet-core-config" }}
 EOM
+  echo "$PREFIX Created config $CONFIG_ID - $CONFIG_NAME"
 
   echo "$PREFIX Creating networks"
   if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK)" ]]; then
-    docker network create \
-      --attachable \
-      --driver $SWARMLET_NETWORK_DRIVER \
-      $SWARMLET_NETWORK
+    NETWORK_ID=$(docker network create --attachable --driver overlay $SWARMLET_NETWORK)
+    echo "$PREFIX Created network $NETWORK_ID - $SWARMLET_NETWORK"
   else
     echo "$PREFIX $SWARMLET_NETWORK network already exists"
   fi
 
   if [[ ! "$(docker network ls | grep $TRAEFIK_NETWORK)" ]]; then
-    docker network create \
-      --attachable \
-      --driver=overlay \
-      $TRAEFIK_NETWORK
+    NETWORK_ID=$(docker network create --attachable --driver overlay $TRAEFIK_NETWORK)
+    echo "$PREFIX Created network $NETWORK_ID - $TRAEFIK_NETWORK"
   else
     echo "$PREFIX $TRAEFIK_NETWORK network already exists"
   fi
 
   echo "$PREFIX Creating volumes"
-  docker volume create \
+  VOLUME_NAME=git-data
+  VOLUME_ID=$(docker volume create \
     --driver "local" \
     -o o=bind \
     -o type=none \
     -o device=$GIT_USER_ROOT \
-    git-data
+    $VOLUME_NAME)
+  echo "$PREFIX Created volume $VOLUME_ID - $VOLUME_NAME"
 
   echo "$PREFIX Starting core modules"
   swarmlet stack start "core/env" $SWARMLET_MODULES_ROOT

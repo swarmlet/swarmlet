@@ -14,7 +14,6 @@ SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
 SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
 SWARMLET_REGISTRY="swarmlet-registry"
 SWARMLET_NETWORK="swarmlet-network"
-SWARMLET_NETWORK_DRIVER="overlay"
 
 DOCKER_SOCKET="/var/run/docker.sock"
 TRAEFIK_NETWORK=traefik-public
