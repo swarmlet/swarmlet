@@ -104,6 +104,8 @@ EOM
     swarmlet repo create $(basename $MODULE) &>/dev/null
     git-local-push $SWARMLET_MODULES_ROOT/$MODULE >/dev/null
   done
+
+  swarmlet stack deploy registry $SWARMLET_MODULES_ROOT/core
 }
 
 "$@"
