@@ -44,36 +44,6 @@ services:
         constraints:
           - node.role == manager
 
-
-  # swarmlet-registry-frontend:
-  #   image: konradkleine/docker-registry-frontend:v2
-  #   restart: always
-  #   environment:
-  #     - ENV_DOCKER_REGISTRY_HOST=swarmlet-registry
-  #     - ENV_DOCKER_REGISTRY_PORT=5000
-  #   networks:
-  #     - swarmlet-network
-  #     - traefik-public
-  #   deploy:
-  #     mode: replicated
-  #     replicas: 1
-  #     labels:
-  #       - traefik.enable=true
-  #       - traefik.tags=traefik-public
-  #       - traefik.docker.network=traefik-public
-  #       - traefik.swarmlet-registry-frontend.enable=true
-  #       - traefik.swarmlet-registry-frontend.port=80
-  #       - traefik.swarmlet-registry-frontend.frontend.rule=Host:registry.${DOMAIN}
-  #       - traefik.swarmlet-registry-frontend.frontend.entryPoints=http,https
-  #       - traefik.swarmlet-registry-frontend.frontend.passHostHeader=true
-  #       - traefik.swarmlet-registry-frontend.frontend.headers.SSLRedirect=true
-  #       - traefik.swarmlet-registry-frontend.frontend.headers.SSLHost=registry.${DOMAIN}
-  #       - traefik.swarmlet-registry-frontend.frontend.headers.STSIncludeSubdomains=true
-  #       - traefik.swarmlet-registry-frontend.frontend.headers.STSPreload=true
-  #     placement:
-  #       constraints:
-  #         - node.role == manager
-
 volumes:
   registry-data:
 

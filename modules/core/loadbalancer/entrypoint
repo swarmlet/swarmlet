@@ -13,6 +13,7 @@ main() {
   # echo "$PREFIX Environment:"; printenv
 
   # rm security.htpasswd
+  # [[ -f security.htpasswd ]] && rm security.htpasswd
   # htpasswd -c security.htpasswd $SWARMLET_USERNAME $SWARMLET_PASSWORD
 }
 
