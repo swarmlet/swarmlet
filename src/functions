@@ -206,6 +206,15 @@ check-swarm() {
 
 nuke() {
   uninstall-swarmlet
+  for CONFIG in $(docker config ls --format {{.ID}}); do
+    echo docker config rm $CONFIG;
+  done
+  for SECRET in $(docker secret ls --format {{.ID}}); do
+    echo docker config rm $SECRET;
+  done
+  for NETWORK in $(docker network ls --format {{.Name}}); do
+    echo docker config rm $NETWORK;
+  done
   $SUDO apt-get remove -y --purge docker docker-compose
   $SUDO apt autoremove -y
 }
