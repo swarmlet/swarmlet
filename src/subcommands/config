@@ -10,7 +10,7 @@ config() {
 }
 
 config-ls() {
-  declare cmd="rm"
+  declare cmd="ls"
   [[ "$1" == "$cmd" ]] && shift 1
 
   docker config ls
