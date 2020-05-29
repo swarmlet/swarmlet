@@ -32,11 +32,6 @@ services:
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
-      restart_policy:
-        condition: on-failure
-        delay: 2s
-        max_attempts: 5
-        window: 120s
 
   db:
     image: couchdb:2.3.0

@@ -8,6 +8,7 @@ services:
     networks:
       - matomo-network      
     environment:
+      # TODO: use the secrets
       - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
       - "MYSQL_DATABASE=matomo"
       - "MYSQL_USER=matomo"
