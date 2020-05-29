@@ -18,10 +18,11 @@ set-dialog-appearance() {
 }
 
 section-welcome() {
+  [[ -r /etc/lsb-release ]] && DISTRO_DESCRIPTION=$(lsb_release -s -d)
   SECTION_TITLE="Swarmlet installation wizard"
   MESSAGE="\nWelcome to the Swarmlet interactive installation.\n\n\
 Installing Swarmlet $(check-swarmlet-version)\n\n\
-System: $(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
+System: $DISTRO_DESCRIPTION ($(uname -o) $(uname -r) $(uname -m))"
 
   whiptail \
     --title "$SECTION_TITLE" \
