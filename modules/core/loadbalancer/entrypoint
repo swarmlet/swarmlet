@@ -11,6 +11,9 @@ NAME=$(basename $PWD)
 main() {
   echo "$PREFIX Running $NAME entrypoint script"
   # echo "$PREFIX Environment:"; printenv
+
+  # rm security.htpasswd
+  # htpasswd -c security.htpasswd $SWARMLET_USERNAME $SWARMLET_PASSWORD
 }
 
 main "$@"

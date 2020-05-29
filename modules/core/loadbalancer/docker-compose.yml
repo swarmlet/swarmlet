@@ -133,7 +133,7 @@ volumes:
   consul-data-replica:
   traefik-certs:
     external: true
-    
+
 networks:
   traefik-private:
   traefik-public:
