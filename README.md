@@ -72,8 +72,7 @@ curl -fsSL https://get.swarmlet.dev | bash -s \
 BRANCH=develop
 curl -fsSL https://raw.githubusercontent.com/swarmlet/swarmlet/$BRANCH/install | bash -s \
   INSTALL_BRANCH=$BRANCH \
-  INSTALLATION_TYPE=interactive \
-  ROOT_DOMAIN=dev.mydomain.com
+  INSTALLATION_TYPE=interactive
 ```
 The installation should take a few minutes to complete.  
 
