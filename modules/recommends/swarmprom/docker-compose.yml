@@ -20,6 +20,10 @@ configs:
   task_rules:
     file: ./prometheus/rules/swarm_task.rules.yml
 
+secrets:
+  security.htpasswd:
+    external: true
+
 services:
   dockerd-exporter:
     image: stefanprodan/caddy
@@ -60,8 +64,8 @@ services:
       - swarmprom-net
       - traefik-public
     environment:
-      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_USER=${SWARMLET_USERNAME:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${SWARMLET_PASSWORD:-admin}
       - GF_USERS_ALLOW_SIGN_UP=false
       #- GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL:-localhost}
       #- GF_SMTP_ENABLED=${GF_SMTP_ENABLED:-false}
@@ -87,10 +91,8 @@ services:
         - traefik.port=3000
         - traefik.tags=${TRAEFIK_PUBLIC_TAG:-traefik-public}
         - traefik.docker.network=traefik-public
-        # Traefik service that listens to HTTP
         - traefik.redirectorservice.frontend.entryPoints=http
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
 
   alertmanager:
@@ -107,8 +109,9 @@ services:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
     volumes:
-      - ./:/basicAuth
       - alertmanager:/alertmanager
+    secrets:
+      - security.htpasswd
     deploy:
       mode: replicated
       replicas: 1
@@ -129,7 +132,7 @@ services:
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+        - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
 
   unsee:
     image: cloudflare/unsee:v0.8.0
@@ -139,8 +142,8 @@ services:
       - traefik-public
     environment:
       - "ALERTMANAGER_URIS=default:http://alertmanager:9093"
-    volumes:
-      - ./:/basicAuth
+    secrets:
+      - security.htpasswd
     deploy:
       mode: replicated
       replicas: 1
@@ -155,7 +158,7 @@ services:
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+        - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
 
   node-exporter:
     image: stefanprodan/swarmprom-node-exporter:v0.16.0
@@ -191,13 +194,14 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention=${PROMETHEUS_RETENTION:-24h}'
     volumes:
-      - ./:/basicAuth
       - prometheus:/prometheus
     configs:
       - source: node_rules
         target: /etc/prometheus/swarm_node.rules.yml
       - source: task_rules
         target: /etc/prometheus/swarm_task.rules.yml
+    secrets:
+      - security.htpasswd
     deploy:
       mode: replicated
       replicas: 1
@@ -218,4 +222,4 @@ services:
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+        - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd

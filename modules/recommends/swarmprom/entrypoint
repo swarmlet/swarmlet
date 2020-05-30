@@ -2,10 +2,6 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-FPREFIX="=====>"
-PREFIX="----->"
-INDENT="      "
-
 NAME=$(basename $PWD)
 
 main() {

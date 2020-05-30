@@ -18,7 +18,7 @@ services:
         - traefik.react-node.frontend.entryPoints=http,https
         - traefik.react-node.frontend.passHostHeader=true
         - traefik.react-node.frontend.headers.SSLRedirect=true
-        - traefik.react-node.frontend.headers.SSLHost=${DOMAIN}
+        - traefik.react-node.frontend.headers.SSLHost=react-node.${DOMAIN}
         - traefik.react-node.frontend.headers.STSIncludeSubdomains=true
         - traefik.react-node.frontend.headers.STSPreload=true
     networks:
@@ -38,7 +38,7 @@ services:
         - traefik.react-node.frontend.entryPoints=http,https
         - traefik.react-node.frontend.passHostHeader=true
         - traefik.react-node.frontend.headers.SSLRedirect=true
-        - traefik.react-node.frontend.headers.SSLHost=api.${DOMAIN}
+        - traefik.react-node.frontend.headers.SSLHost=api.react-node.${DOMAIN}
         - traefik.react-node.frontend.headers.STSIncludeSubdomains=true
         - traefik.react-node.frontend.headers.STSPreload=true
     networks:

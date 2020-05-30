@@ -13,7 +13,12 @@ node-ls() {
   declare cmd="ls"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  docker node ls
+  docker node ls --format "\n\
+$INDENT Hostname: {{.Hostname}}\n\
+$INDENT Manager status: {{.ManagerStatus}}\n\
+$INDENT Availability: {{.Availability}}\n\
+$INDENT Status: {{.Status}}\n\
+$INDENT Engine version: {{.EngineVersion}}"
 }
 
 node-join() {

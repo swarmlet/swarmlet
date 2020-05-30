@@ -2,17 +2,16 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-FPREFIX="=====>"
-PREFIX="----->"
-INDENT="      "
-
 NAME=$(basename $PWD)
 
 main() {
   echo "$PREFIX Running $NAME entrypoint script"
 
   echo "$PREFIX Updating current swarm node so that the database used by Swarmpit is always deployed to the same node and uses the existing volume"
-  docker node update --label-add swarmpit.db-data=true $NODE_ID
+  # TODO: fix
+  # if [[ -z $(docker node ls -f "swarmpit.db-data=true" --format {{.ID}}) ]]; then
+    docker node update --label-add swarmpit.db-data=true $NODE_ID
+  # fi
 }
 
 main "$@"

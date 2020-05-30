@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
-
-# TODO: improve configuration workflow
 set -o allexport
-source "/opt/swarmlet/src/config"
+source "/swarmlet-config"
 
 main() {
-  echo "$PREFIX Starting deployment"
-  echo "$INDENT Command: $@"
-  "$@"
+  tail -f /dev/null
 }
 
 deploy() {
   declare cmd="deploy"
   [[ "$1" == "$cmd" ]] && shift 1
+
+  echo "$PREFIX Starting deployment"
+  echo "$INDENT Command: $@"
 
   REPO_PATH="$1"
   REPO_NAME=$(basename $REPO_PATH)
@@ -34,22 +33,26 @@ deploy() {
 
   if [[ -f $COMPOSE_FILE ]]; then
     # TODO: only log in if build step is defined in docker-compose.yml
-    echo "$PREFIX Logging into local registry"
-    echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
-      -u $SWARMLET_REGISTRY_USER \
-      $SWARMLET_REGISTRY
+    COMPOSE_CONFIG=$(docker-compose config)
 
-    echo "$PREFIX Building $REPO_NAME"
-    cd $REPO_PATH
-    docker-compose build --parallel
+    if [[ ! -z $(echo "$COMPOSE_CONFIG" | grep -o "build:*") ]]; then
+      echo "$PREFIX Logging into local registry"
+      echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
+        -u $SWARMLET_REGISTRY_USERNAME \
+        $SWARMLET_REGISTRY
 
-    echo "$PREFIX Pushing $REPO_NAME"
-    docker-compose push
+      echo "$PREFIX Building $REPO_NAME"
+      cd $REPO_PATH
+      docker-compose build --parallel
+
+      echo "$PREFIX Pushing $REPO_NAME"
+      docker-compose push
+    fi
 
     echo "$PREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
 
-    HOSTS=$(docker-compose config | grep -o "Host:.*")
+    HOSTS=$(echo "$COMPOSE_CONFIG" | grep -o "Host:.*")
     DOMAINS="${HOSTS//Host:/}"
     PROTOCOL=https # TODO: detect exposed protocols
 
@@ -62,4 +65,4 @@ deploy() {
   fi
 }
 
-main "$@"
+"$@"

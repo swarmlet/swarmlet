@@ -6,80 +6,108 @@ init() {
   declare cmd="init"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  echo "$PREFIX Setting up the git user"
-  adduser $USERNAME --disabled-password --gecos --quiet
-  usermod -aG docker $USERNAME
-  mkdir -p $REPO_ROOT $USER_ROOT/.ssh
-  setfacl -m u:$USERNAME:rwx $REPO_ROOT
+  if [[ "$INSTALLATION_TYPE" == "interactive" ]]; then
+    echo "$PREFIX Starting interactive installation"
+    swarmlet dialog welcome
+    swarmlet dialog auth-info
 
-  echo "$PREFIX Configuring git SSH options"
-  cat "$AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" > $USER_ROOT/.ssh/authorized_keys
-  chmod 700 $USER_ROOT/.ssh
-  chmod 600 $USER_ROOT/.ssh/authorized_keys
-  chown -R $USERNAME:$USERNAME $USER_ROOT/.ssh
+    INSTALL_CONFIRMED=false
+    while ! $INSTALL_CONFIRMED; do
+      SWARMLET_USERNAME=$(swarmlet dialog set-username)
+      SWARMLET_PASSWORD=$(swarmlet dialog set-password)
+      # INSTALLATION_MODE=$(swarmlet dialog set-installation-mode)
+      SSH_AUTHORIZED_KEYS=$(swarmlet dialog set-ssh-authorized-keys)
+      NEW_HOSTNAME=$(swarmlet dialog set-hostname)
+      ROOT_DOMAIN=$(swarmlet dialog domain-config)
+      INSTALL_MODULES=$(swarmlet dialog install-modules)
+      CREATE_SWAP=$(swarmlet dialog add-swap)
+      INSTALL_ZSH=$(swarmlet dialog install-zsh)
+      INSTALL_CONFIRMED=$(swarmlet dialog confirm-install)
+    done
 
-  if [[ $CREATE_SWAP == "true" ]]; then
-    echo "$PREFIX Creating 1GB of swap space"
-    create-swap 1G /swapfile
+    echo "$FPREFIX Configuration confirmed"
+    echo "$INDENT The installation will take a few minutes to complete"
   fi
 
-  echo "$PREFIX Checking Docker status"
-  if check-docker;
-    then echo "Docker is running"; docker --version
-    else echo "Docker is not running, exiting"; exit 1
+  # TODO: fix
+  # install-dependencies $SWARMLET_DEPENDENCIES
+  update-package-cache
+  notify-package-updates-available
+  $SUDO $PKG_MANAGER install -y -qq acl curl apache2-utils moreutils wget &>/dev/null
+  [[ "$NEW_HOSTNAME" != "$(hostname)" ]] && set-hostname "$NEW_HOSTNAME" "$ROOT_DOMAIN"
+  [[ $(command -v docker) && $(command -v docker-compose) ]] || install-docker
+  $CREATE_SWAP && create-swap
+  $INSTALL_ZSH && install-zsh
+
+  echo "$PREFIX Setting up the git user" && create-git-user
+  echo "$PREFIX Configuring git SSH options" && add-ssh-authorized-keys "$SSH_AUTHORIZED_KEYS"
+  echo "$PREFIX Checking Docker status" && check-docker
+
+  if check-swarm; then
+    NODE_IP=$(hostname -I | awk '{print $1}')
+    ADVERTISE_ADDR="$NODE_IP:2377"
+
+    echo "$PREFIX Node IP address: $NODE_IP"
+    echo "$PREFIX Initializing node as swarm manager"
+    docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
   fi
 
-  NODE_IP=$(hostname -I | awk '{print $1}')
-  ADVERTISE_ADDR="$NODE_IP:2377"
-  echo "ROOT_DOMAIN=$ROOT_DOMAIN" >> $SWARMLET_CONFIG
+  echo "$PREFIX Creating secrets"
+  SWARMLET_BASIC_AUTH=$(htpasswd -nbB $SWARMLET_USERNAME $SWARMLET_PASSWORD)
+  echo -n "$SWARMLET_BASIC_AUTH" | docker secret create security.htpasswd -
+  cat << EOM | docker secret create swarmlet-user-secrets -
+SWARMLET_USERNAME="$SWARMLET_USERNAME"
+SWARMLET_PASSWORD="$SWARMLET_PASSWORD"
+SWARMLET_REGISTRY_USERNAME="$SWARMLET_USERNAME"
+SWARMLET_REGISTRY_PASSWORD="$SWARMLET_PASSWORD"
+EOM
 
-  echo "$PREFIX Node IP address: $NODE_IP"
-  echo "$PREFIX Initializing node as swarm manager"
-  docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
+  echo "$PREFIX Creating configs"
+  docker config create --template-driver golang swarmlet-config $SWARMLET_CONFIG
+  docker config create swarmlet-core-config $SWARMLET_CONSTANTS
+  cat << EOM | docker config create swarmlet-user-config -
+SSH_AUTHORIZED_KEYS="$SSH_AUTHORIZED_KEYS"
+NEW_HOSTNAME="${NEW_HOSTNAME/ /}"
+ROOT_DOMAIN="$ROOT_DOMAIN"
+INSTALL_MODULES=($INSTALL_MODULES)
+CREATE_SWAP="$CREATE_SWAP"
+INSTALL_ZSH="$INSTALL_ZSH"
+EOM
 
   echo "$PREFIX Creating networks"
-  docker network create \
-    --attachable \
-    --driver $SWARMLET_NETWORK_DRIVER \
-    $SWARMLET_NETWORK_NAME
+  if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK)" ]];
+    then docker network create --attachable --driver overlay $SWARMLET_NETWORK
+    else echo "$PREFIX $SWARMLET_NETWORK network already exists"
+  fi
 
-  docker network create \
-    --attachable \
-    --driver=overlay \
-    traefik-public
+  if [[ ! "$(docker network ls | grep $TRAEFIK_NETWORK)" ]];
+    then docker network create --attachable --driver overlay $TRAEFIK_NETWORK
+    else echo "$PREFIX $TRAEFIK_NETWORK network already exists"
+  fi
 
   echo "$PREFIX Creating volumes"
-  docker volume create \
-    --driver "local" \
-    -o o=bind \
-    -o type=none \
-    -o device=$USER_ROOT \
-    git-data
+  if [[ ! "$(docker volume ls | grep $GIT_DATA)" ]]; then
+    docker volume create \
+      --driver "local" \
+      -o o=bind \
+      -o type=none \
+      -o device=$GIT_USER_ROOT \
+      $GIT_DATA
+  fi
 
-  # TODO:
-  # case $INSTALLATION_MODE in
-  #   full) SWARMLET_MODULES=(${SWARMLET_CORE_MODULES[@]} ${SWARMLET_RECOMMENDS_MODULES[@]}) ;;
-  #   minimal) SWARMLET_MODULES=(${SWARMLET_CORE_MODULES[@]}) ;;
-  #   *) echo -e "$PREFIX Unknown installation mode $INSTALLATION_MODE\nExiting"; exit 1 ;;
-  # esac
-
-  echo "$PREFIX Installing services"
+  echo "$PREFIX Installing modules"
   SWARMLET_MODULES=(
-    core/registry 
-    core/deployer
-    core/loadbalancer
-    recommends/matomo
-    recommends/swarmpit
-    # TODO: make configurable
+    $(ls $SWARMLET_MODULES_ROOT/core | xargs -n1 echo core/ | sed 's/ //')
+    $(echo "${INSTALL_MODULES[@]}" | xargs -n1 echo recommends/ | sed 's/ //')
   )
+
+  swarmlet stack deploy registry $SWARMLET_MODULES_ROOT/core
+  swarmlet stack build deployer $SWARMLET_MODULES_ROOT/core
+  swarmlet stack deploy deployer $SWARMLET_MODULES_ROOT/core
 
   for MODULE in ${SWARMLET_MODULES[@]}; do
     echo "$PREFIX Installing $MODULE"
-    if [[ $MODULE == "core/registry" ]]; then
-      swarmlet stack start "core/registry" $SWARMLET_MODULES_ROOT
-      swarmlet stack build "core/deployer" $SWARMLET_MODULES_ROOT
-    fi
-    swarmlet repo create $(basename $MODULE) >/dev/null
+    swarmlet repo create $(basename $MODULE) &>/dev/null
     git-local-push $SWARMLET_MODULES_ROOT/$MODULE >/dev/null
   done
 }
