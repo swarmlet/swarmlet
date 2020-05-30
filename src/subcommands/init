@@ -105,7 +105,8 @@ EOM
     git-local-push $SWARMLET_MODULES_ROOT/$MODULE >/dev/null
   done
 
-  swarmlet stack deploy registry $SWARMLET_MODULES_ROOT/core
+  # swarmlet stack deploy registry $SWARMLET_MODULES_ROOT/core
+  git-local-push $SWARMLET_MODULES_ROOT/core/registry >/dev/null
 }
 
 "$@"
