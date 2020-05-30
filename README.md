@@ -52,12 +52,12 @@ This project is aimed at developers that want to experiment with application dep
 Make sure you have a (sub) domain available which is pointed to your server, this is necessary to access the included dashboards such as Swarmpit or Matomo.
 To install the latest version of Swarmlet, log in to your server as root and run:  
 ```shell
-# Quick installation:
+# Quick (interactive) installation:
 curl -fsSL https://get.swarmlet.dev | bash
 ```
 Or with [options](https://swarmlet.dev/docs/getting-started/installation):
 ```shell
-# Noninteractive (headless) installation 
+# Headless (noninteractive) installation:
 curl -fsSL https://get.swarmlet.dev | bash -s \
   INSTALLATION_TYPE=noninteractive \
   INSTALL_ZSH=true \
