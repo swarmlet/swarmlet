@@ -15,11 +15,13 @@ stack-build() {
 
   STACK_NAME="$1"
   STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
-  SWARMLET_REGISTRY_USERNAME="${3:-$SWARMLET_REGISTRY_USERNAME}"
-  SWARMLET_REGISTRY_PASSWORD="${4:-$SWARMLET_REGISTRY_PASSWORD}"
+  SWARMLET_REGISTRY_USERNAME="${3:-$SWARMLET_USERNAME}"
+  SWARMLET_REGISTRY_PASSWORD="${4:-$SWARMLET_PASSWORD}"
 
   if [ "$(ls -A $STACK_ROOT)" ]; then
     pushd $STACK_ROOT >/dev/null
+
+    while ! is-service-healthy registry; do sleep 1; done
 
     echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
       -u $SWARMLET_REGISTRY_USERNAME \
@@ -47,7 +49,7 @@ stack-deploy() {
 
   echo "$PREFIX Deploying $STACK_NAME"
 
-  if [[ $STACK_NAME == "registry" || $STACK_NAME == "deployer" ]];
+  if [[ $STACK_NAME == "deployer" ]];
     then docker stack deploy --with-registry-auth --compose-file $COMPOSE_FILE $STACK_NAME
     else docker stack deploy --compose-file $COMPOSE_FILE $STACK_NAME
   fi
@@ -73,6 +75,7 @@ stack-start() {
   pushd $STACK_ROOT >/dev/null
 
   echo "$PREFIX Starting stack $STACK_NAME"
+
   docker-compose up -d
 
   popd >/dev/null

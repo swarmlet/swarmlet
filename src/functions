@@ -68,7 +68,7 @@ notify-package-updates-available() {
 
 pkg-check-and-install() {
   PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
-  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "$1 installed" || $PKG_INSTALL "$1"
+  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "$1 installed" || $SUDO $PKG_INSTALL "$1"
 }
 
 install-dependencies() {
@@ -93,27 +93,27 @@ set-hostname() {
 
   if command -v hostnamectl &>/dev/null;
     # Prefer hostnamectl, no restart required
-    then hostnamectl set-hostname $NEW_HOSTNAME
+    then $SUDO hostnamectl set-hostname "$NEW_HOSTNAME"
     # Fall back on manual hostname configuration, restart required
-    else $SUDO echo $NEW_HOSTNAME >/etc/hostname
+    else $SUDO echo "$NEW_HOSTNAME" >/etc/hostname
   fi
 
   $SUDO sed -i "s/127.0.1.1.*$NEW_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
 }
 
 create-git-user() {
-  adduser $GIT_USER --disabled-password --gecos --quiet
-  usermod -aG docker $GIT_USER
+  $SUDO adduser $GIT_USER --disabled-password --gecos --quiet
+  $SUDO usermod -aG docker $GIT_USER
   mkdir -p $GIT_REPO_ROOT $GIT_USER_ROOT/.ssh
-  setfacl -m u:$GIT_USER:rwx $GIT_REPO_ROOT
+  $SUDO setfacl -m u:$GIT_USER:rwx $GIT_REPO_ROOT
 }
 
 add-ssh-authorized-keys() {
   SSH_AUTHORIZED_KEYS="$1"
-  cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >> $GIT_USER_ROOT/.ssh/authorized_keys
-  chmod 700 $GIT_USER_ROOT/.ssh
-  chmod 600 $GIT_USER_ROOT/.ssh/authorized_keys
-  chown -R $GIT_USER:$GIT_USER $GIT_USER_ROOT/.ssh
+  $SUDO cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >> $GIT_USER_ROOT/.ssh/authorized_keys
+  $SUDO chmod 700 $GIT_USER_ROOT/.ssh
+  $SUDO chmod 600 $GIT_USER_ROOT/.ssh/authorized_keys
+  $SUDO chown -R $GIT_USER:$GIT_USER $GIT_USER_ROOT/.ssh
 }
 
 install-docker() {
@@ -173,12 +173,12 @@ create-swap() {
 
 uninstall-swarmlet() {
   if [[ -d "$GIT_USER_ROOT" ]]; then
-    rm -rf /home/git
-    userdel git -f
+    $SUDO rm -rf /home/git
+    $SUDO userdel git -f
   fi
   [[ -f /usr/local/sbin/swarmlet ]] && unlink /usr/local/sbin/swarmlet
-  if [[ -d "$GIT_REPO_ROOT" ]]; then rm -rf $GIT_REPO_ROOT; fi
-  if [[ -d "$SWARMLET_ROOT" ]]; then rm -rf $SWARMLET_ROOT; fi
+  if [[ -d "$GIT_REPO_ROOT" ]]; then $SUDO rm -rf $GIT_REPO_ROOT; fi
+  if [[ -d "$SWARMLET_ROOT" ]]; then $SUDO rm -rf $SWARMLET_ROOT; fi
 }
 
 reinstall-swarmlet() {
@@ -201,6 +201,16 @@ check-swarm() {
   if [[ "$(docker info 2>/dev/null  | grep Swarm | sed 's/Swarm: //g')" == " active" ]];
     then return 1
     else return 0
+  fi
+}
+
+is-service-healthy() {
+  SERVICE="$1"
+  REPLICAS=$(docker stack services $SERVICE --format={{.Replicas}})
+
+  if [[ $(echo $REPLICAS | sed 's/\/[0-9]//') -gt 0 ]];
+    then return 0
+    else return 1
   fi
 }
 

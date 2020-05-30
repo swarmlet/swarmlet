@@ -2,9 +2,9 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-is-stack-healthy() {
+is-service-healthy() {
   SERVICE="$1"
-  REPLICAS=$(docker stack services $SERVICE --format='{{.Replicas}}')
+  REPLICAS=$(docker stack services $SERVICE --format={{.Replicas}})
 
   if [[ $(echo $REPLICAS | sed 's/\/[0-9]//') -gt 0 ]];
     then return 0
@@ -18,10 +18,10 @@ deploy() {
 
   REPO_PATH=$1
 
-  # Wait for deployer to start
-  while ! is-stack-healthy deployer; do sleep 1; done
-  DEPLOYER_AGENT=$(docker ps --filter name=deployer_agent -q)
+  while ! is-service-healthy deployer; do sleep 1; done
+  while ! is-service-healthy registry; do sleep 1; done
 
+  DEPLOYER_AGENT=$(docker ps --filter name=deployer_agent -q)
   docker container exec $DEPLOYER_AGENT /entrypoint deploy $REPO_PATH
 }
 
