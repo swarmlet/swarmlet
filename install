@@ -33,12 +33,11 @@ declare -A DEFAULT_OPTS=(
   [SWARMLET_PASSWORD]=swarmlet     # (default swarmlet) Used for authentication with the registry and web services / dashboards
   [SSH_AUTHORIZED_KEYS]=/root/.ssh/authorized_keys # (default root) The git SSH authorized keys
   [NEW_HOSTNAME]=$HOSTNAME         # (default $HOSTNAME) Optional: set a new hostname
-  [ROOT_DOMAIN]=$HOSTNAME          # (default $HOSTNAME) The domain to use for deployment of included services
-  [INSTALL_DOCKER]=true            # (default true) Install Docker and Docker Compose (recommended)
+  [ROOT_DOMAIN]=                   # (default undefined) The domain to use for deployment of included services
   [INSTALL_MODULES]=               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by comma to install multiple modules
   [CREATE_SWAP]=false              # (default false) Allocate 1GB of swap space
   [INSTALL_ZSH]=false              # (default false) Install 'Oh My Zsh'
-  [NOOP]=                          # no-op for testing purposes
+  [INSTALL_DOCKER]=true            # (default true) Install Docker and Docker Compose (recommended)
   # > TODO:
   # [DEBUG]=                       # (default undefined) Run installation in debug mode
 )
@@ -104,8 +103,10 @@ install() {
   echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
-  echo "$INDENT Follow the logs using:"
+  echo "$PREFIX Follow the logs using:"
   echo "$INDENT $ docker service logs loadbalancer_traefik -f"
+  echo "$PREFIX Check status of services using:"
+  echo "$INDENT $ docker service ls"
 }
 
 install "$@"

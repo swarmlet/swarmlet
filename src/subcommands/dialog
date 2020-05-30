@@ -50,7 +50,7 @@ section-set-username() {
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "swarmlet" \
+    "${SWARMLET_USERNAME:-swarmlet}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
@@ -66,7 +66,7 @@ section-set-password() {
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "swarmlet" \
+    "${SWARMLET_PASSWORD:-swarmlet}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
@@ -77,13 +77,13 @@ section-set-ssh-authorized-keys() {
   SECTION_TITLE="Swarmlet git SSH key configuration"
   MESSAGE="\nEnter the path to the SSH authorized keys that should be used for Swarmlet git deployments\n\n\
 Currently logged in as user: $(whoami)\n\
-Default (recommended): /root/.ssh/authorized_keys"
+Default (recommended): ${SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}"
 
   SSH_AUTHORIZED_KEYS=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "/root/.ssh/authorized_keys" \
+    "${SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
@@ -101,7 +101,7 @@ Current: $(hostname)"
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "$(hostname)" \
+    "${NEW_HOSTNAME:-$(hostname)}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
@@ -118,7 +118,7 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "yourdomain.com" \
+    "${ROOT_DOMAIN:-yourdomain.com}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
@@ -211,6 +211,26 @@ section-install-zsh() {
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
   echo $INSTALL_ZSH
+}
+
+section-confirm-install() {
+  SECTION_TITLE="Confirm configuration"
+  MESSAGE="\nConfiguration complete."
+
+  INSTALL_CONFIRM_OPTIONS=(
+    true "Confirm"
+    false "Go back to edit configuration"
+  )
+
+  INSTALL_CONFIRM=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALL_CONFIRM_OPTIONS[@]} / 2))" \
+    "${INSTALL_CONFIRM_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $INSTALL_CONFIRM
 }
 
 "$@"
