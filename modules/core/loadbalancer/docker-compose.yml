@@ -115,21 +115,21 @@ services:
         max_attempts: 5
         window: 120s
 
-  certdumper:
-    image: svendowideit/traefik-certdumper:latest
-    environment:
-      - CERTDUMPER_MODE=consul
-      - CERTDUMPER_CONSUL_ADDR=consul-leader:8500
-    volumes:
-      - traefik-certs:/traefik/ssl
-    networks:
-      - traefik-private
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        delay: 60s
+  # certdumper:
+  #   image: svendowideit/traefik-certdumper:latest
+  #   environment:
+  #     - CERTDUMPER_MODE=consul
+  #     - CERTDUMPER_CONSUL_ADDR=consul-leader:8500
+  #   volumes:
+  #     - traefik-certs:/traefik/ssl
+  #   networks:
+  #     - traefik-private
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 60s
 
 volumes:
   consul-data-leader:
