@@ -25,4 +25,5 @@ fi
 
 # TODO: On docker error, abort git push.
 # Now it pushes successfully even when a deployment fails
+[[ $REPO_NAME == "deployer" ]] && exit 0
 swarmlet deploy $REPO_DEST || exit 1

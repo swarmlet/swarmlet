@@ -8,20 +8,15 @@ services:
       - REGISTRY_HTTP_ADDR=0.0.0.0:5000
       - REGISTRY_AUTH=htpasswd
       - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
-      - REGISTRY_AUTH_HTPASSWD_PATH=/basicAuth/security.htpasswd
+      - REGISTRY_AUTH_HTPASSWD_PATH=/run/secrets/security.htpasswd
       - REGISTRY_STORAGE_DELETE_ENABLED=true
     volumes:
-      - ./:/basicAuth
       - registry-data:/var/lib/registry
     networks:
       - swarmlet-network
       - traefik-public
     secrets:
-      - swarmlet-user-secrets
-    configs:
-      - swarmlet-core-config
-      - swarmlet-user-config
-      - swarmlet-config
+      - security.htpasswd
     ports:
       - "5000:5000"
     deploy:
@@ -54,13 +49,5 @@ networks:
     external: true
 
 secrets:
-  swarmlet-user-secrets:
-    external: true
-
-configs:
-  swarmlet-core-config:
-    external: true
-  swarmlet-user-config:
-    external: true
-  swarmlet-config:
+  security.htpasswd:
     external: true

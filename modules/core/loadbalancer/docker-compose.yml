@@ -12,6 +12,8 @@ services:
     networks:
       - traefik-private
       - traefik-public
+    secrets:
+      - security.htpasswd
     deploy:
       labels:
         - traefik.frontend.rule=Host:consul.${DOMAIN}
@@ -22,7 +24,7 @@ services:
         - traefik.redirectorservice.frontend.entryPoints=http
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+        - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
 
   consul-replica:
     image: consul
@@ -56,7 +58,6 @@ services:
         published: 443
         mode: host
     volumes:
-      - ./:/basicAuth
       - /var/run/docker.sock:/var/run/docker.sock
       # --constraints=tag==traefik-public
       # Wildcard domain SSL
@@ -87,6 +88,8 @@ services:
       - traefik-private
       - traefik-public
       - swarmlet-network
+    secrets:
+      - security.htpasswd
     depends_on:
       - consul-leader
     deploy:
@@ -105,7 +108,7 @@ services:
         - traefik.redirectorservice.frontend.entryPoints=http
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/basicAuth/security.htpasswd
+        - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
       restart_policy:
         condition: on-failure
         delay: 2s
@@ -139,4 +142,8 @@ networks:
   traefik-public:
     external: true
   swarmlet-network:
+    external: true
+
+secrets:
+  security.htpasswd:
     external: true
