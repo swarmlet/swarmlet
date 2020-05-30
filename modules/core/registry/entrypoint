@@ -5,8 +5,9 @@ set -o allexport
 source "/swarmlet-config"
 
 main() {
-  [[ -f /security.htpasswd ]] && rm /security.htpasswd
-  echo $SWARMLET_REGISTRY_PASSWORD | htpasswd -ciB /security.htpasswd $SWARMLET_REGISTRY_USERNAME
+  mkdir -p /basicAuth
+  [[ -f /basicAuth/security.htpasswd ]] && rm /basicAuth/security.htpasswd
+  echo $SWARMLET_REGISTRY_PASSWORD | htpasswd -ciB /basicAuth/security.htpasswd $SWARMLET_REGISTRY_USERNAME
 }
 
 main "$@"
