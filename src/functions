@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Select package manager
-[[ ! -z $PKG_MANAGER ]] && return 0
 declare -A PKG_MANAGERS
 PKG_MANAGERS[/etc/redhat-release]=yum
 PKG_MANAGERS[/etc/arch-release]=pacman
