@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
-set -o allexport
-source "/swarmlet-config"
+
+NAME=$(basename $PWD)
 
 main() {
-  mkdir -p /basicAuth
-  [[ -f /basicAuth/security.htpasswd ]] && rm /basicAuth/security.htpasswd
-  echo $SWARMLET_REGISTRY_PASSWORD | htpasswd -ciB /basicAuth/security.htpasswd $SWARMLET_REGISTRY_USERNAME
+  echo "$PREFIX Running $NAME entrypoint script"
+  # echo "$PREFIX Environment:"; printenv
 }
 
 main "$@"
