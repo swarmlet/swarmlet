@@ -1,0 +1,9 @@
+{
+  "conventionalCommits.scopes": [
+    "config",
+    "vscode",
+    "examples",
+    "modules",
+    "src"
+  ]
+}

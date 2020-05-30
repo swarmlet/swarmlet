@@ -7,6 +7,7 @@ INDENT="      "
 SWARMLET_REPO="https://github.com/swarmlet/swarmlet.git"
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
 
+# Check if user is root
 if [[ $EUID -ne 0 ]]; then
   if [[ $(dpkg-query -s sudo) ]]; then
     echo "$PREFIX User is not root, using sudo"
@@ -16,6 +17,7 @@ if [[ $EUID -ne 0 ]]; then
   fi
 fi
 
+# Check if Bash is up to date
 if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
   echo "$PREFIX [ERROR] Unmet requirements: Bash 4"
   echo "$INDENT Your Bash version is $BASH_VERSION"
@@ -23,16 +25,19 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
   exit 1
 fi
 
+# Define default environment variables
 declare -A DEFAULT_OPTS=(
   [INSTALLATION_TYPE]=interactive  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
-  [INSTALLATION_MODE]=full         # (default full, options: full|minimal|.. TODO)
-  [ROOT_DOMAIN]=$HOSTNAME          # (default $HOSTNAME) The domain to use for deployment of included services
   [INSTALL_BRANCH]=master          # (default master) The default branch to install
-  [INSTALL_DOCKER]=true            # (default true) Install Docker and Docker Compose (recommended)
+  [SWARMLET_USERNAME]=swarmlet     # (default swarmlet) Used for authentication with the registry and web services / dashboards
+  [SWARMLET_PASSWORD]=swarmlet     # (default swarmlet) Used for authentication with the registry and web services / dashboards
+  [SSH_AUTHORIZED_KEYS]=/root/.ssh/authorized_keys # (default root) The git SSH authorized keys
+  [NEW_HOSTNAME]=$HOSTNAME         # (default $HOSTNAME) Optional: set a new hostname
+  [ROOT_DOMAIN]=                   # (default undefined) The domain to use for deployment of included services
   [INSTALL_MODULES]=               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by comma to install multiple modules
   [CREATE_SWAP]=false              # (default false) Allocate 1GB of swap space
   [INSTALL_ZSH]=false              # (default false) Install 'Oh My Zsh'
-  [NOOP]=                          # no-op for testing purposes
+  [INSTALL_DOCKER]=true            # (default true) Install Docker and Docker Compose (recommended)
   # > TODO:
   # [DEBUG]=                       # (default undefined) Run installation in debug mode
 )
@@ -49,17 +54,31 @@ while [[ "$#" > 0 ]]; do case "${1%=*}" in
   *) echo "Unknown argument: $1"; shift ;;
 esac; done
 
+# Define package managers
+declare -A PKG_MANAGERS
+PKG_MANAGERS[/etc/redhat-release]=yum
+PKG_MANAGERS[/etc/arch-release]=pacman
+PKG_MANAGERS[/etc/gentoo-release]=emerge
+PKG_MANAGERS[/etc/SuSE-release]=zypp
+PKG_MANAGERS[/etc/debian_version]=apt-get
+
+# Select correct package manager
+for MANAGER in ${!PKG_MANAGERS[@]}; do
+  [[ -f $MANAGER ]] && PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
+done
+
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
 install() {
   echo "$FPREFIX Installing Swarmlet"
   echo "$PREFIX Installing required packages"
   # TODO: support other package managers
-  $SUDO apt-get update -y -qq &>/dev/null
-  $SUDO apt-get install -y -qq apt-transport-https git
+  $SUDO $PKG_MANAGER update -y -qq &>/dev/null
+  $SUDO $PKG_MANAGER install -y -qq apt-transport-https &>/dev/null
+  [[ $(command -v git) ]] || $SUDO $PKG_MANAGER install -y -qq git
 
   echo "$PREFIX Cloning $SWARMLET_REPO"
-  git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
+  [[ -d $SWARMLET_INSTALL_ROOT ]] || git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
 
   if [[ "$INSTALL_BRANCH" != "master" ]]; then
     echo "$PREFIX Checking out $INSTALL_BRANCH"
@@ -72,7 +91,7 @@ install() {
   ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
 
   echo "$PREFIX Initializing Swarmlet"
-  swarmlet init $INSTALLATION_TYPE "$@"
+  swarmlet init
 
   echo "$FPREFIX Server initialized as manager node"
   swarmlet node ls
@@ -84,8 +103,10 @@ install() {
   echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
-  echo "$INDENT Follow the logs using:"
+  echo "$PREFIX Follow the logs using:"
   echo "$INDENT $ docker service logs loadbalancer_traefik -f"
+  echo "$PREFIX Check status of services using:"
+  echo "$INDENT $ docker service ls"
 }
 
 install "$@"

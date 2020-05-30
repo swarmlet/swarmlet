@@ -2,20 +2,27 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
+is-service-healthy() {
+  SERVICE="$1"
+  REPLICAS=$(docker stack services $SERVICE --format={{.Replicas}})
+
+  if [[ $(echo $REPLICAS | sed 's/\/[0-9]//') -gt 0 ]];
+    then return 0
+    else return 1
+  fi
+}
+
 deploy() {
   declare cmd="deploy"
   [[ "$1" == "$cmd" ]] && shift 1
 
   REPO_PATH=$1
 
-  # --config $SWARMLET_CONFIG
-  docker run --rm \
-    --network $SWARMLET_NETWORK_NAME \
-    -v $REPO_PATH:$REPO_PATH \
-    -v $DOCKER_SOCKET:$DOCKER_SOCKET \
-    -v $SWARMLET_CONFIG:$SWARMLET_CONFIG:ro \
-    $SWARMLET_REGISTRY/deployer \
-    deploy $REPO_PATH
+  while ! is-service-healthy deployer; do sleep 1; done
+  while ! is-service-healthy registry; do sleep 1; done
+
+  DEPLOYER_AGENT=$(docker ps --filter name=deployer_agent -q)
+  docker container exec $DEPLOYER_AGENT /entrypoint deploy $REPO_PATH
 }
 
 "$@"

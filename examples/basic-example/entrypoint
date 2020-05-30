@@ -13,7 +13,12 @@ main() {
   echo "$PREFIX Arguments: $@"
   # echo "$PREFIX Environment:"; printenv
 
-  echo "$PREFIX Environment variables from .env file"
+  echo "$PREFIX Swarmlet configuration variables:"
+  echo "$INDENT SWARMLET_USERNAME=$SWARMLET_USERNAME"
+  echo "$INDENT SWARMLET_PASSWORD=$SWARMLET_PASSWORD"
+  echo "$INDENT ROOT_DOMAIN=$ROOT_DOMAIN"
+
+  echo -e "\n$PREFIX Environment variables from .env file:"
   echo "$INDENT DOMAIN=$DOMAIN"
   echo "$INDENT MY_ENV_VAR=$MY_ENV_VAR"
   echo "$INDENT MY_ENV_VAR_UPPERCASE=$MY_ENV_VAR_UPPERCASE"

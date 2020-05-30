@@ -18,12 +18,23 @@ set-dialog-appearance() {
 }
 
 section-welcome() {
+  [[ -r /etc/lsb-release ]] && DISTRO_DESCRIPTION=$(lsb_release -s -d)
   SECTION_TITLE="Swarmlet installation wizard"
   MESSAGE="\nWelcome to the Swarmlet interactive installation.\n\n\
 Installing Swarmlet $(check-swarmlet-version)\n\n\
-System:\n\
-$(bash --version | head -n 1)\n\
-$(uname -v | awk '{print $1}') $(uname) $(uname -r) $(uname -m)"
+System: $DISTRO_DESCRIPTION ($(uname -o) $(uname -r) $(uname -m))"
+
+  whiptail \
+    --title "$SECTION_TITLE" \
+    --msgbox "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS"
+}
+
+section-auth-info() {
+  SECTION_TITLE="User configuration - info"
+  MESSAGE="\nConfigure your Swarmlet username and password.\n\n\
+You can use these to authenticate to the swarm registry and to access the included modules web dashboards.\n\n\
+It's possible to update your username and password after installation using the Swarmlet CLI. Further instructions can be found in the documentation."
 
   whiptail \
     --title "$SECTION_TITLE" \
@@ -39,7 +50,7 @@ section-set-username() {
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "swarmlet" \
+    "${SWARMLET_USERNAME:-swarmlet}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
@@ -48,30 +59,49 @@ section-set-username() {
 
 section-set-password() {
   SECTION_TITLE="User configuration - password"
-  MESSAGE="\nChoose a password.\nDefault (not recommended): swarmlet"
+  MESSAGE="\nChoose a password.\nDefault: swarmlet"
 
   # TODO: use whiptail password input
   SWARMLET_PASSWORD=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "swarmlet" \
+    "${SWARMLET_PASSWORD:-swarmlet}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
   echo $SWARMLET_PASSWORD
 }
 
+section-set-ssh-authorized-keys() {
+  SECTION_TITLE="Swarmlet git SSH key configuration"
+  MESSAGE="\nEnter the path to the SSH authorized keys that should be used for Swarmlet git deployments\n\n\
+Currently logged in as user: $(whoami)\n\
+Default (recommended): ${SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}"
+
+  SSH_AUTHORIZED_KEYS=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --inputbox "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" \
+    "${SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $SSH_AUTHORIZED_KEYS
+}
+
 section-set-hostname() {
   SECTION_TITLE="Hostname configuration"
-  MESSAGE="\nChoose a hostname for this host.\nDefault: $(hostname)"
+  MESSAGE="\nOptional: Set a new hostname for this host.\n\n\
+Example: swarm-manager-1\n\
+Current: $(hostname)"
 
   # TODO: use whiptail password input
   NEW_HOSTNAME=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "$(hostname)" \
+    "${NEW_HOSTNAME:-$(hostname)}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
@@ -81,40 +111,40 @@ section-set-hostname() {
 section-domain-config() {
   SECTION_TITLE="Domain name configuration"
   MESSAGE="\nEnter the domain name you want to use with Swarmlet.\n\n\
-Dashboards modules such as Traefik and Matomo will be hosted on subdomains of this domain.\n\
+Frontends of modules such as Traefik and Matomo will be hosted on subdomains of this domain.\n\
 Access the Traefik dashboard at https://traefik.yourdomain.com for example."
 
   ROOT_DOMAIN=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "yourdomain.com" \
+    "${ROOT_DOMAIN:-yourdomain.com}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
   echo $ROOT_DOMAIN
 }
 
-section-installation-mode() {
-  SECTION_TITLE="Installation mode"
-  MESSAGE="\nChoose the installation mode:"
+# section-installation-mode() {
+#   SECTION_TITLE="Installation mode"
+#   MESSAGE="\nChoose the installation mode:"
 
-  INSTALLATION_MODE_OPTIONS=(
-    full "Full installation"
-    minimal "Minimal installation"
-    custom "Custom installation"
-  )
+#   INSTALLATION_MODE_OPTIONS=(
+#     full "Full installation"
+#     minimal "Minimal installation"
+#     custom "Custom installation"
+#   )
 
-  INSTALLATION_MODE=$(whiptail \
-    --title "$SECTION_TITLE" \
-    --menu "$MESSAGE" \
-    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALLATION_MODE_OPTIONS[@]} / 2))" \
-    "${INSTALLATION_MODE_OPTIONS[@]}" \
-    3>&1 1>&2 2>&3)
+#   INSTALLATION_MODE=$(whiptail \
+#     --title "$SECTION_TITLE" \
+#     --menu "$MESSAGE" \
+#     "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALLATION_MODE_OPTIONS[@]} / 2))" \
+#     "${INSTALLATION_MODE_OPTIONS[@]}" \
+#     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $INSTALLATION_MODE
-}
+#   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+#   echo $INSTALLATION_MODE
+# }
 
 section-install-modules() {
   SECTION_TITLE="Install modules"
@@ -181,6 +211,26 @@ section-install-zsh() {
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
   echo $INSTALL_ZSH
+}
+
+section-confirm-install() {
+  SECTION_TITLE="Confirm configuration"
+  MESSAGE="\nConfiguration complete."
+
+  INSTALL_CONFIRM_OPTIONS=(
+    true "Confirm"
+    false "Go back to edit configuration"
+  )
+
+  INSTALL_CONFIRM=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALL_CONFIRM_OPTIONS[@]} / 2))" \
+    "${INSTALL_CONFIRM_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo $INSTALL_CONFIRM
 }
 
 "$@"

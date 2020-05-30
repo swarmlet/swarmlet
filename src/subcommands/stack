@@ -14,13 +14,17 @@ stack-build() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
+  SWARMLET_REGISTRY_USERNAME="${3:-$SWARMLET_USERNAME}"
+  SWARMLET_REGISTRY_PASSWORD="${4:-$SWARMLET_PASSWORD}"
 
   if [ "$(ls -A $STACK_ROOT)" ]; then
     pushd $STACK_ROOT >/dev/null
 
+    while ! is-service-healthy registry; do sleep 1; done
+
     echo $SWARMLET_REGISTRY_PASSWORD | docker login --password-stdin \
-      -u $SWARMLET_REGISTRY_USER \
+      -u $SWARMLET_REGISTRY_USERNAME \
       $SWARMLET_REGISTRY
 
     echo "$PREFIX Building stack $STACK_NAME"
@@ -38,13 +42,17 @@ stack-deploy() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
   COMPOSE_FILE="$STACK_ROOT/docker-compose.yml"
 
   pushd $STACK_ROOT >/dev/null
 
   echo "$PREFIX Deploying $STACK_NAME"
-  docker stack deploy --compose-file $COMPOSE_FILE $STACK_NAME
+
+  if [[ $STACK_NAME == "deployer" ]];
+    then docker stack deploy --with-registry-auth --compose-file $COMPOSE_FILE $STACK_NAME
+    else docker stack deploy --compose-file $COMPOSE_FILE $STACK_NAME
+  fi
 
   popd >/dev/null
 }
@@ -62,11 +70,12 @@ stack-start() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
   pushd $STACK_ROOT >/dev/null
 
   echo "$PREFIX Starting stack $STACK_NAME"
+
   docker-compose up -d
 
   popd >/dev/null
@@ -77,7 +86,7 @@ stack-stop() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
   pushd $STACK_ROOT >/dev/null
 
@@ -92,10 +101,10 @@ stack-remove() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   STACK_NAME="$1"
-  STACK_ROOT="${2:-USER_ROOT}/$STACK_NAME"
+  STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
   docker stack rm $STACK_NAME
-  rm -rf $STACK_ROOT $REPO_ROOT/$STACK_NAME.git >/dev/null
+  rm -rf $STACK_ROOT $GIT_REPO_ROOT/$STACK_NAME.git >/dev/null
   # TODO: clean up some more
 }
 
