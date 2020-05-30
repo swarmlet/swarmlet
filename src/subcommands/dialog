@@ -10,7 +10,7 @@ dialog() {
 
 set-dialog-appearance() {
   export NEWT_COLORS="window=blue"
-  TTY_SIZE=$(stty size 2>/dev/null || echo 20 80)
+  TTY_SIZE=$(stty size 2>/dev/null || echo 24 80)
   TTY_ROWS=$(echo $TTY_SIZE | awk '{print $1}')
   TTY_COLS=$(echo $TTY_SIZE | awk '{print $2}')
   TTY_ROWS=$(($TTY_ROWS-4))
