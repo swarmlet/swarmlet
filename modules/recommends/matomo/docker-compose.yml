@@ -8,11 +8,10 @@ services:
     networks:
       - matomo-network      
     environment:
-      # TODO: use the secrets
       - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
       - "MYSQL_DATABASE=matomo"
-      - "MYSQL_USER=matomo"
-      - "MYSQL_PASSWORD=matomo"
+      - "MYSQL_USER=${SWARMLET_USERNAME:-matomo}"
+      - "MYSQL_PASSWORD=${SWARMLET_PASSWORD:-matomo}"
     restart: always
 
   redis:
