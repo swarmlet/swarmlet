@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail; [[ $DEBUG ]] && set -x; set -o allexport
+SWARMLET_CONSTANTS="/opt/swarmlet/src/constants"
+[[ ! -f "$SWARMLET_CONSTANTS" ]] && SWARMLET_CONSTANTS="/opt/swarmlet/src/variables"
+source $SWARMLET_CONSTANTS
+source $SWARMLET_FUNCTIONS
+set +o allexport
 
 # WIP
 # TODO: test
@@ -69,20 +74,14 @@ INSTALL_ZSH="$INSTALL_ZSH"
 EOM
   fi
 
+  # TODO: if registry is changed
   COMPOSE_FILE=$SWARMLET_MODULES_ROOT/core/registry/docker-compose.yml
   docker stack deploy --compose-file $COMPOSE_FILE registry
   while ! is-service-healthy registry; do sleep 1; done
 
-  echo $SWARMLET_PASSWORD | docker login --password-stdin \
-    -u $SWARMLET_USERNAME \
-    $SWARMLET_REGISTRY
-
-  pushd $SWARMLET_MODULES_ROOT/core/deployer >/dev/null
-  COMPOSE_FILE=$PWD/docker-compose.yml
-  docker-compose build --parallel
-  docker-compose push
-  docker stack deploy --with-registry-auth --compose-file $COMPOSE_FILE deployer
-  popd >/dev/null
+  # TODO: build deployer if no deployer found
+  while ! is-service-healthy deployer; do sleep 1; done
+  swarmlet deploy $SWARMLET_MODULES_ROOT/core/deployer
 
   for DIR in $SWARMLET_MODULES_ROOT/*; do
     for MODULE in $DIR/*; do
