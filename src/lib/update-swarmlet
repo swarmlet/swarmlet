@@ -4,6 +4,7 @@ set -eo pipefail; [[ $DEBUG ]] && set -x; set -o allexport
 SWARMLET_CONSTANTS="/opt/swarmlet/src/constants"
 [[ ! -f "$SWARMLET_CONSTANTS" ]] && SWARMLET_CONSTANTS="/opt/swarmlet/src/variables"
 source $SWARMLET_CONSTANTS
+[[ ! -f "$SWARMLET_FUNCTIONS" ]] && SWARMLET_FUNCTIONS="/opt/swarmlet/src/functions"
 source $SWARMLET_FUNCTIONS
 set +o allexport
 
