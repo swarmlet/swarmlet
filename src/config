@@ -3,8 +3,10 @@
 # -----------------------
 # config: swarmlet-config
 # -----------------------
+# Golang template as Docker config file
+
 # Run the following command if you update this file after installation:
-# TODO: swarmlet config update swarmlet-config
+### TODO: swarmlet config update swarmlet-config
 
 # User-defined secret environment variables
 {{ secret "swarmlet-user-secrets" }}

@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail; [[ $DEBUG ]] && set -x; set -o allexport
 
-"/opt/swarmlet/src/commands" "$@"
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
+SWARMLET_ROOT="/opt/swarmlet"
+COMMAND="$SWARMLET_ROOT/src/commands/$1"
+
+source "$SWARMLET_ROOT/src/constants"
+source "$SWARMLET_FUNCTIONS"
+
+set +o allexport
+
+if [[ -f "$COMMAND" ]]; then "$COMMAND" "$@"
+elif [[ $(list-internal-functions | grep -w "$1") ]]; then "$@"
+else echo "$PREFIX Unknown command: $1"; fi

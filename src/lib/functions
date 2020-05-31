@@ -213,6 +213,10 @@ is-service-healthy() {
   fi
 }
 
+list-internal-functions() {
+  typeset -f | awk '/ \(\) $/ && !/^list-internal-functions / {print $1}'
+}
+
 nuke() {
   uninstall-swarmlet
   for CONFIG in $(docker config ls --format {{.ID}}); do
