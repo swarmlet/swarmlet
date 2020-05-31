@@ -5,9 +5,8 @@ dialog() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   set-dialog-appearance
-
-  # Retry if dialog return value is not defined
-  [[ -z $(section-"$@") ]] || dialog section-"$@"
+  # TODO: retry if dialog return value is not defined
+  section-"$@"
 }
 
 set-dialog-appearance() {
