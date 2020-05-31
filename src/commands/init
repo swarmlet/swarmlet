@@ -26,7 +26,9 @@ init() {
     done
 
     echo "$FPREFIX Configuration confirmed"
-    echo "$INDENT The installation will take a few minutes to complete"
+    echo "$PREFIX The installation will take a few minutes to complete"
+  else
+    echo "$PREFIX Starting noninteractive installation"
   fi
 
   # TODO: fix

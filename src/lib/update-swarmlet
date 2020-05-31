@@ -2,6 +2,8 @@
 
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
+# WIP
+# TODO: test
 update() {
   declare cmd="update"
   [[ "$1" == "$cmd" ]] && shift 1

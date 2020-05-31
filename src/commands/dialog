@@ -5,7 +5,9 @@ dialog() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   set-dialog-appearance
-  section-"$@"
+
+  # Retry if dialog return value is not defined
+  [[ -z $(section-"$@") ]] || dialog section-"$@"
 }
 
 set-dialog-appearance() {
@@ -28,6 +30,9 @@ System: $DISTRO_DESCRIPTION ($(uname -o) $(uname -r) $(uname -m))"
     --title "$SECTION_TITLE" \
     --msgbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS"
+  
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo true
 }
 
 section-auth-info() {
@@ -40,6 +45,9 @@ It's possible to update your username and password after installation using the 
     --title "$SECTION_TITLE" \
     --msgbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS"
+
+  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo true
 }
 
 section-set-username() {
@@ -77,13 +85,13 @@ section-set-ssh-authorized-keys() {
   SECTION_TITLE="Swarmlet git SSH key configuration"
   MESSAGE="\nEnter the path to the SSH authorized keys that should be used for Swarmlet git deployments\n\n\
 Currently logged in as user: $(whoami)\n\
-Default (recommended): ${SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}"
+Default (recommended): ${SSH_AUTHORIZED_KEYS:-$HOME/.ssh/authorized_keys}"
 
   SSH_AUTHORIZED_KEYS=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "${SSH_AUTHORIZED_KEYS:-/root/.ssh/authorized_keys}" \
+    "${SSH_AUTHORIZED_KEYS:-$HOME/.ssh/authorized_keys}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
@@ -167,7 +175,7 @@ Press 'SPACE' to (de)select a module."
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $INSTALL_MODULES
+  [[ ! -z $(echo $INSTALL_MODULES) ]] && echo $INSTALL_MODULES || echo "()"
 }
 
 section-add-swap() {

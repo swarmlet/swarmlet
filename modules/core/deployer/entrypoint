@@ -32,7 +32,6 @@ deploy() {
   fi
 
   if [[ -f $COMPOSE_FILE ]]; then
-    # TODO: only log in if build step is defined in docker-compose.yml
     COMPOSE_CONFIG=$(docker-compose config)
 
     if [[ ! -z $(echo "$COMPOSE_CONFIG" | grep -o "build:*") ]]; then

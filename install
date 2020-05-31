@@ -29,15 +29,14 @@ fi
 declare -A DEFAULT_OPTS=(
   [INSTALLATION_TYPE]=interactive  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
   [INSTALL_BRANCH]=master          # (default master) The default branch to install
-  [SWARMLET_USERNAME]=swarmlet     # (default swarmlet) Used for authentication with the registry and web services / dashboards
+  [SWARMLET_USERNAME]=$USER        # (default $USER) Used for authentication with the registry and web services / dashboards
   [SWARMLET_PASSWORD]=swarmlet     # (default swarmlet) Used for authentication with the registry and web services / dashboards
-  [SSH_AUTHORIZED_KEYS]=/root/.ssh/authorized_keys # (default root) The authorized SSH keys for git deployments
+  [SSH_AUTHORIZED_KEYS]=$HOME/.ssh/authorized_keys # (default root) The authorized SSH keys for git deployments
   [NEW_HOSTNAME]=$HOSTNAME         # (default $HOSTNAME) Optional: set a new hostname
   [ROOT_DOMAIN]=                   # (default undefined) The domain to use for deployment of included services
-  [INSTALL_MODULES]=               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
   [CREATE_SWAP]=false              # (default false) Allocate 1GB of swap space
   [INSTALL_ZSH]=false              # (default false) Install 'Oh My Zsh'
-  [INSTALL_DOCKER]=true            # (default true) Install Docker and Docker Compose (recommended)
+  [INSTALL_MODULES]=               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
   # > TODO:
   # [DEBUG]=                       # (default undefined) Run installation in debug mode
 )
@@ -72,13 +71,20 @@ set -eo pipefail; [[ $DEBUG ]] && set -x
 install() {
   echo "$FPREFIX Installing Swarmlet"
   echo "$PREFIX Installing required packages"
+
   # TODO: support other package managers
   $SUDO $PKG_MANAGER update -y -qq &>/dev/null
   $SUDO $PKG_MANAGER install -y -qq apt-transport-https &>/dev/null
   [[ $(command -v git) ]] || $SUDO $PKG_MANAGER install -y -qq git
 
   echo "$PREFIX Cloning $SWARMLET_REPO"
-  [[ -d $SWARMLET_INSTALL_ROOT ]] || git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
+  if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]];
+    # then swarmlet module update core
+    # then swarmlet update
+    # TODO
+    then git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
+    else git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
+  fi
 
   if [[ "$INSTALL_BRANCH" != "master" ]]; then
     echo "$PREFIX Checking out $INSTALL_BRANCH"
@@ -88,7 +94,7 @@ install() {
   fi
 
   echo "$PREFIX Linking executable"
-  ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
+  [[ $(command -v swarmlet) ]] || ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
 
   echo "$PREFIX Initializing Swarmlet"
   swarmlet init
@@ -96,7 +102,7 @@ install() {
   echo "$FPREFIX Server initialized as manager node"
   swarmlet node ls
 
-  echo "$FPREFIX Swarmlet services stacks deployed"
+  echo "$FPREFIX Swarmlet modules deployed"
   swarmlet stack ls
 
   echo "$FPREFIX Installation complete"
