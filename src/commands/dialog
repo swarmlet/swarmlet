@@ -45,7 +45,7 @@ It's possible to update your username and password after installation using the 
 
 section-set-username() {
   SECTION_TITLE="User configuration - username"
-  MESSAGE="\nEnter your username.\nDefault: swarmlet"
+  MESSAGE="\nEnter your username.\nDefault: $USER"
 
   SWARMLET_USERNAME=$(whiptail \
     --title "$SECTION_TITLE" \
@@ -95,14 +95,14 @@ section-set-hostname() {
   SECTION_TITLE="Hostname configuration"
   MESSAGE="\nOptional: Set a new hostname for this host.\n\n\
 Example: swarm-manager-1\n\
-Current: $(hostname)"
+Current: $HOSTNAME"
 
   # TODO: use whiptail password input
   NEW_HOSTNAME=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "${NEW_HOSTNAME:-$(hostname)}" \
+    "${NEW_HOSTNAME:-$HOSTNAME}" \
     3>&1 1>&2 2>&3)
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
