@@ -31,7 +31,6 @@ System: $DISTRO_DESCRIPTION ($(uname -o) $(uname -r) $(uname -m))"
     "$TTY_ROWS" "$TTY_COLS"
   
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo true
 }
 
 section-auth-info() {
@@ -46,7 +45,6 @@ It's possible to update your username and password after installation using the 
     "$TTY_ROWS" "$TTY_COLS"
 
   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo true
 }
 
 section-set-username() {
