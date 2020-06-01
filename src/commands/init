@@ -8,8 +8,8 @@ init() {
 
   if [[ "$INSTALLATION_TYPE" == "interactive" ]]; then
     echo "$PREFIX Starting interactive installation"
-    swarmlet dialog welcome
-    swarmlet dialog auth-info
+    swarmlet dialog welcome &>/dev/null
+    swarmlet dialog auth-info &>/dev/null
 
     INSTALL_CONFIRMED=false
     while ! $INSTALL_CONFIRMED; do
