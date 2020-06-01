@@ -80,14 +80,14 @@ The installation should take a few minutes to complete.
 
 Swarmlet includes various examples of services that you can deploy to your server cluster with a simple `git push`.  
 - [swarmlet-website - The swarmlet.dev website](https://github.com/swarmlet/swarmlet-website)
-- [get-swarmlet - The get.swarmlet.dev install script](/docs/examples/get-swarmlet)
-- [Basic example - Static site](/docs/examples/static-site)
-- [Basic example - Python web server + Redis](/docs/examples/python-redis)
-- [Moderate example - NGINX + React app + Node.js API](/docs/examples/nginx-react-node)
-- (FIX) [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](/docs/examples/nginx-react-node-cms)
-- (FIX) [GitLab CE](/docs/examples/gitlab-ce) (self-hosted)
-- (FIX) [GitLab Runner](/docs/examples/gitlab-runner) (self-hosted)
-- (TODO) [HAProxy](/docs/examples/haproxy) (Replacing Traefik with HAProxy)  
+- [get-swarmlet - The get.swarmlet.dev install script](https://swarmlet.dev/docs/examples/get-swarmlet)
+- [Basic example - Static site](https://swarmlet.dev/docs/examples/static-site)
+- [Basic example - Python web server + Redis](https://swarmlet.dev/docs/examples/python-redis)
+- [Moderate example - NGINX + React app + Node.js API](https://swarmlet.dev/docs/examples/nginx-react-node)
+- (FIX) [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
+- (FIX) [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
+- (FIX) [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
+- (TODO) [HAProxy](https://swarmlet.dev/docs/examples/haproxy) (Replacing Traefik with HAProxy)  
 
 All these examples and the [Swarmlet documentation and website](https://swarmlet.dev) are running on a €5/mo *single* server 'cluster', using Swarmlet for deployments.  
 
