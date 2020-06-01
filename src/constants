@@ -3,15 +3,18 @@
 # ----------------------------
 # config: swarmlet-core-config
 # ----------------------------
+# Docker config file
+
 # Run the following command if you update this file after installation:
-# TODO: swarmlet config update swarmlet-core-config
+### TODO: swarmlet config update swarmlet-core-config
 
 SWARMLET_ROOT="/opt/swarmlet"
-SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
+SWARMLET_LIB="$SWARMLET_ROOT/src/lib"
 SWARMLET_CONSTANTS="$SWARMLET_ROOT/src/constants"
-SWARMLET_FUNCTIONS="$SWARMLET_ROOT/src/functions"
 SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
 SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
+SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
+SWARMLET_FUNCTIONS="$SWARMLET_LIB/functions"
 SWARMLET_REGISTRY="localhost:5000/v2"
 SWARMLET_NETWORK="swarmlet-network"
 
@@ -23,5 +26,5 @@ GIT_REPO_ROOT="/var/repo"
 TRAEFIK_NETWORK=traefik-public
 DOCKER_SOCKET="/var/run/docker.sock"
 
-SSH_COMMAND="command=\"$SWARMLET_ROOT/src/sshcommand $GIT_REPO_ROOT $SWARMLET_HOOKS\""
+SSH_COMMAND="command=\"$SWARMLET_LIB/sshcommand $GIT_REPO_ROOT $SWARMLET_HOOKS\""
 SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"

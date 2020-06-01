@@ -44,16 +44,16 @@ This project is aimed at developers that want to experiment with application dep
 **[Example application setup and deployment guide](https://swarmlet.dev/docs/getting-started/deploying-applications#example-application-setup)**
 
 ## Installation
-**Requirements**: Bash 4.0 or higher (run `bash --version`).  
+- **Requirements**: Bash 4.0 or higher (run `bash --version`).  
 
+### Quick interactive installation
 **[Full installation instructions can be found here](https://swarmlet.dev/docs/getting-started/installation)**  
 Make sure you have a (sub) domain available which is pointed to your server, this is necessary to access the included dashboards such as Swarmpit or Matomo.
 To install the latest version of Swarmlet, log in to your server as root and run:  
 ```shell
-# Quick (interactive) installation:
 curl -fsSL https://get.swarmlet.dev | bash
 ```
-Or with [options](https://swarmlet.dev/docs/getting-started/installation):
+### Headless installation [(options)](https://swarmlet.dev/docs/getting-started/installation)
 ```shell
 # Headless (noninteractive) installation:
 curl -fsSL https://get.swarmlet.dev | bash -s \
@@ -77,14 +77,15 @@ The installation should take a few minutes to complete.
 ## Examples
 
 Swarmlet includes various examples of services that you can deploy to your server cluster with a simple `git push`.  
+- [swarmlet-website - The swarmlet.dev website](https://github.com/swarmlet/swarmlet-website)
+- [get-swarmlet - The get.swarmlet.dev install script](https://swarmlet.dev/docs/examples/get-swarmlet)
 - [Basic example - Static site](https://swarmlet.dev/docs/examples/static-site)
 - [Basic example - Python web server + Redis](https://swarmlet.dev/docs/examples/python-redis)
 - [Moderate example - NGINX + React app + Node.js API](https://swarmlet.dev/docs/examples/nginx-react-node)
-- [FIX] [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
-- [get-swarmlet](https://swarmlet.dev/docs/examples/get-swarmlet) (the app serving the Swarmlet install script at [get.swarmlet.dev](https://get.swarmlet.dev))
-- [FIX] [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
-- [FIX] [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
-- [TODO] [HAProxy](https://swarmlet.dev/docs/examples/haproxy) (Replacing Traefik with HAProxy)
+- (FIX) [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
+- (FIX) [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
+- (FIX) [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
+- (TODO) [HAProxy](https://swarmlet.dev/docs/examples/haproxy) (Replacing Traefik with HAProxy)  
 
 All these examples and the [Swarmlet documentation and website](https://swarmlet.dev) are running on a €5/mo *single* server 'cluster', using Swarmlet for deployments.  
 
