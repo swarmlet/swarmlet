@@ -26,7 +26,18 @@ node-join() {
 
   ROLE=$1
   NODE_IP=$2
+  JOIN_TOKEN=$(docker swarm join-token "$ROLE" | grep -w "docker swarm join*" | sed 's/    //')
+  JOIN_HOST=${ROOT_DOMAIN:-"$(hostname -I):$(get-random-open-port)"}
+  JOIN_URL="curl -fsSL $JOIN_HOST | bash"
 
+  # allow exposing the random port via traefik temporarily
+  # exchange certificates
+  # ssh into remote, install requirements and set up
+  # what to do with the git user and the repos in /var/repo and /home/git
+
+  echo "$FPREFIX Joining a $ROLE node to swarm"
+  echo "$PREFIX To add a $ROLE to this swarm, run the following command on the target node"
+  echo -e "\n$INDENT $JOIN_COMMAND"}"
 
 }
 
