@@ -1,0 +1,56 @@
+version: '3.7'
+
+# Open your main Portainer instance. Locally, on a remote, or with Portainer Desktop (in the future hopefully)
+# Under "Endpoints", add a new "Edge Agent" endpoint
+# Specify the current Portainer URL (should be pre-filled) and click "Add endpoint"
+# Skip the "Deploy an agent section", but save the EDGE_ID value
+# Copy and save the pre-staging "Join token"
+# Click "Update endpoint"
+# Option 1: Expose the Edge server UI on <endpoint-server-ip>:9000 and paste the EDGE_KEY value into the input field
+# Option 2: Update the EDGE_KEY environment variable in this file with the edge agent join token before deploying
+# Make sure to remove any previously installed Portainer service on your swarm
+# Save and git push this project to deploy the agent service to your swarm
+# Click the refresh button in your main Portainer instance "Endpoints" tab
+# Now you can manage your swarm from your main Portainer instance
+
+# Tip: In the Portainer settings, enable the "Enable edge compute features"
+
+# Reference article
+# https://downloads.portainer.io/edge_agent_guide.pdf
+
+services:
+  agent:
+    image: portainer/agent
+    restart: always
+    ### Option 1: Expose the agent Edge server UI by uncommenting lines 28-29
+    ###           After deploying this service, visit <endpoint-server-ip>:9000
+    ###           The Edge server UI will only be available for 15 minutes, see the reference article
+    # ports:
+    #   - "9000:80"
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.agent
+      CAP_HOST_MANAGEMENT: 1
+      EDGE: 1
+      ### Always: Replace the EDGE_ID with the value saved earlier before deploying
+      # EDGE_ID: <YOUR_EDGE_ID>
+
+      ### Option 2: Make sure to comment out lines 28-29
+      ###           Uncomment and update the following line with your edge key before deploying this service
+      # EDGE_KEY: <YOUR_EDGE_KEY>
+    networks:
+      - portainer-agent-network
+    volumes:
+      - portainer-agent-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - /:/host
+    deploy:
+      mode: global
+
+volumes:
+  portainer-agent-data:
+
+networks:
+  portainer-agent-network:
+    driver: overlay
+    attachable: true

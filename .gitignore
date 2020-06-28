@@ -1,7 +1,3 @@
-*_backup
-*.psd
-*.code-workspace
-
 node_modules
 
 .DS_Store
@@ -10,4 +6,8 @@ node_modules
 .env.test.local
 .env.production.local
 
+*_backup
+*.psd
+*.code-workspace
 /**/.git
+/misc
