@@ -7,7 +7,7 @@ REPO_PATH="$REPO_ROOT/$REPO_NAME.git"
 
 if [ ! -d "$REPO_PATH" ]; then
   git init --bare "$REPO_PATH" 1>&2
-  cp -R "$SWARMLET_HOOKS/*" "$REPO_PATH/hooks/"
+  cp -R "$SWARMLET_HOOKS"/* "$REPO_PATH/hooks/"
   chown -R "$USER:$USER" "$REPO_PATH"
 fi
 
