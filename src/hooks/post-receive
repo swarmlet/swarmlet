@@ -1,29 +1,34 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
+
+# shellcheck disable=SC1091
 source "/opt/swarmlet/src/constants"
 
 echo "$PREFIX Repository received"
 REPO_SRC=$PWD
-REPO_BASE=$(basename $REPO_SRC)
-REPO_NAME=${REPO_BASE/.git}
+REPO_BASE=$(basename "$REPO_SRC")
+REPO_NAME=${REPO_BASE/.git/}
 REPO_DEST=$GIT_USER_ROOT/$REPO_NAME
 # COMMIT_HASH=$(git rev-parse --short=6 HEAD)
 
-if [ -d $REPO_DEST ]; then
+if [ -d "$REPO_DEST" ]; then
   echo "$PREFIX Repository $REPO_NAME already exists"
   echo "$PREFIX Pulling changes"
-  pushd $REPO_DEST >/dev/null
+  pushd "$REPO_DEST" >/dev/null
   unset GIT_DIR
   git pull || exit 1
   popd >/dev/null
 else
   echo "$PREFIX Cloning repository $REPO_NAME"
-  git clone -q $REPO_SRC $REPO_DEST || exit 1
-  chown -R $GIT_USER:$GIT_USER $REPO_SRC $REPO_DEST
+  git clone -q "$REPO_SRC" "$REPO_DEST" || exit 1
+  chown -R "$GIT_USER:$GIT_USER" "$REPO_SRC" "$REPO_DEST"
 fi
 
 # TODO: On docker error, abort git push.
 # Now it pushes successfully even when a deployment fails
 [[ $REPO_NAME == "deployer" ]] && exit 0
-swarmlet deploy $REPO_DEST || exit 1
+
+# TODO: accept and deploy CI builds
+swarmlet deploy "$REPO_DEST" || exit 1
