@@ -107,7 +107,10 @@ init() {
   for MODULE in "$SWARMLET_MODULES_ROOT"/core/*; do
     SWARMLET_MODULES+=("core/$(basename "$MODULE")")
   done
-  for MODULE in $(echo ${INSTALL_MODULES[@]} | sed -r "s/\(|\)//g"); do
+  # not tested
+  for MODULE in $(echo "${INSTALL_MODULES[@]}" | sed -r "s/\(|\)//g"); do
+    # tested but headless doesnt work
+    # for MODULE in $(echo ${INSTALL_MODULES[@]} | sed -r "s/\(|\)//g"); do
     SWARMLET_MODULES+=("recommends/$(basename "$MODULE")")
   done
 
