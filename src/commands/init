@@ -108,8 +108,7 @@ init() {
     SWARMLET_MODULES+=("core/$(basename "$MODULE")")
   done
   for MODULE in $(echo ${INSTALL_MODULES[@]} | sed -r "s/\(|\)//g"); do
-    # shellcheck disable=SC2086
-    SWARMLET_MODULES+=("recommends/$(basename $MODULE)")
+    SWARMLET_MODULES+=("recommends/$(basename "$MODULE")")
   done
 
   swarmlet stack deploy registry "$SWARMLET_MODULES_ROOT"/core
@@ -119,7 +118,7 @@ init() {
   for MODULE in ${SWARMLET_MODULES[@]}; do
     echo "$PREFIX Installing $MODULE"
     swarmlet repo create "$(basename "$MODULE")" &>/dev/null
-    git-local-push "$SWARMLET_MODULES_ROOT/$MODULE" >/dev/null
+    git-local-push "$SWARMLET_MODULES_ROOT"/"$MODULE" >/dev/null
   done
 }
 
