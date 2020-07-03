@@ -104,14 +104,18 @@ init() {
 
   echo "$PREFIX Installing modules"
   SWARMLET_MODULES=()
-  for MODULE in "$SWARMLET_MODULES_ROOT"/core/*; do SWARMLET_MODULES+=("core/$(basename "$MODULE")"); done
-  for MODULE in "${INSTALL_MODULES[@]}"; do SWARMLET_MODULES+=("recommends/$(basename "$MODULE")"); done
+  for MODULE in "$SWARMLET_MODULES_ROOT"/core/*; do
+    SWARMLET_MODULES+=("core/$(basename "$MODULE")")
+  done
+  for MODULE in ${INSTALL_MODULES[@]}; do
+    [[ "$MODULE" != "()" ]] && SWARMLET_MODULES+=("recommends/$(basename "$MODULE")")
+  done
 
   swarmlet stack deploy registry "$SWARMLET_MODULES_ROOT"/core
   swarmlet stack build deployer "$SWARMLET_MODULES_ROOT"/core
   swarmlet stack deploy deployer "$SWARMLET_MODULES_ROOT"/core
 
-  for MODULE in "${SWARMLET_MODULES[@]}"; do
+  for MODULE in ${SWARMLET_MODULES[@]}; do
     echo "$PREFIX Installing $MODULE"
     swarmlet repo create "$(basename "$MODULE")" &>/dev/null
     git-local-push "$SWARMLET_MODULES_ROOT/$MODULE" >/dev/null
