@@ -105,8 +105,10 @@ init() {
   echo "$PREFIX Installing modules"
   SWARMLET_MODULES=(
     "$(ls "$SWARMLET_MODULES_ROOT"/core | xargs -n1 echo core/ | sed 's/ //')"
-    "$([[ "${INSTALL_MODULES[@]}" ]] && echo "${INSTALL_MODULES[@]}" | xargs -n1 echo recommends/ | sed 's/ //' 2>/dev/null || true)"
+    "$([[ "${INSTALL_MODULES[@]}" ]] && $(echo "${INSTALL_MODULES[@]}" | xargs -n1 echo recommends/ | sed 's/ //' 2>/dev/null || true))"
   )
+
+  echo "modules: ${SWARMLET_MODULES[@]}"
 
   swarmlet stack deploy registry "$SWARMLET_MODULES_ROOT"/core
   swarmlet stack build deployer "$SWARMLET_MODULES_ROOT"/core
