@@ -107,10 +107,10 @@ init() {
   for MODULE in "$SWARMLET_MODULES_ROOT"/core/*; do
     SWARMLET_MODULES+=("core/$(basename "$MODULE")")
   done
-  # not tested
+
+  # TODO: refactor this mess
+  # INSTALL_MODULES must be in this format: (module1 module2), or "" to skip optional modules installation
   for MODULE in $(echo "${INSTALL_MODULES[@]}" | sed -r "s/\(|\)//g"); do
-    # tested but headless doesnt work
-    # for MODULE in $(echo ${INSTALL_MODULES[@]} | sed -r "s/\(|\)//g"); do
     SWARMLET_MODULES+=("recommends/$(basename "$MODULE")")
   done
 
