@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2143,SC2011
+# shellcheck disable=SC2143,SC2011,SC2068
 
 set -eo pipefail
 [[ $DEBUG ]] && set -x
@@ -113,7 +113,7 @@ EOM
   swarmlet stack build deployer "$SWARMLET_MODULES_ROOT"/core
   swarmlet stack deploy deployer "$SWARMLET_MODULES_ROOT"/core
 
-  for MODULE in "${SWARMLET_MODULES[@]}"; do
+  for MODULE in ${SWARMLET_MODULES[@]}; do
     echo "$PREFIX Installing $MODULE"
     swarmlet repo create "$(basename "$MODULE")" &>/dev/null
     git-local-push "$SWARMLET_MODULES_ROOT/$MODULE" >/dev/null
