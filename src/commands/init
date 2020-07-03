@@ -60,25 +60,25 @@ init() {
   SWARMLET_BASIC_AUTH=$(htpasswd -nbB "${SWARMLET_USERNAME/ /}" "$SWARMLET_PASSWORD")
   echo -n "$SWARMLET_BASIC_AUTH" | docker secret create security.htpasswd -
   cat <<-EOM | docker secret create swarmlet-user-secrets -
-    SWARMLET_USERNAME="${SWARMLET_USERNAME/ /}"
-    SWARMLET_PASSWORD="$SWARMLET_PASSWORD"
-    SWARMLET_REGISTRY_USERNAME="${SWARMLET_USERNAME/ /}"
-    SWARMLET_REGISTRY_PASSWORD="$SWARMLET_PASSWORD"
-EOM
+		SWARMLET_USERNAME="${SWARMLET_USERNAME/ /}"
+		SWARMLET_PASSWORD="$SWARMLET_PASSWORD"
+		SWARMLET_REGISTRY_USERNAME="${SWARMLET_USERNAME/ /}"
+		SWARMLET_REGISTRY_PASSWORD="$SWARMLET_PASSWORD"
+	EOM
 
   echo "$PREFIX Creating configs"
   docker config create --template-driver golang swarmlet-config "$SWARMLET_CONFIG"
   docker config create swarmlet-core-config "$SWARMLET_CONSTANTS"
   cat <<-EOM | docker config create swarmlet-user-config -
-    SSH_AUTHORIZED_KEYS="$SSH_AUTHORIZED_KEYS"
-    NEW_HOSTNAME="${NEW_HOSTNAME/ /}"
-    ROOT_DOMAIN="$ROOT_DOMAIN"
-    INSTALL_MODULES=($INSTALL_MODULES)
-    CREATE_SWAP="$CREATE_SWAP"
-    INSTALL_ZSH="$INSTALL_ZSH"
-    LEADER_IP="$(hostname -I)"
-    RANDOM_PORT="$(hostname -I)"
-EOM
+		SSH_AUTHORIZED_KEYS="$SSH_AUTHORIZED_KEYS"
+		NEW_HOSTNAME="${NEW_HOSTNAME/ /}"
+		ROOT_DOMAIN="$ROOT_DOMAIN"
+		INSTALL_MODULES=($INSTALL_MODULES)
+		CREATE_SWAP="$CREATE_SWAP"
+		INSTALL_ZSH="$INSTALL_ZSH"
+		LEADER_IP="$(hostname -I | awk '{print $1}')"
+		RANDOM_PORT="$(hostname -I)"
+	EOM
 
   echo "$PREFIX Creating networks"
   if [[ ! "$(docker network ls | grep "$SWARMLET_NETWORK")" ]]; then

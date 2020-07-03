@@ -46,7 +46,7 @@ node-join-url() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   ROLE=$1
-  JOIN_URL=${ROOT_DOMAIN:-"$(hostname -I):$(get-random-open-port)"}
+  JOIN_URL=${ROOT_DOMAIN:-"$LEADER_IP:$(get-random-open-port)"}
   # JOIN_TOKEN=$(docker swarm join-token "$ROLE" | grep -w "^docker swarm join" | sed 's/    //')
 
   echo "$JOIN_URL"
