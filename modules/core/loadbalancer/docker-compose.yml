@@ -57,6 +57,9 @@ services:
       - target: 443
         published: 443
         mode: host
+      - target: ${RANDOM_PORT}
+        published: ${RANDOM_PORT}
+        mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       # --constraints=tag==traefik-public
@@ -72,6 +75,7 @@ services:
       --docker.exposedbydefault=true
       --entrypoints='Name:http Address::80'
       --entrypoints='Name:https Address::443 TLS'
+      --entrypoints='Name:swarmlet Address::${RANDOM_PORT}'
       --consul
       --consul.endpoint="consul-leader:8500"
       --acme

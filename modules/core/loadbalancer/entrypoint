@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 
-NAME=$(basename $PWD)
+NAME=$(basename "$PWD")
 
 main() {
   echo "$PREFIX Running $NAME entrypoint script"
-  # echo "$PREFIX Environment:"; printenv
+
+  echo -e "\n Using open port: $RANDOM_PORT"
+  echo -e "Leader IP: $LEADER_IP"
+
+  docker-compose config
 }
 
 main "$@"
