@@ -2,13 +2,13 @@
 
 REPO_ROOT="$1"
 SWARMLET_HOOKS="$2"
-REPO_NAME=$(echo $SSH_ORIGINAL_COMMAND | awk '{print $2}' | tr -d "'")
+REPO_NAME=$(echo "$SSH_ORIGINAL_COMMAND" | awk '{print $2}' | tr -d "'")
 REPO_PATH="$REPO_ROOT/$REPO_NAME.git"
 
-if [ ! -d $REPO_PATH ]; then
-  git init --bare $REPO_PATH 1>&2
-  cp -R $SWARMLET_HOOKS/* $REPO_PATH/hooks/
-  chown -R $USER:$USER $REPO_PATH
+if [ ! -d "$REPO_PATH" ]; then
+  git init --bare "$REPO_PATH" 1>&2
+  cp -R "$SWARMLET_HOOKS/*" "$REPO_PATH/hooks/"
+  chown -R "$USER:$USER" "$REPO_PATH"
 fi
 
-cd $REPO_ROOT && git-shell -c "$SSH_ORIGINAL_COMMAND"
+cd "$REPO_ROOT" && git-shell -c "$SSH_ORIGINAL_COMMAND"

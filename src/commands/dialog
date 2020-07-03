@@ -6,16 +6,17 @@ dialog() {
 
   set-dialog-appearance
   # TODO: retry if dialog return value is not defined
+
   section-"$@"
 }
 
 set-dialog-appearance() {
   export NEWT_COLORS="window=blue"
   TTY_SIZE=$(stty size 2>/dev/null || echo 24 80)
-  TTY_ROWS=$(echo $TTY_SIZE | awk '{print $1}')
-  TTY_COLS=$(echo $TTY_SIZE | awk '{print $2}')
-  TTY_ROWS=$(($TTY_ROWS-4))
-  TTY_COLS=$(($TTY_COLS-2))
+  TTY_ROWS=$(echo "$TTY_SIZE" | awk '{print $1}')
+  TTY_COLS=$(echo "$TTY_SIZE" | awk '{print $2}')
+  TTY_ROWS=$((TTY_ROWS - 4))
+  TTY_COLS=$((TTY_COLS - 2))
 }
 
 section-welcome() {
@@ -51,11 +52,12 @@ section-set-username() {
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
     "$TTY_ROWS" "$TTY_COLS" \
-    "${SWARMLET_USERNAME:-swarmlet}" \
+    "${SWARMLET_USERNAME:-$USER}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $SWARMLET_USERNAME
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo "$SWARMLET_USERNAME"
 }
 
 section-set-password() {
@@ -70,8 +72,9 @@ section-set-password() {
     "${SWARMLET_PASSWORD:-swarmlet}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $SWARMLET_PASSWORD
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo "$SWARMLET_PASSWORD"
 }
 
 section-set-ssh-authorized-keys() {
@@ -87,8 +90,9 @@ Default (recommended): ${SSH_AUTHORIZED_KEYS:-$HOME/.ssh/authorized_keys}"
     "${SSH_AUTHORIZED_KEYS:-$HOME/.ssh/authorized_keys}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $SSH_AUTHORIZED_KEYS
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo "$SSH_AUTHORIZED_KEYS"
 }
 
 section-set-hostname() {
@@ -105,8 +109,9 @@ Current: $HOSTNAME"
     "${NEW_HOSTNAME:-$HOSTNAME}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $NEW_HOSTNAME
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo "$NEW_HOSTNAME"
 }
 
 section-domain-config() {
@@ -122,8 +127,9 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
     "${ROOT_DOMAIN:-yourdomain.com}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $ROOT_DOMAIN
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo "$ROOT_DOMAIN"
 }
 
 # section-installation-mode() {
@@ -167,8 +173,9 @@ Press 'SPACE' to (de)select a module."
     "${INSTALL_MODULES_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  [[ ! -z $(echo $INSTALL_MODULES) ]] && echo $INSTALL_MODULES || echo "()"
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  [[ -n "$INSTALL_MODULES" ]] && echo "$INSTALL_MODULES" || echo "()"
 }
 
 section-add-swap() {
@@ -190,8 +197,9 @@ If you've selected Swarmprom, consider adding some swap if you have less than 2G
     "${CREATE_SWAP_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $CREATE_SWAP
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo "$CREATE_SWAP"
 }
 
 section-install-zsh() {
@@ -210,8 +218,9 @@ section-install-zsh() {
     "${INSTALL_ZSH_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $INSTALL_ZSH
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo "$INSTALL_ZSH"
 }
 
 section-confirm-install() {
@@ -230,8 +239,9 @@ section-confirm-install() {
     "${INSTALL_CONFIRM_OPTIONS[@]}" \
     3>&1 1>&2 2>&3)
 
-  EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  echo $INSTALL_CONFIRM
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  echo "$INSTALL_CONFIRM"
 }
 
 "$@"
