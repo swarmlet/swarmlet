@@ -175,7 +175,7 @@ Press 'SPACE' to (de)select a module."
 
   EXIT_STATUS=$?
   [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-  [[ -n "$INSTALL_MODULES" ]] && echo "$INSTALL_MODULES" || echo "()"
+  [[ -n "$INSTALL_MODULES" ]] && echo "($INSTALL_MODULES)" || echo "()"
 }
 
 section-add-swap() {

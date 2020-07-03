@@ -8,7 +8,6 @@ NAME=$(basename "$PWD")
 main() {
   echo "$PREFIX Running $NAME entrypoint script"
 
-  echo -e "\n Using open port: $RANDOM_PORT"
   echo -e "Leader IP: $LEADER_IP"
 }
 
