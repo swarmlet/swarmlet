@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2091,SC2068,SC1083
 
-# Select package manager
-declare -A PKG_MANAGERS
-PKG_MANAGERS[/etc/redhat-release]=yum
-PKG_MANAGERS[/etc/arch-release]=pacman
-PKG_MANAGERS[/etc/gentoo-release]=emerge
-PKG_MANAGERS[/etc/SuSE-release]=zypp
-PKG_MANAGERS[/etc/debian_version]=apt-get
+# Define package managers
+declare -A PKG_MANAGERS=(
+  ["/etc/redhat-release"]=yum
+  ["/etc/arch-release"]=pacman
+  ["/etc/gentoo-release"]=emerge
+  ["/etc/SuSE-release"]=zypp
+  ["/etc/debian_version"]=apt-get
+)
 
-for MANAGER in ${!PKG_MANAGERS[@]}; do
-  [[ -f $MANAGER ]] && export PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
+# Select correct package manager
+for MANAGER in "${!PKG_MANAGERS[@]}"; do
+  [[ -f $MANAGER ]] && PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
 done
 
 # Utility functions
@@ -19,7 +21,7 @@ ensure-root() {
     if [[ $(dpkg-query -s sudo) ]]; then
       echo "$PREFIX User is not root, using sudo"
       export SUDO="sudo"
-    else 
+    else
       echo "$PREFIX [ERROR] Please install sudo or run as root" && exit 1
     fi
   fi
@@ -91,11 +93,11 @@ set-hostname() {
   NEW_HOSTNAME="$1"
   ROOT_DOMAIN="$2"
 
-  if command -v hostnamectl &>/dev/null;
-    # Prefer hostnamectl, no restart required
-    then $SUDO hostnamectl set-hostname "$NEW_HOSTNAME"
-    # Fall back on manual hostname configuration, restart required
-    else $SUDO echo "$NEW_HOSTNAME" >/etc/hostname
+  if command -v hostnamectl &>/dev/null; then # Prefer hostnamectl, no restart required
+    $SUDO hostnamectl set-hostname "$NEW_HOSTNAME"
+  # Fall back on manual hostname configuration, restart required
+  else
+    $SUDO echo "$NEW_HOSTNAME" >/etc/hostname
   fi
 
   $SUDO sed -i "s/127.0.1.1.*$NEW_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
@@ -110,7 +112,7 @@ create-git-user() {
 
 add-ssh-authorized-keys() {
   SSH_AUTHORIZED_KEYS="$1"
-  $SUDO cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >> "$GIT_USER_ROOT"/.ssh/authorized_keys
+  $SUDO cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >>"$GIT_USER_ROOT"/.ssh/authorized_keys
   $SUDO chmod 700 "$GIT_USER_ROOT"/.ssh
   $SUDO chmod 600 "$GIT_USER_ROOT"/.ssh/authorized_keys
   $SUDO chown -R "$GIT_USER:$GIT_USER" "$GIT_USER_ROOT"/.ssh
@@ -137,9 +139,12 @@ abort-installation() {
 }
 
 check-docker() {
-  if $(systemctl show --property ActiveState docker | grep -q "ActiveState=active");
-    then echo "Docker is running"; docker --version
-    else echo "Docker is not running, exiting"; exit 1
+  if $(systemctl show --property ActiveState docker | grep -q "ActiveState=active"); then
+    echo "Docker is running"
+    docker --version
+  else
+    echo "Docker is not running, exiting"
+    exit 1
   fi
 }
 
@@ -199,9 +204,10 @@ check-existing() {
 }
 
 check-swarm() {
-  if [[ "$(docker info 2>/dev/null  | grep Swarm | sed 's/Swarm: //g')" == " active" ]];
-    then return 1
-    else return 0
+  if [[ "$(docker info 2>/dev/null | grep Swarm | sed 's/Swarm: //g')" == " active" ]]; then
+    return 1
+  else
+    return 0
   fi
 }
 
@@ -209,9 +215,10 @@ is-service-healthy() {
   SERVICE="$1"
   REPLICAS=$(docker stack services "$SERVICE" --format={{.Replicas}})
 
-  if [[ $(echo "$REPLICAS" | sed 's/\/[0-9]//') -gt 0 ]];
-    then return 0
-    else return 1
+  if [[ $(echo "$REPLICAS" | sed 's/\/[0-9]//') -gt 0 ]]; then
+    return 0
+  else
+    return 1
   fi
 }
 
@@ -222,21 +229,21 @@ list-internal-functions() {
 get-random-open-port() {
   comm -23 \
     <(seq 49152 65535 | sort) \
-    <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) \
-    | shuf \
-    | head -n 1
+    <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) |
+    shuf |
+    head -n 1
 }
 
 nuke() {
   uninstall-swarmlet
   for CONFIG in $(docker config ls --format {{.ID}}); do
-    echo docker config rm "$CONFIG";
+    echo docker config rm "$CONFIG"
   done
   for SECRET in $(docker secret ls --format {{.ID}}); do
-    echo docker config rm "$SECRET";
+    echo docker config rm "$SECRET"
   done
   for NETWORK in $(docker network ls --format {{.Name}}); do
-    echo docker config rm "$NETWORK";
+    echo docker config rm "$NETWORK"
   done
   $SUDO apt-get remove -y --purge docker docker-compose
   $SUDO apt autoremove -y
