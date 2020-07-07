@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2162,SC2001
 
 FPREFIX="=====>"
 PREFIX="----->"
@@ -12,7 +13,7 @@ if [[ $EUID -ne 0 ]]; then
   if [[ $(dpkg-query -s sudo) ]]; then
     echo "$PREFIX User is not root, using sudo"
     export SUDO="sudo"
-  else 
+  else
     echo "$PREFIX [ERROR] Please install sudo or run installer as root" && exit 1
   fi
 fi
@@ -26,17 +27,18 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
 fi
 
 # Define default environment variables
+ENV_CONFIRMED="true"
 declare -A DEFAULT_OPTS=(
-  [INSTALLATION_TYPE]=interactive  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
-  [INSTALL_BRANCH]=master          # (default master) The default branch to install
-  [SWARMLET_USERNAME]=$USER        # (default $USER) Used for authentication with the registry and web services / dashboards
-  [SWARMLET_PASSWORD]=swarmlet     # (default swarmlet) Used for authentication with the registry and web services / dashboards
+  [INSTALLATION_TYPE]=interactive                  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
+  [INSTALL_BRANCH]=master                          # (default master) The default branch to install
+  [SWARMLET_USERNAME]=$USER                        # (default $USER) Used for authentication with the registry and web services / dashboards
+  [SWARMLET_PASSWORD]=swarmlet                     # (default swarmlet) Used for authentication with the registry and web services / dashboards
   [SSH_AUTHORIZED_KEYS]=$HOME/.ssh/authorized_keys # (default root) The authorized SSH keys for git deployments
-  [NEW_HOSTNAME]=$HOSTNAME         # (default $HOSTNAME) Optional: set a new hostname
-  [ROOT_DOMAIN]=""                 # (default undefined) The domain to use for deployment of included services
-  [CREATE_SWAP]=false              # (default false) Allocate 1GB of swap space
-  [INSTALL_ZSH]=false              # (default false) Install 'Oh My Zsh'
-  [INSTALL_MODULES]=""             # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
+  [NEW_HOSTNAME]=$HOSTNAME                         # (default $HOSTNAME) Optional: set a new hostname
+  [ROOT_DOMAIN]=""                                 # (default undefined) The domain to use for deployment of included services
+  [CREATE_SWAP]=false                              # (default false) Allocate 1GB of swap space
+  [INSTALL_ZSH]=false                              # (default false) Install 'Oh My Zsh'
+  [INSTALL_MODULES]=""                             # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
   # > TODO:
   # [DEBUG]=                       # (default undefined) Run installation in debug mode
 )
@@ -48,25 +50,42 @@ done
 
 # Set environment variables from arguments if given
 shopt -s extglob
-while [[ "$#" > 0 ]]; do case "${1%=*}" in
-  @($(echo ${!DEFAULT_OPTS[@]} | sed 's/ /|/g'))) export "${1?}"; shift ;;
-  *) echo "Unknown argument: $1"; shift ;;
-esac; done
+while [[ "$#" -gt 0 ]]; do
+  case "${1%=*}" in
+  @($(echo "${!DEFAULT_OPTS[@]}" | sed 's/ /|/g')))
+    export "${1?}"
+    shift
+    ;;
+  *)
+    echo "Unknown argument: $1"
+    ENV_CONFIRMED="false"
+    shift
+    ;;
+  esac
+done
+
+if [[ $ENV_CONFIRMED == "false" ]]; then
+  echo "$PREFIX Current environment:"
+  for KEY in "${!DEFAULT_OPTS[@]}"; do printenv | grep "$KEY"; done
+  [[ $INSTALLLATION_TYPE == "noninteractive" ]] && echo "$PREFIX Exiting" && exit 1
+  read -p "$PREFIX Press enter to continue with this configuration" </dev/tty
+fi
 
 # Define package managers
 declare -A PKG_MANAGERS
-PKG_MANAGERS[/etc/redhat-release]=yum
-PKG_MANAGERS[/etc/arch-release]=pacman
-PKG_MANAGERS[/etc/gentoo-release]=emerge
-PKG_MANAGERS[/etc/SuSE-release]=zypp
-PKG_MANAGERS[/etc/debian_version]=apt-get
+PKG_MANAGERS["/etc/redhat-release"]=yum
+PKG_MANAGERS["/etc/arch-release"]=pacman
+PKG_MANAGERS["/etc/gentoo-release"]=emerge
+PKG_MANAGERS["/etc/SuSE-release"]=zypp
+PKG_MANAGERS["/etc/debian_version"]=apt-get
 
 # Select correct package manager
 for MANAGER in "${!PKG_MANAGERS[@]}"; do
   [[ -f $MANAGER ]] && PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
 done
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 
 install() {
   echo "$FPREFIX Installing Swarmlet"
@@ -78,9 +97,15 @@ install() {
   [[ $(command -v git) ]] || $SUDO $PKG_MANAGER install -y -qq git
 
   echo "$PREFIX Cloning $SWARMLET_REPO"
-  if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]];
-    then echo "$PREFIX Swarmlet is already installed, updating" # TODO: swarmlet update
-    else git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
+  if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]]; then
+    echo "$PREFIX Swarmlet is already installed, updating"
+    # TODO:
+    # pushd $SWARMLET_INSTALL_ROOT >/dev/null
+    # git pull origin "$INSTALL_BRANCH"
+    # popd >/dev/null
+    # swarmlet update
+  else
+    git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
   fi
 
   if [[ "$INSTALL_BRANCH" != "master" ]]; then
