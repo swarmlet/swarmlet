@@ -93,9 +93,9 @@ install() {
   echo "$PREFIX Installing required packages"
 
   # TODO: support other package managers
-  $SUDO $PKG_MANAGER update -y -qq &>/dev/null
-  $SUDO $PKG_MANAGER install -y -qq apt-transport-https &>/dev/null
-  [[ $(command -v git) ]] || $SUDO $PKG_MANAGER install -y -qq git
+  $SUDO "$PKG_MANAGER" update -y -qq &>/dev/null
+  $SUDO "$PKG_MANAGER" install -y -qq apt-transport-https &>/dev/null
+  [[ $(command -v git) ]] || $SUDO "$PKG_MANAGER" install -y -qq git
 
   echo "$PREFIX Cloning $SWARMLET_REPO"
   if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]]; then
