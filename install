@@ -72,12 +72,13 @@ if [[ $ENV_CONFIRMED == "false" ]]; then
 fi
 
 # Define package managers
-declare -A PKG_MANAGERS
-PKG_MANAGERS["/etc/redhat-release"]=yum
-PKG_MANAGERS["/etc/arch-release"]=pacman
-PKG_MANAGERS["/etc/gentoo-release"]=emerge
-PKG_MANAGERS["/etc/SuSE-release"]=zypp
-PKG_MANAGERS["/etc/debian_version"]=apt-get
+declare -A PKG_MANAGERS=(
+  ["/etc/redhat-release"]=yum
+  ["/etc/arch-release"]=pacman
+  ["/etc/gentoo-release"]=emerge
+  ["/etc/SuSE-release"]=zypp
+  ["/etc/debian_version"]=apt-get
+)
 
 # Select correct package manager
 for MANAGER in "${!PKG_MANAGERS[@]}"; do
