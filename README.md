@@ -10,7 +10,7 @@ Swarmlet is a self-hosted, open-source Platform as a Service that runs on any si
 ---
 
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg?style=flat-square)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
+![PRs Welcome](https://img.shields.io/badge/contributions-welcome!-brightgreen.svg?style=flat-square)
 
 ### NOTE
 
