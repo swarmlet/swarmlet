@@ -9,6 +9,12 @@ main() {
   echo "$PREFIX Running $NAME entrypoint script"
 
   echo -e "Leader IP: $LEADER_IP"
+
+  if [[ ! -f "$TRAEFIK_CERTS/acme.json" ]]; then
+    mkdir -p "$TRAEFIK_CERTS"
+    touch "$TRAEFIK_CERTS/acme.json"
+    chmod 600 "$TRAEFIK_CERTS/acme.json"
+  fi
 }
 
 main "$@"

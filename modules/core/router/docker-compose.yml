@@ -7,7 +7,7 @@ services:
     secrets:
       - security.htpasswd
     volumes:
-      - traefik-certs:/letsencrypt
+      - /mnt/gfs/traefik:/letsencrypt
       - ./traefik-dynamic.yml:/traefik-dynamic.yml
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
@@ -72,10 +72,8 @@ services:
 
 volumes:
   traefik-certs:
-    external: true
-
-#     driver: glusterfs
-#     name: "gfs/traefik"
+    driver: glusterfs
+    name: "gfs/traefik"
 
 networks:
   traefik-private:

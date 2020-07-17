@@ -182,9 +182,9 @@ install-glusterfs() {
   mount.glusterfs localhost:/gfs "$GFS_MOUNT_PATH"
 
   echo "$PREFIX Installing GlusterFS Docker plugin"
-  docker plugin install --alias glusterfs trajano/glusterfs-volume-plugin --grant-all-permissions --disable
+  # docker plugin install --alias glusterfs trajano/glusterfs-volume-plugin:latest --grant-all-permissions --disable
   # docker plugin set glusterfs "SERVERS=$IP_ADDRESS" >/dev/null
-  docker plugin enable glusterfs >/dev/null
+  # docker plugin enable glusterfs >/dev/null
 }
 
 # install-ceph() {
