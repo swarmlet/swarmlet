@@ -28,7 +28,6 @@ services:
         - traefik.http.routers.registry.rule=Host(`registry.${DOMAIN}`)
         - traefik.http.routers.registry.entrypoints=http,https
         - traefik.http.routers.registry.middlewares=redirect@file,auth@file
-        - traefik.http.routers.registry.service=api@internal
       placement:
         constraints:
           - node.role == manager
