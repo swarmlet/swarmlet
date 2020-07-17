@@ -133,7 +133,7 @@ install() {
   echo "$INDENT https://swarmlet.dev/docs/getting-started/introduction"
   echo "$PREFIX Please wait a minute or two for Traefik to initialize..."
   echo "$PREFIX Follow the logs using:"
-  echo "$INDENT $ docker service logs loadbalancer_traefik -f"
+  echo "$INDENT $ docker service logs router_traefik -f"
   echo "$PREFIX Check status of services using:"
   echo "$INDENT $ docker service ls"
 }
