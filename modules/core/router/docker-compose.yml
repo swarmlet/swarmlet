@@ -60,7 +60,7 @@ services:
     secrets:
       - security.htpasswd
     volumes:
-      - traefik-certs:/
+      - traefik-certs:/acme.json
       - ./traefik-dynamic.yml:/traefik-dynamic.yml
       - /var/run/docker.sock:/var/run/docker.sock
     ports:

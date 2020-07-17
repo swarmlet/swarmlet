@@ -151,19 +151,18 @@ install-glusterfs() {
   mount -a &>/dev/null
   mkdir "$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" "$GFS_MOUNT_PATH" &>/dev/null
 
-  echo "$PREFIX setting up gfs"
-
   # $PKG_MANAGER install -y software-properties-common
   # $PKG_MANAGER -y update
   # add-apt-repository -y ppa:gluster/glusterfs-8 && $PKG_MANAGER -y update
   # $PKG_MANAGER install -y glusterfs-server
   # systemctl enable glusterd
 
-  apt-get update -y
+  apt-get update -y -qq >/dev/null
+  echo "$PREFIX Installing dependencies"
   apt-get install -y -qq xfsprogs attr glusterfs-server glusterfs-common glusterfs-client >/dev/null
 
-  sleep 1 && systemctl enable glusterfs-server
-  sleep 1 && systemctl start glusterd
+  sleep 2 && systemctl enable glusterfs-server &>/dev/null
+  sleep 1 && systemctl start glusterd &>/dev/null
   sleep 1 && systemctl status glusterd
 
   # gluster peer probe gluster2
@@ -174,16 +173,17 @@ install-glusterfs() {
     force
   # replica 1 \
 
-  gluster volume start gfs
-  gluster volume status gfs
-  gluster volume set gfs auth.allow "$IP_ADDRESS"
+  gluster volume start gfs >/dev/null
+  gluster volume set gfs auth.allow "$IP_ADDRESS" >/dev/null
+  # gluster volume status gfs
 
   echo "localhost:/gfs $GFS_MOUNT_PATH glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0" >>/etc/fstab
   mount.glusterfs localhost:/gfs "$GFS_MOUNT_PATH"
 
+  echo "$PREFIX Installing GlusterFS Docker plugin"
   docker plugin install --alias glusterfs trajano/glusterfs-volume-plugin --grant-all-permissions --disable
-  docker plugin set glusterfs "SERVERS=$IP_ADDRESS"
-  docker plugin enable glusterfs
+  docker plugin set glusterfs "SERVERS=$IP_ADDRESS" >/dev/null
+  docker plugin enable glusterfs >/dev/null
 }
 
 # install-ceph() {
