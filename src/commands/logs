@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 
 logs() {
   declare cmd="logs"
@@ -9,7 +10,7 @@ logs() {
   SERVICE=$1
   FOLLOW=$2
 
-  docker service logs $SERVICE $FOLLOW
+  docker service logs "$SERVICE" "$FOLLOW"
 }
 
 "$@"

@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2091,SC2068,SC1083
 
-# Select package manager
-declare -A PKG_MANAGERS
-PKG_MANAGERS[/etc/redhat-release]=yum
-PKG_MANAGERS[/etc/arch-release]=pacman
-PKG_MANAGERS[/etc/gentoo-release]=emerge
-PKG_MANAGERS[/etc/SuSE-release]=zypp
-PKG_MANAGERS[/etc/debian_version]=apt-get
+# Define package managers
+declare -A PKG_MANAGERS=(
+  ["/etc/redhat-release"]=yum
+  ["/etc/arch-release"]=pacman
+  ["/etc/gentoo-release"]=emerge
+  ["/etc/SuSE-release"]=zypp
+  ["/etc/debian_version"]=apt-get
+)
 
-for MANAGER in ${!PKG_MANAGERS[@]}; do
-  [[ -f $MANAGER ]] && export PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
+# Select correct package manager
+for MANAGER in "${!PKG_MANAGERS[@]}"; do
+  [[ -f $MANAGER ]] && PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
 done
 
 # Utility functions
@@ -18,7 +21,7 @@ ensure-root() {
     if [[ $(dpkg-query -s sudo) ]]; then
       echo "$PREFIX User is not root, using sudo"
       export SUDO="sudo"
-    else 
+    else
       echo "$PREFIX [ERROR] Please install sudo or run as root" && exit 1
     fi
   fi
@@ -34,9 +37,9 @@ check-bash-version() {
 }
 
 check-swarmlet-version() {
-  pushd $SWARMLET_ROOT >/dev/null
-  git describe --match "v*" $INSTALL_BRANCH
-  popd >/dev/null
+  pushd "$SWARMLET_ROOT" >/dev/null || exit
+  git describe --match "v*" "$INSTALL_BRANCH"
+  popd >/dev/null || exit
 }
 
 update-package-cache() {
@@ -48,7 +51,7 @@ update-package-cache() {
 
   if [ ! "$TODAY" == "$TIMESTAMP_AS_DATE" ]; then
     echo "$PREFIX $PKG_MANAGER update has not been run today, updating"
-    $SUDO $UPDATE_PKG_CACHE &>/dev/null
+    $SUDO "$UPDATE_PKG_CACHE" &>/dev/null
   fi
 }
 
@@ -67,21 +70,21 @@ notify-package-updates-available() {
 
 pkg-check-and-install() {
   PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
-  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "$1 installed" || $SUDO $PKG_INSTALL "$1"
+  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "$1 installed" || $SUDO "$PKG_INSTALL" "$1"
 }
 
 install-dependencies() {
   echo "$PREFIX Installing dependencies"
   PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
   echo "${SWARMLET_DEPENDENCIES[@]}" $PKG_MANAGER
-  SWARMLET_DEPENDENCIES2="$1"
+  # SWARMLET_DEPENDENCIES2="$1"
 
   echo iptables-persistent iptables-persistent/autosave_v4 boolean true | $SUDO debconf-set-selections
   echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
 
   for PKG in "${SWARMLET_DEPENDENCIES[@]}"; do
     echo "$PREFIX Checking and installing $PKG"
-    $SUDO pkg-check-and-install $PKG
+    $SUDO pkg-check-and-install "$PKG"
   done
 }
 
@@ -90,29 +93,29 @@ set-hostname() {
   NEW_HOSTNAME="$1"
   ROOT_DOMAIN="$2"
 
-  if command -v hostnamectl &>/dev/null;
-    # Prefer hostnamectl, no restart required
-    then $SUDO hostnamectl set-hostname "$NEW_HOSTNAME"
-    # Fall back on manual hostname configuration, restart required
-    else $SUDO echo "$NEW_HOSTNAME" >/etc/hostname
+  if command -v hostnamectl &>/dev/null; then # Prefer hostnamectl, no restart required
+    $SUDO hostnamectl set-hostname "$NEW_HOSTNAME"
+  # Fall back on manual hostname configuration, restart required
+  else
+    $SUDO echo "$NEW_HOSTNAME" >/etc/hostname
   fi
 
   $SUDO sed -i "s/127.0.1.1.*$NEW_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
 }
 
 create-git-user() {
-  $SUDO adduser $GIT_USER --disabled-password --gecos --quiet
-  $SUDO usermod -aG docker $GIT_USER
-  mkdir -p $GIT_REPO_ROOT $GIT_USER_ROOT/.ssh
-  $SUDO setfacl -m u:$GIT_USER:rwx $GIT_REPO_ROOT
+  $SUDO adduser "$GIT_USER" --disabled-password --gecos --quiet
+  $SUDO usermod -aG docker "$GIT_USER"
+  mkdir -p "$GIT_REPO_ROOT" "$GIT_USER_ROOT"/.ssh
+  $SUDO setfacl -m u:"$GIT_USER":rwx "$GIT_REPO_ROOT"
 }
 
 add-ssh-authorized-keys() {
   SSH_AUTHORIZED_KEYS="$1"
-  $SUDO cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >> $GIT_USER_ROOT/.ssh/authorized_keys
-  $SUDO chmod 700 $GIT_USER_ROOT/.ssh
-  $SUDO chmod 600 $GIT_USER_ROOT/.ssh/authorized_keys
-  $SUDO chown -R $GIT_USER:$GIT_USER $GIT_USER_ROOT/.ssh
+  $SUDO cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >>"$GIT_USER_ROOT"/.ssh/authorized_keys
+  $SUDO chmod 700 "$GIT_USER_ROOT"/.ssh
+  $SUDO chmod 600 "$GIT_USER_ROOT"/.ssh/authorized_keys
+  $SUDO chown -R "$GIT_USER:$GIT_USER" "$GIT_USER_ROOT"/.ssh
 }
 
 install-docker() {
@@ -120,13 +123,14 @@ install-docker() {
   wget -nv -O - https://get.docker.com/ | sh &>/dev/null
   curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   chmod +x /usr/local/bin/docker-compose
+  $SUDO usermod -aG docker $USER
 }
 
 install-zsh() {
   echo "$PREFIX Installing 'Oh My Zsh'"
   $SUDO apt-get install -y -qq zsh &>/dev/null
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &>/dev/null
-  chsh -s $(which zsh)
+  chsh -s "$(which zsh)"
 }
 
 abort-installation() {
@@ -135,38 +139,41 @@ abort-installation() {
 }
 
 check-docker() {
-  if $(systemctl show --property ActiveState docker | grep -q "ActiveState=active");
-    then echo "Docker is running"; docker --version
-    else echo "Docker is not running, exiting"; exit 1
+  if $(systemctl show --property ActiveState docker | grep -q "ActiveState=active"); then
+    echo "Docker is running"
+    docker --version
+  else
+    echo "Docker is not running, exiting"
+    exit 1
   fi
 }
 
 git-set-config() {
   DOMAIN=${1:-"$HOSTNAME.local"}
-  git config user.email $GIT_USER@$DOMAIN
-  git config user.name $GIT_USER
+  git config user.email "$GIT_USER@$DOMAIN"
+  git config user.name "$GIT_USER"
 }
 
 git-local-push() {
   REPO_SRC=$1
-  REPO_NAME=$(basename $REPO_SRC)
-  pushd $REPO_SRC >/dev/null
+  REPO_NAME=$(basename "$REPO_SRC")
+  pushd "$REPO_SRC" >/dev/null || exit
   git init
-  git-set-config $ROOT_DOMAIN
+  git-set-config "$ROOT_DOMAIN"
   git add .
   git commit -m "initial"
-  git push $GIT_REPO_ROOT/$REPO_NAME.git master
-  chown -R $GIT_USER:$GIT_USER $GIT_USER_ROOT/$REPO_NAME
-  popd >/dev/null
+  git push "$GIT_REPO_ROOT/$REPO_NAME.git" master
+  chown -R "$GIT_USER:$GIT_USER" "$GIT_USER_ROOT/$REPO_NAME"
+  popd >/dev/null || exit
 }
 
 create-swap() {
   SIZE=${1:-1G}
   FILE_PATH=${2:-/swapfile}
-  $SUDO fallocate -l $SIZE $FILE_PATH
-  $SUDO chmod 600 $FILE_PATH
-  $SUDO mkswap $FILE_PATH
-  $SUDO swapon $FILE_PATH
+  $SUDO fallocate -l "$SIZE" "$FILE_PATH"
+  $SUDO chmod 600 "$FILE_PATH"
+  $SUDO mkswap "$FILE_PATH"
+  $SUDO swapon "$FILE_PATH"
   echo "$FILE_PATH none swap sw 0 0" | $SUDO tee -a /etc/fstab
 }
 
@@ -176,8 +183,8 @@ uninstall-swarmlet() {
     $SUDO userdel git -f
   fi
   [[ -f /usr/local/sbin/swarmlet ]] && unlink /usr/local/sbin/swarmlet
-  if [[ -d "$GIT_REPO_ROOT" ]]; then $SUDO rm -rf $GIT_REPO_ROOT; fi
-  if [[ -d "$SWARMLET_ROOT" ]]; then $SUDO rm -rf $SWARMLET_ROOT; fi
+  if [[ -d "$GIT_REPO_ROOT" ]]; then $SUDO rm -rf "$GIT_REPO_ROOT"; fi
+  if [[ -d "$SWARMLET_ROOT" ]]; then $SUDO rm -rf "$SWARMLET_ROOT"; fi
 }
 
 reinstall-swarmlet() {
@@ -197,19 +204,21 @@ check-existing() {
 }
 
 check-swarm() {
-  if [[ "$(docker info 2>/dev/null  | grep Swarm | sed 's/Swarm: //g')" == " active" ]];
-    then return 1
-    else return 0
+  if [[ "$(docker info 2>/dev/null | grep Swarm | sed 's/Swarm: //g')" == " active" ]]; then
+    return 1
+  else
+    return 0
   fi
 }
 
 is-service-healthy() {
   SERVICE="$1"
-  REPLICAS=$(docker stack services $SERVICE --format={{.Replicas}})
+  REPLICAS=$(docker stack services "$SERVICE" --format={{.Replicas}})
 
-  if [[ $(echo $REPLICAS | sed 's/\/[0-9]//') -gt 0 ]];
-    then return 0
-    else return 1
+  if [[ $(echo "$REPLICAS" | sed 's/\/[0-9]//') -gt 0 ]]; then
+    return 0
+  else
+    return 1
   fi
 }
 
@@ -217,16 +226,24 @@ list-internal-functions() {
   typeset -f | awk '/ \(\) $/ && !/^list-internal-functions / {print $1}'
 }
 
+get-random-open-port() {
+  comm -23 \
+    <(seq 49152 65535 | sort) \
+    <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) |
+    shuf |
+    head -n 1
+}
+
 nuke() {
   uninstall-swarmlet
   for CONFIG in $(docker config ls --format {{.ID}}); do
-    echo docker config rm $CONFIG;
+    echo docker config rm "$CONFIG"
   done
   for SECRET in $(docker secret ls --format {{.ID}}); do
-    echo docker config rm $SECRET;
+    echo docker config rm "$SECRET"
   done
   for NETWORK in $(docker network ls --format {{.Name}}); do
-    echo docker config rm $NETWORK;
+    echo docker config rm "$NETWORK"
   done
   $SUDO apt-get remove -y --purge docker docker-compose
   $SUDO apt autoremove -y

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 
 deploy() {
   declare cmd="deploy"
@@ -12,7 +13,7 @@ deploy() {
   while ! is-service-healthy registry; do sleep 1; done
 
   DEPLOYER_AGENT=$(docker ps --filter name=deployer_agent -q)
-  docker container exec $DEPLOYER_AGENT /entrypoint deploy $REPO_PATH
+  docker container exec "$DEPLOYER_AGENT" /entrypoint deploy "$REPO_PATH"
 }
 
 "$@"

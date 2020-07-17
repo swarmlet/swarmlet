@@ -69,7 +69,7 @@ curl -fsSL https://get.swarmlet.dev | bash -s \
   INSTALLATION_TYPE=noninteractive \
   INSTALL_ZSH=true \
   CREATE_SWAP=true \
-  INSTALL_MODULES="matomo swarmpit" \
+  INSTALL_MODULES="(matomo swarmpit)" \
   NEW_HOSTNAME=swarm-manager-1 \
   SWARMLET_USERNAME=admin \
   SWARMLET_PASSWORD=nicepassword \
@@ -94,6 +94,7 @@ Swarmlet includes various examples of services that you can deploy to your serve
 - [Basic example - Python web server + Redis](https://swarmlet.dev/docs/examples/python-redis)
 - [Moderate example - NGINX + React app + Node.js API](https://swarmlet.dev/docs/examples/nginx-react-node)
 - (FIX) [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
+- [Portainer Edge Agent](https://github.com/swarmlet/swarmlet/tree/master/examples)
 - (FIX) [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
 - (FIX) [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
 - (TODO) [HAProxy](https://swarmlet.dev/docs/examples/haproxy) (Replacing Traefik with HAProxy)

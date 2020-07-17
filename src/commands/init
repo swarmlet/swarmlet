@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2143,SC2011,SC2068,SC2015
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 
 init() {
   declare cmd="init"
@@ -35,7 +37,7 @@ init() {
   # install-dependencies $SWARMLET_DEPENDENCIES
   update-package-cache
   notify-package-updates-available
-  $SUDO $PKG_MANAGER install -y -qq acl curl apache2-utils moreutils wget &>/dev/null
+  $SUDO "$PKG_MANAGER" install -y -qq acl curl apache2-utils moreutils wget &>/dev/null
   [[ "$NEW_HOSTNAME" != "$(hostname)" ]] && set-hostname "$NEW_HOSTNAME" "$ROOT_DOMAIN"
   [[ $(command -v docker) && $(command -v docker-compose) ]] || install-docker
   $CREATE_SWAP && create-swap
@@ -51,66 +53,75 @@ init() {
 
     echo "$PREFIX Node IP address: $NODE_IP"
     echo "$PREFIX Initializing node as swarm manager"
-    docker swarm init --advertise-addr $ADVERTISE_ADDR 2>&1 | head -n 1 && true
+    docker swarm init --advertise-addr "$ADVERTISE_ADDR" 2>&1 | head -n 1 && true
   fi
 
   echo "$PREFIX Creating secrets"
   SWARMLET_BASIC_AUTH=$(htpasswd -nbB "${SWARMLET_USERNAME/ /}" "$SWARMLET_PASSWORD")
   echo -n "$SWARMLET_BASIC_AUTH" | docker secret create security.htpasswd -
-  cat << EOM | docker secret create swarmlet-user-secrets -
-SWARMLET_USERNAME="${SWARMLET_USERNAME/ /}"
-SWARMLET_PASSWORD="$SWARMLET_PASSWORD"
-SWARMLET_REGISTRY_USERNAME="${SWARMLET_USERNAME/ /}"
-SWARMLET_REGISTRY_PASSWORD="$SWARMLET_PASSWORD"
-EOM
+  cat <<-EOM | docker secret create swarmlet-user-secrets -
+		SWARMLET_USERNAME="${SWARMLET_USERNAME/ /}"
+		SWARMLET_PASSWORD="$SWARMLET_PASSWORD"
+		SWARMLET_REGISTRY_USERNAME="${SWARMLET_USERNAME/ /}"
+		SWARMLET_REGISTRY_PASSWORD="$SWARMLET_PASSWORD"
+	EOM
 
   echo "$PREFIX Creating configs"
-  docker config create --template-driver golang swarmlet-config $SWARMLET_CONFIG
-  docker config create swarmlet-core-config $SWARMLET_CONSTANTS
-  cat << EOM | docker config create swarmlet-user-config -
-SSH_AUTHORIZED_KEYS="$SSH_AUTHORIZED_KEYS"
-NEW_HOSTNAME="${NEW_HOSTNAME/ /}"
-ROOT_DOMAIN="$ROOT_DOMAIN"
-INSTALL_MODULES=($INSTALL_MODULES)
-CREATE_SWAP="$CREATE_SWAP"
-INSTALL_ZSH="$INSTALL_ZSH"
-EOM
+  docker config create --template-driver golang swarmlet-config "$SWARMLET_CONFIG"
+  docker config create swarmlet-core-config "$SWARMLET_CONSTANTS"
+  cat <<-EOM | docker config create swarmlet-user-config -
+		SSH_AUTHORIZED_KEYS="$SSH_AUTHORIZED_KEYS"
+		NEW_HOSTNAME="${NEW_HOSTNAME/ /}"
+		ROOT_DOMAIN="$ROOT_DOMAIN"
+		INSTALL_MODULES=$INSTALL_MODULES
+		CREATE_SWAP="$CREATE_SWAP"
+		INSTALL_ZSH="$INSTALL_ZSH"
+		LEADER_IP="$(hostname -I | awk '{print $1}')"
+	EOM
 
   echo "$PREFIX Creating networks"
-  if [[ ! "$(docker network ls | grep $SWARMLET_NETWORK)" ]];
-    then docker network create --attachable --driver overlay $SWARMLET_NETWORK
-    else echo "$PREFIX $SWARMLET_NETWORK network already exists"
+  if [[ ! "$(docker network ls | grep "$SWARMLET_NETWORK")" ]]; then
+    docker network create --attachable --driver overlay "$SWARMLET_NETWORK"
+  else
+    echo "$PREFIX $SWARMLET_NETWORK network already exists"
   fi
 
-  if [[ ! "$(docker network ls | grep $TRAEFIK_NETWORK)" ]];
-    then docker network create --attachable --driver overlay $TRAEFIK_NETWORK
-    else echo "$PREFIX $TRAEFIK_NETWORK network already exists"
+  if [[ ! "$(docker network ls | grep "$TRAEFIK_NETWORK")" ]]; then
+    docker network create --attachable --driver overlay "$TRAEFIK_NETWORK"
+  else
+    echo "$PREFIX $TRAEFIK_NETWORK network already exists"
   fi
 
   echo "$PREFIX Creating volumes"
-  if [[ ! "$(docker volume ls | grep $GIT_DATA)" ]]; then
+  if [[ ! "$(docker volume ls | grep "$GIT_DATA")" ]]; then
     docker volume create \
       --driver "local" \
       -o o=bind \
       -o type=none \
-      -o device=$GIT_USER_ROOT \
-      $GIT_DATA
+      -o device="$GIT_USER_ROOT" \
+      "$GIT_DATA"
   fi
 
   echo "$PREFIX Installing modules"
-  SWARMLET_MODULES=(
-    $(ls $SWARMLET_MODULES_ROOT/core | xargs -n1 echo core/ | sed 's/ //')
-    $(echo "${INSTALL_MODULES[@]}" | xargs -n1 echo recommends/ | sed 's/ //')
-  )
+  SWARMLET_MODULES=()
+  for MODULE in "$SWARMLET_MODULES_ROOT"/core/*; do
+    SWARMLET_MODULES+=("core/$(basename "$MODULE")")
+  done
 
-  swarmlet stack deploy registry $SWARMLET_MODULES_ROOT/core
-  swarmlet stack build deployer $SWARMLET_MODULES_ROOT/core
-  swarmlet stack deploy deployer $SWARMLET_MODULES_ROOT/core
+  # TODO: refactor this mess
+  # INSTALL_MODULES must be in this format: (module1 module2), or "" to skip optional modules installation
+  for MODULE in $(echo "${INSTALL_MODULES[@]}" | sed -r "s/\(|\)//g"); do
+    SWARMLET_MODULES+=("recommends/$(basename "$MODULE")")
+  done
+
+  swarmlet stack deploy registry "$SWARMLET_MODULES_ROOT"/core
+  swarmlet stack build deployer "$SWARMLET_MODULES_ROOT"/core
+  swarmlet stack deploy deployer "$SWARMLET_MODULES_ROOT"/core
 
   for MODULE in ${SWARMLET_MODULES[@]}; do
     echo "$PREFIX Installing $MODULE"
-    swarmlet repo create $(basename $MODULE) &>/dev/null
-    git-local-push $SWARMLET_MODULES_ROOT/$MODULE >/dev/null
+    swarmlet repo create "$(basename "$(echo "$MODULE" | sed -r "s/\"//g")")" &>/dev/null
+    git-local-push "$SWARMLET_MODULES_ROOT/$(echo "$MODULE" | sed -r "s/\"//g")" >/dev/null
   done
 }
 

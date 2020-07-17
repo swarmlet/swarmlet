@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 
 repo() {
   declare cmd="repo"
@@ -18,16 +19,16 @@ repo-create() {
 
   echo "$PREFIX Creating repository $REPO_NAME on swarm"
 
-  if [ -z $REPO_NAME ]; then
+  if [ -z "$REPO_NAME" ]; then
     echo "$PREFIX No repository name specified"
     echo "$INDENT Usage:"
     echo "$INDENT swarmlet repo create <name>"
     exit 1
   fi
 
-  git init --bare $REPO_PATH
-  cp -R $SWARMLET_HOOKS/* $REPO_PATH/hooks/
-  chown -R $GIT_USER:$GIT_USER $REPO_PATH
+  git init --bare "$REPO_PATH"
+  cp -R "$SWARMLET_HOOKS"/* "$REPO_PATH"/hooks/
+  chown -R "$GIT_USER":"$GIT_USER" "$REPO_PATH"
 
   echo "$INDENT Created remote repository $REPO_NAME"
   echo "$PREFIX Ready for deploy"
@@ -46,14 +47,14 @@ repo-rm() {
   echo "$PREFIX Removing repository $REPO_NAME from swarm"
   echo "$INDENT [NOTE] This won't remove your stack"
 
-  if [ -z $REPO_NAME ]; then
+  if [ -z "$REPO_NAME" ]; then
     echo "$PREFIX No repository name specified"
     echo "$INDENT Usage:"
     echo "$INDENT swarmlet repo remove <name>"
     exit 1
   fi
 
-  rm -rf $REPO_PATH
+  rm -rf "$REPO_PATH"
   echo "$INDENT Repository removed from swarm"
 }
 
@@ -63,14 +64,15 @@ repo-ls() {
 
   echo "$PREFIX Listing repositories"
 
-  for REPO in $GIT_REPO_ROOT/*; do
-    REPO_BASE=$(basename $REPO)
-    REPO_NAME=${REPO_BASE/.git}
-    if [ -d $GIT_USER_ROOT/$REPO_NAME ];
-      then DEPLOYED="Deployed"
-      else DEPLOYED="Created"
+  for REPO in "$GIT_REPO_ROOT"/*; do
+    REPO_BASE=$(basename "$REPO")
+    REPO_NAME=${REPO_BASE/.git/}
+    if [ -d "$GIT_USER_ROOT/$REPO_NAME" ]; then
+      DEPLOYED="Deployed"
+    else
+      DEPLOYED="Created"
     fi
-    echo "$INDENT $(basename $REPO) - Status: $DEPLOYED"
+    echo "$INDENT $(basename "$REPO") - Status: $DEPLOYED"
   done
 }
 
