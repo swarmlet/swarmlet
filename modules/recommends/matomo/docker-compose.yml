@@ -1,4 +1,4 @@
-version: '3.2'
+version: "3.2"
 
 services:
   db:
@@ -6,7 +6,7 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     networks:
-      - matomo-network      
+      - matomo-network
     environment:
       - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
       - "MYSQL_DATABASE=matomo"
@@ -49,17 +49,10 @@ services:
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.matomo.enable=true
-        - traefik.matomo.port=8000
-        - traefik.matomo.frontend.rule=Host:matomo.${DOMAIN}
-        - traefik.matomo.frontend.entryPoints=http,https
-        - traefik.matomo.frontend.passHostHeader=true
-        - traefik.matomo.frontend.headers.SSLRedirect=true
-        - traefik.matomo.frontend.headers.SSLHost=matomo.${DOMAIN}
-        - traefik.matomo.frontend.headers.STSIncludeSubdomains=true
-        - traefik.matomo.frontend.headers.STSPreload=true
+        - traefik.http.services.matomo.loadbalancer.server.port=8000
+        - traefik.http.routers.matomo.rule=Host(`matomo.${DOMAIN}`)
+        - traefik.http.routers.matomo.entrypoints=http,https
+        - traefik.http.routers.matomo.middlewares=redirect@file,auth@file
       restart_policy:
         condition: on-failure
         delay: 2s
