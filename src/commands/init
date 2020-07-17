@@ -96,21 +96,23 @@ init() {
   echo "$PREFIX Creating volumes"
   if [[ ! "$(docker volume ls | grep "$GIT_DATA")" ]]; then
     docker volume create \
-      --driver "local" \
+      -d "local" \
       -o o=bind \
       -o type=none \
       -o device="$GIT_USER_ROOT" \
       "$GIT_DATA"
   fi
+
   if [[ ! "$(docker volume ls | grep traefik-certs)" ]]; then
     if [[ ! -f "$TRAEFIK_CERTS/acme.json" ]]; then
       mkdir -p "$TRAEFIK_CERTS"
       touch "$TRAEFIK_CERTS/acme.json"
       chmod 600 "$TRAEFIK_CERTS/acme.json"
     fi
+
     docker volume create \
-      --driver glusterfs \
-      --opt glusteropts="--volfile-server=$NODE_IP --volfile-id=gfs --subdir-mount=traefik" \
+      -d glusterfs \
+      -o servers="--volfile-server=$NODE_IP --volfile-id=gfs --subdir-mount=traefik" \
       traefik-certs
   fi
 

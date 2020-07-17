@@ -183,7 +183,7 @@ install-glusterfs() {
 
   echo "$PREFIX Installing GlusterFS Docker plugin"
   docker plugin install --alias glusterfs trajano/glusterfs-volume-plugin --grant-all-permissions --disable
-  docker plugin set glusterfs "SERVERS=$IP_ADDRESS" >/dev/null
+  # docker plugin set glusterfs "SERVERS=$IP_ADDRESS" >/dev/null
   docker plugin enable glusterfs >/dev/null
 }
 
