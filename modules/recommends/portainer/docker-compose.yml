@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   agent:
@@ -30,19 +30,14 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      # labels:
       labels:
         - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.portainer.enable=true
-        - traefik.portainer.port=9000
-        - traefik.portainer.frontend.rule=Host:portainer.${DOMAIN}
-        - traefik.portainer.frontend.entryPoints=http,https
-        - traefik.portainer.frontend.passHostHeader=true
-        - traefik.portainer.frontend.headers.SSLRedirect=true
-        - traefik.portainer.frontend.headers.SSLHost=portainer.${DOMAIN}
-        - traefik.portainer.frontend.headers.STSIncludeSubdomains=true
-        - traefik.portainer.frontend.headers.STSPreload=true
+        - traefik.http.services.portainer.loadbalancer.server.port=9000
+        - traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN}`)
+        - traefik.http.routers.portainer.entrypoints=http,https
+        - traefik.http.routers.portainer.middlewares=redirect@file,auth@file
+        - traefik.http.routers.portainer.service=api@internal
       placement:
         constraints: [node.role == manager]
 

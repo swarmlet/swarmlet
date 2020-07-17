@@ -1,67 +1,14 @@
 version: "3.7"
 
 services:
-  # consul-leader:
-  #   image: consul
-  #   command: agent -server -client=0.0.0.0 -bootstrap -ui
-  #   volumes:
-  #     - consul-data-leader:/consul/data
-  #   environment:
-  #     - CONSUL_BIND_INTERFACE=eth0
-  #     - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
-  #   networks:
-  #     - traefik-private
-  #     - traefik-public
-  #   secrets:
-  #     - security.htpasswd
-  #   deploy:
-  #     labels:
-  #       - traefik.enable=true
-  #       - traefik.http.services.consul.loadbalancer.server.port=8500
-  #       - traefik.http.routers.consul.rule=Host(`consul.${DOMAIN}`)
-  #       - traefik.http.routers.consul.entrypoints=http,https
-  #       - traefik.http.routers.consul.middlewares=redirect@file,auth@file
-  # - traefik.http.middlewares.consul.basicAuth.usersFile=/run/secrets/security.htpasswd
-  # - traefik.http.routers.consul.tls.certresolver=mytlschallenge
-  # - traefik.port=8500
-  # - traefik.tags=traefik-public
-  # - traefik.docker.network=traefik-public
-  # - traefik.redirectorservice.frontend.entryPoints=http
-  # - traefik.redirectorservice.frontend.redirect.entryPoint=https
-  # - traefik.webservice.frontend.entryPoints=https
-  # - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
-
-  # consul-replica:
-  #   image: consul
-  #   command: agent -server -client=0.0.0.0 -retry-join="consul-leader"
-  #   volumes:
-  #     - consul-data-replica:/consul/data
-  #   environment:
-  #     - CONSUL_BIND_INTERFACE=eth0
-  #     - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
-  #   networks:
-  #     - traefik-private
-  #     - traefik-public
-  #   deploy:
-  #     replicas: ${CONSUL_REPLICAS:-3}
-  #     placement:
-  #       preferences:
-  #         - spread: node.id
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 2s
-  #       max_attempts: 5
-  #       window: 120s
-
   traefik:
     image: traefik:v2.2
-    # depends_on:
-    #   - consul-leader
+    restart: always
     secrets:
       - security.htpasswd
     volumes:
-      - traefik-certs:/acme.json
       - ./traefik-dynamic.yml:/traefik-dynamic.yml
+      - /mnt/gfs/traefik/acme.json:/acme.json
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "80:80"
@@ -70,7 +17,7 @@ services:
     networks:
       - traefik-private
       - traefik-public
-      # - swarmlet-network
+      - swarmlet-network
     command:
       # https://docs.traefik.io/reference/static-configuration/cli/
       # check metrics via influxdb or prometheus
@@ -103,7 +50,7 @@ services:
       # - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       # - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
     deploy:
-      replicas: ${TRAEFIK_REPLICAS:-3}
+      replicas: ${TRAEFIK_REPLICAS:-1}
       placement:
         constraints:
           - node.role == manager
@@ -124,7 +71,6 @@ services:
         delay: 2s
         max_attempts: 5
         window: 120s
-
   # traefik:
   #   image: traefik:v1.7
   #   ports:
@@ -194,9 +140,9 @@ services:
 
 volumes:
   traefik-certs:
-    external: true
-    # driver: glusterfs
-    # name: "gfs/traefik/acme"
+    #external: true
+    driver: glusterfs
+    name: "gfs/traefik"
 
 networks:
   traefik-private:
@@ -208,3 +154,213 @@ networks:
 secrets:
   security.htpasswd:
     external: true
+# version: "3.7"
+
+# services:
+#   # consul-leader:
+#   #   image: consul
+#   #   command: agent -server -client=0.0.0.0 -bootstrap -ui
+#   #   volumes:
+#   #     - consul-data-leader:/consul/data
+#   #   environment:
+#   #     - CONSUL_BIND_INTERFACE=eth0
+#   #     - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
+#   #   networks:
+#   #     - traefik-private
+#   #     - traefik-public
+#   #   secrets:
+#   #     - security.htpasswd
+#   #   deploy:
+#   #     labels:
+#   #       - traefik.enable=true
+#   #       - traefik.http.services.consul.loadbalancer.server.port=8500
+#   #       - traefik.http.routers.consul.rule=Host(`consul.${DOMAIN}`)
+#   #       - traefik.http.routers.consul.entrypoints=http,https
+#   #       - traefik.http.routers.consul.middlewares=redirect@file,auth@file
+#   # - traefik.http.middlewares.consul.basicAuth.usersFile=/run/secrets/security.htpasswd
+#   # - traefik.http.routers.consul.tls.certresolver=mytlschallenge
+#   # - traefik.port=8500
+#   # - traefik.tags=traefik-public
+#   # - traefik.docker.network=traefik-public
+#   # - traefik.redirectorservice.frontend.entryPoints=http
+#   # - traefik.redirectorservice.frontend.redirect.entryPoint=https
+#   # - traefik.webservice.frontend.entryPoints=https
+#   # - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
+
+#   # consul-replica:
+#   #   image: consul
+#   #   command: agent -server -client=0.0.0.0 -retry-join="consul-leader"
+#   #   volumes:
+#   #     - consul-data-replica:/consul/data
+#   #   environment:
+#   #     - CONSUL_BIND_INTERFACE=eth0
+#   #     - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
+#   #   networks:
+#   #     - traefik-private
+#   #     - traefik-public
+#   #   deploy:
+#   #     replicas: ${CONSUL_REPLICAS:-3}
+#   #     placement:
+#   #       preferences:
+#   #         - spread: node.id
+#   #     restart_policy:
+#   #       condition: on-failure
+#   #       delay: 2s
+#   #       max_attempts: 5
+#   #       window: 120s
+
+#   traefik:
+#     image: traefik:v2.2
+#     # depends_on:
+#     #   - consul-leader
+#     secrets:
+#       - security.htpasswd
+#     volumes:
+#       - traefik-certs:/acme.json
+#       - ./traefik-dynamic.yml:/traefik-dynamic.yml
+#       - /var/run/docker.sock:/var/run/docker.sock
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#       - "8080:8080"
+#     networks:
+#       - traefik-private
+#       - traefik-public
+#       # - swarmlet-network
+#     command:
+#       # https://docs.traefik.io/reference/static-configuration/cli/
+#       # check metrics via influxdb or prometheus
+#       ## Log Settings (options: ERROR, DEBUG, PANIC, FATAL, WARN, INFO) - https://docs.traefik.io/observability/logs/ ##
+#       # - --log.level=DEBUG # <== Setting the level of the logs from traefik
+#       - --log.level=INFO # <== Setting the level of the logs from traefik
+#       ## API Settings - https://docs.traefik.io/operations/api/, endpoints - https://docs.traefik.io/operations/api/#endpoints ##
+#       # - --api=true
+#       - --api.insecure=true # TODO: remove in production
+#       - --api.dashboard=true
+#       - --api.debug=true # <== Enabling additional endpoints for debugging and profiling
+#       ## Provider Settings - https://docs.traefik.io/providers/docker/#provider-configuration ##
+#       - --providers.file.filename=/traefik-dynamic.yml
+#       - --providers.docker=true
+#       - --providers.docker.swarmmode=true
+#       - --providers.docker.network=traefik-public
+#       - --providers.docker.exposedbydefault=false
+#       ## Entrypoints Settings - https://docs.traefik.io/routing/entrypoints/#configuration ##
+#       - --entrypoints.http.address=:80
+#       - --entrypoints.https.address=:443
+#       - --entrypoints.https.http.tls=true
+#       - --entrypoints.https.http.tls.certresolver=letsencrypt
+#       # - --entrypoints.http.http.middlewares=redirect@file # TODO: test if this makes sense
+#       ## Certificate Settings (Let's Encrypt) -  https://docs.traefik.io/https/acme/#configuration-examples ##
+#       - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+#       - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
+#       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+#       - --certificatesresolvers.letsencrypt.acme.caserver="https://acme-staging-v02.api.letsencrypt.org/directory"
+#       # - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=digitalocean
+#       # - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+#       # - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
+#     deploy:
+#       replicas: ${TRAEFIK_REPLICAS:-3}
+#       placement:
+#         constraints:
+#           - node.role == manager
+#         preferences:
+#           - spread: node.id
+#       labels:
+#         - traefik.enable=true
+#         - traefik.http.services.traefik-api.loadbalancer.server.port=8080
+#         - traefik.http.routers.traefik-api.rule=Host(`router.${DOMAIN}`)
+#         - traefik.http.routers.traefik-api.entrypoints=http,https
+#         - traefik.http.routers.traefik-api.middlewares=redirect@file,auth@file
+#         - traefik.http.routers.traefik-api.service=api@internal
+#         # - traefik.http.routers.traefik-api.service=traefik-api@internal   ??
+#         # - traefik.http.middlewares.auth.basicAuth.usersFile=/run/secrets/security.htpasswd
+#         # - traefik.http.routers.traefik-api.tls.certresolver=mytlschallenge
+#       restart_policy:
+#         condition: on-failure
+#         delay: 2s
+#         max_attempts: 5
+#         window: 120s
+
+#   # traefik:
+#   #   image: traefik:v1.7
+#   #   ports:
+#   #     - target: 80
+#   #       published: 80
+#   #       mode: host
+#   #     - target: 443
+#   #       published: 443
+#   #       mode: host
+#   #   volumes:
+#   #     - /var/run/docker.sock:/var/run/docker.sock
+#   #     # --constraints=tag==traefik-public
+#   #     # Wildcard domain SSL
+#   #     # --certificatesResolvers.myresolver.acme.dnsChallenge.provider=digitalocean
+#   #     # --certificatesResolvers.myresolver.acme.dnsChallenge.delayBeforeCheck=0
+#   #     # ENABLE FOR STAGING
+#   #     # --acme.caServer="https://acme-staging-v02.api.letsencrypt.org/directory"
+#   #   command: >
+#   #     --docker
+#   #     --docker.swarmmode
+#   #     --docker.watch
+#   #     --docker.exposedbydefault=true
+#   #     --entrypoints='Name:http Address::80'
+#   #     --entrypoints='Name:https Address::443 TLS'
+#   #     --consul
+#   #     --consul.endpoint="consul-leader:8500"
+#   #     --acme
+#   #     --acme.email=${EMAIL}
+#   #     --acme.storage="traefik/acme/account"
+#   #     --acme.entryPoint=https
+#   #     --acme.httpChallenge.entryPoint=http
+#   #     --acme.onhostrule=true
+#   #     --acme.acmelogging=true
+#   #     --logLevel=INFO
+#   #     --accessLog
+#   #     --api
+#   #   networks:
+#   #     - traefik-private
+#   #     - traefik-public
+#   #     - swarmlet-network
+#   #   secrets:
+#   #     - security.htpasswd
+#   #   depends_on:
+#   #     - consul-leader
+#   #   deploy:
+#   #     replicas: ${TRAEFIK_REPLICAS:-3}
+#   #     placement:
+#   #       constraints:
+#   #         - node.role == manager
+#   #       preferences:
+#   #         - spread: node.id
+#   #     labels:
+#   #       - traefik.frontend.rule=Host:traefik.${DOMAIN}
+#   #       - traefik.enable=true
+#   #       - traefik.port=8080
+#   #       - traefik.tags=traefik-public
+#   #       - traefik.docker.network=traefik-public
+#   #       - traefik.redirectorservice.frontend.entryPoints=http
+#   #       - traefik.redirectorservice.frontend.redirect.entryPoint=https
+#   #       - traefik.webservice.frontend.entryPoints=https
+#   #       - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
+#   #     restart_policy:
+#   #       condition: on-failure
+#   #       delay: 2s
+#   #       max_attempts: 5
+#   #       window: 120s
+
+# volumes:
+#   traefik-certs:
+#     external: true
+#     # driver: glusterfs
+#     # name: "gfs/traefik/acme"
+
+# networks:
+#   traefik-private:
+#   traefik-public:
+#     external: true
+#   swarmlet-network:
+#     external: true
+
+# secrets:
+#   security.htpasswd:
+#     external: true
