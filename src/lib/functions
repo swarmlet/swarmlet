@@ -134,10 +134,11 @@ install-zsh() {
 }
 
 get-own-ip-address() {
-  hostname -I | awk '{print $1}'
+  echo "$(hostname -I | awk '{print $1}')"
 }
 
 install-glusterfs() {
+  echo "$PREFIX Installing GlusterFS"
   IP_ADDRESS=$(get-own-ip-address)
   PHYSICAL_DRIVE=$(df -P /var | awk 'END {print $1}')
   GFS_BRICKS_PATH="/var/gluster/bricks"
@@ -149,6 +150,8 @@ install-glusterfs() {
   echo "$PHYSICAL_DRIVE $GFS_BRICKS_PATH/$GLUSTER_NAME xfs defaults 0 0" >>/etc/fstab
   mount -a &>/dev/null
   mkdir "$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" "$GFS_MOUNT_PATH" &>/dev/null
+
+  echo "$PREFIX setting up gfs"
 
   # $PKG_MANAGER install -y software-properties-common
   # $PKG_MANAGER -y update

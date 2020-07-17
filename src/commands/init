@@ -40,7 +40,7 @@ init() {
   $SUDO "$PKG_MANAGER" install -y -qq acl curl apache2-utils moreutils wget &>/dev/null
   [[ "$NEW_HOSTNAME" != "$(hostname)" ]] && set-hostname "$NEW_HOSTNAME" "$ROOT_DOMAIN"
   [[ $(command -v docker) && $(command -v docker-compose) ]] || install-docker
-  true && install-glusterfs
+  install-glusterfs && true
   $CREATE_SWAP && create-swap
   $INSTALL_ZSH && install-zsh
 

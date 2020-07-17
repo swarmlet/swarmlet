@@ -4,6 +4,7 @@
     "vscode",
     "examples",
     "modules",
-    "src"
+    "src",
+    "storage"
   ]
 }
