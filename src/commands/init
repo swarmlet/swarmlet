@@ -108,12 +108,9 @@ init() {
       touch "$TRAEFIK_CERTS/acme.json"
       chmod 600 "$TRAEFIK_CERTS/acme.json"
     fi
-    ls -al "$TRAEFIK_CERTS"
     docker volume create \
       --driver glusterfs \
-      -o o=bind \
-      -o type=none \
-      -o device="$TRAEFIK_CERTS" \
+      --opt glusteropts="--volfile-server=$NODE_IP --volfile-id=gfs --subdir-mount=traefik" \
       traefik-certs
   fi
 

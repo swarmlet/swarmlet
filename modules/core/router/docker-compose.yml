@@ -7,8 +7,8 @@ services:
     secrets:
       - security.htpasswd
     volumes:
+      - traefik-certs:/letsencrypt
       - ./traefik-dynamic.yml:/traefik-dynamic.yml
-      - /mnt/gfs/traefik/acme.json:/acme.json
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "80:80"
@@ -43,7 +43,7 @@ services:
       # - --entrypoints.http.http.middlewares=redirect@file # TODO: test if this makes sense
       ## Certificate Settings (Let's Encrypt) -  https://docs.traefik.io/https/acme/#configuration-examples ##
       - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
       # - --certificatesresolvers.letsencrypt.acme.caserver="https://acme-staging-v02.api.letsencrypt.org/directory"
       # - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=digitalocean
@@ -70,8 +70,10 @@ services:
         max_attempts: 5
         window: 120s
 
-# volumes:
-#   traefik-certs:
+volumes:
+  traefik-certs:
+    external: true
+
 #     driver: glusterfs
 #     name: "gfs/traefik"
 
