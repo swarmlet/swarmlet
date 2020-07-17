@@ -24,7 +24,8 @@ GIT_DATA="git-data"
 GIT_USER_ROOT="/home/$GIT_USER"
 GIT_REPO_ROOT="/var/repo"
 
-TRAEFIK_NETWORK=traefik-public
+TRAEFIK_NETWORK="traefik-public"
+TRAEFIK_CERTS="/mnt/gfs/traefik"
 DOCKER_SOCKET="/var/run/docker.sock"
 
 SSH_COMMAND="command=\"$SWARMLET_LIB/sshcommand $GIT_REPO_ROOT $SWARMLET_HOOKS\""

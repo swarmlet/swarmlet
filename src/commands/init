@@ -40,6 +40,7 @@ init() {
   $SUDO "$PKG_MANAGER" install -y -qq acl curl apache2-utils moreutils wget &>/dev/null
   [[ "$NEW_HOSTNAME" != "$(hostname)" ]] && set-hostname "$NEW_HOSTNAME" "$ROOT_DOMAIN"
   [[ $(command -v docker) && $(command -v docker-compose) ]] || install-docker
+  true && install-glusterfs
   $CREATE_SWAP && create-swap
   $INSTALL_ZSH && install-zsh
 
@@ -100,6 +101,20 @@ init() {
       -o type=none \
       -o device="$GIT_USER_ROOT" \
       "$GIT_DATA"
+  fi
+  if [[ ! "$(docker volume ls | grep traefik-certs)" ]]; then
+    if [[ ! -f "$TRAEFIK_CERTS/acme.json" ]]; then
+      mkdir -p "$TRAEFIK_CERTS"
+      touch "$TRAEFIK_CERTS/acme.json"
+      chmod 600 "$TRAEFIK_CERTS/acme.json"
+    fi
+    ls -al "$TRAEFIK_CERTS"
+    docker volume create \
+      --driver glusterfs \
+      -o o=bind \
+      -o type=none \
+      -o device="$TRAEFIK_CERTS" \
+      traefik-certs
   fi
 
   echo "$PREFIX Installing modules"

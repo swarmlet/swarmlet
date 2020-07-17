@@ -133,6 +133,76 @@ install-zsh() {
   chsh -s "$(which zsh)"
 }
 
+get-own-ip-address() {
+  hostname -I | awk '{print $1}'
+}
+
+install-glusterfs() {
+  IP_ADDRESS=$(get-own-ip-address)
+  PHYSICAL_DRIVE=$(df -P /var | awk 'END {print $1}')
+  GFS_BRICKS_PATH="/var/gluster/bricks"
+  GFS_MOUNT_PATH="/mnt/gfs"
+  GLUSTER_NAME="gluster.$IP_ADDRESS"
+
+  echo "$IP_ADDRESS $GLUSTER_NAME" >>/etc/hosts
+  mkdir -p "$GFS_BRICKS_PATH/$GLUSTER_NAME" &>/dev/null
+  echo "$PHYSICAL_DRIVE $GFS_BRICKS_PATH/$GLUSTER_NAME xfs defaults 0 0" >>/etc/fstab
+  mount -a &>/dev/null
+  mkdir "$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" "$GFS_MOUNT_PATH" &>/dev/null
+
+  # $PKG_MANAGER install -y software-properties-common
+  # $PKG_MANAGER -y update
+  # add-apt-repository -y ppa:gluster/glusterfs-8 && $PKG_MANAGER -y update
+  # $PKG_MANAGER install -y glusterfs-server
+  # systemctl enable glusterd
+
+  apt-get update -y
+  apt-get install -y -qq xfsprogs attr glusterfs-server glusterfs-common glusterfs-client >/dev/null
+
+  sleep 1 && systemctl enable glusterfs-server
+  sleep 1 && systemctl start glusterd
+  sleep 1 && systemctl status glusterd
+
+  # gluster peer probe gluster2
+  gluster pool list
+
+  gluster volume create gfs \
+    "$GLUSTER_NAME:$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" \
+    force
+  # replica 1 \
+
+  gluster volume start gfs
+  gluster volume status gfs
+  gluster volume set gfs auth.allow "$IP_ADDRESS"
+
+  echo "localhost:/gfs $GFS_MOUNT_PATH glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0" >>/etc/fstab
+  mount.glusterfs localhost:/gfs "$GFS_MOUNT_PATH"
+
+  docker plugin install --alias glusterfs trajano/glusterfs-volume-plugin --grant-all-permissions --disable
+  docker plugin set glusterfs "SERVERS=$IP_ADDRESS"
+  docker plugin enable glusterfs
+}
+
+# install-ceph() {
+#   IP_ADDRESS=$(get-own-ip-address)
+#   PHYSICAL_DRIVE=$(df -P /var | awk 'END {print $1}')
+#   CEPH_PATH="/etc/ceph"
+#   curl --silent --remote-name --location https://github.com/ceph/ceph/raw/octopus/src/cephadm/cephadm
+#   chmod +x cephadm
+#   mkdir -p $CEPH_PATH
+#   ./cephadm bootstrap --mon-ip "$IP_ADDRESS"
+# }
+
+# create-partition() {
+#   [[ $(command -v parted) ]] || $PKG_MANAGER install -y parted
+#   parted /dev/vdb
+#   mklabel gpt
+#   mkpart brick xfs 0% 100%
+#   mkfs.xfs /dev/vdb1
+#   mkdir -p /gluster/data/mydata
+#   mount.xfs /dev/vdb1 /gluster/data
+# }
+
 abort-installation() {
   echo "$PREFIX Aborting installation"
   exit 1
