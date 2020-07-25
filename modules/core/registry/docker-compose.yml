@@ -20,8 +20,10 @@ services:
     ports:
       - "5000:5000"
     deploy:
-      mode: replicated
-      replicas: 1
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - traefik.enable=true
         - traefik.http.services.registry.loadbalancer.server.port=5000
