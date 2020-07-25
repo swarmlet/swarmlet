@@ -176,7 +176,7 @@ install-glusterfs() {
   # replica 1 \
 
   gluster volume start gfs >/dev/null
-  gluster volume set gfs auth.allow "$IP_ADDRESS" >/dev/null
+  # gluster volume set gfs auth.allow "$IP_ADDRESS" >/dev/null
   # gluster volume status gfs
 
   echo "localhost:/gfs $GFS_MOUNT_PATH glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0" >>/etc/fstab
