@@ -11,7 +11,6 @@ services:
       - ./traefik-dynamic.yml:/traefik-dynamic.yml
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "22:22"
       - "80:80"
       - "443:443"
       - "8080:8080"
@@ -61,7 +60,7 @@ services:
         - traefik.enable=true
         - traefik.http.services.traefik-api.loadbalancer.server.port=8080
         - traefik.http.routers.traefik-api.rule=Host(`router.${DOMAIN}`)
-        - traefik.http.routers.traefik-api.entrypoints=http,https
+        - traefik.http.routers.traefik-api.entrypoints=http,https,ssh
         - traefik.http.routers.traefik-api.middlewares=redirect@file,auth@file
         - traefik.http.routers.traefik-api.service=api@internal
         # - traefik.http.routers.traefik-api.tls.certresolver=letsencrypt
