@@ -164,11 +164,12 @@ install-glusterfs() {
 
   sleep 2 && systemctl enable glusterfs-server &>/dev/null
   sleep 1 && systemctl start glusterd &>/dev/null
-  sleep 1 && systemctl status glusterd
+  sleep 1 && systemctl status glusterd --no-page
 
   # gluster peer probe gluster2
   gluster pool list
 
+  # TODO: if not joining an existing swarm
   gluster volume create gfs \
     "$GLUSTER_NAME:$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" \
     force

@@ -15,7 +15,6 @@ services:
       - "443:443"
       - "8080:8080"
     networks:
-      - traefik-private
       - traefik-public
       - swarmlet-network
     command:
@@ -38,8 +37,8 @@ services:
       ## Entrypoints Settings - https://docs.traefik.io/routing/entrypoints/#configuration ##
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
-      # - --entrypoints.https.http.tls=true
-      # - --entrypoints.https.http.tls.certresolver=letsencrypt
+      - --entrypoints.https.http.tls=true
+      - --entrypoints.https.http.tls.certresolver=letsencrypt
       # - --entrypoints.http.http.middlewares=redirect@file # TODO: test if this makes sense
       ## Certificate Settings (Let's Encrypt) -  https://docs.traefik.io/https/acme/#configuration-examples ##
       - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
@@ -63,20 +62,14 @@ services:
         - traefik.http.routers.traefik-api.entrypoints=http,https
         - traefik.http.routers.traefik-api.middlewares=redirect@file,auth@file
         - traefik.http.routers.traefik-api.service=api@internal
-        # - traefik.http.routers.traefik-api.tls.certresolver=mytlschallenge
+        # - traefik.http.routers.traefik-api.tls.certresolver=letsencrypt
       restart_policy:
         condition: on-failure
         delay: 2s
         max_attempts: 5
         window: 120s
 
-# volumes:
-#   traefik-certs:
-#     driver: glusterfs
-#     name: "gfs/traefik"
-
 networks:
-  traefik-private:
   traefik-public:
     external: true
   swarmlet-network:
