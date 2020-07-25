@@ -65,7 +65,7 @@ services:
         - traefik.http.routers.traefik-api.service=api@internal
         # - traefik.http.routers.traefik-api.tls.certresolver=letsencrypt
       restart_policy:
-        condition: on-failure
+        condition: always
         delay: 2s
         max_attempts: 5
         window: 120s
