@@ -38,8 +38,8 @@ services:
       ## Entrypoints Settings - https://docs.traefik.io/routing/entrypoints/#configuration ##
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
-      - --entrypoints.https.http.tls=true
-      - --entrypoints.https.http.tls.certresolver=letsencrypt
+      # - --entrypoints.https.http.tls=true
+      # - --entrypoints.https.http.tls.certresolver=letsencrypt
       # - --entrypoints.http.http.middlewares=redirect@file # TODO: test if this makes sense
       ## Certificate Settings (Let's Encrypt) -  https://docs.traefik.io/https/acme/#configuration-examples ##
       - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
@@ -70,10 +70,10 @@ services:
         max_attempts: 5
         window: 120s
 
-volumes:
-  traefik-certs:
-    driver: glusterfs
-    name: "gfs/traefik"
+# volumes:
+#   traefik-certs:
+#     driver: glusterfs
+#     name: "gfs/traefik"
 
 networks:
   traefik-private:
