@@ -11,6 +11,7 @@ services:
       - ./traefik-dynamic.yml:/traefik-dynamic.yml
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
+      - "22:22"
       - "80:80"
       - "443:443"
       - "8080:8080"
@@ -35,11 +36,12 @@ services:
       - --providers.docker.network=traefik-public
       - --providers.docker.exposedbydefault=false
       ## Entrypoints Settings - https://docs.traefik.io/routing/entrypoints/#configuration ##
+      - --entrypoints.ssh.address=:22
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
+      ## TLS Settings
       - --entrypoints.https.http.tls=true
       - --entrypoints.https.http.tls.certresolver=letsencrypt
-      # - --entrypoints.http.http.middlewares=redirect@file # TODO: test if this makes sense
       ## Certificate Settings (Let's Encrypt) -  https://docs.traefik.io/https/acme/#configuration-examples ##
       - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
