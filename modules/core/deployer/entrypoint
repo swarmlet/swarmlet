@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 set -o allexport
 source "/swarmlet-config"
 
@@ -51,7 +52,7 @@ deploy() {
     echo "$PREFIX Deploying $REPO_NAME"
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
 
-    HOSTS=$(echo "$COMPOSE_CONFIG" | grep -o "Host:.*")
+    HOSTS=$(echo "$COMPOSE_CONFIG" | grep -o ".rule=Host(\`.*")
     DOMAINS="${HOSTS//Host:/}"
     PROTOCOL=https # TODO: detect exposed protocols
 

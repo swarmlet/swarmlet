@@ -59,13 +59,13 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.services.traefik-api.loadbalancer.server.port=8080
-        - traefik.http.routers.traefik-api.rule=Host(`router.${DOMAIN}`)
+        - traefik.http.routers.traefik-api.rule=Host(`router.${DOMAIN}`) # ${TODO: DOMAIN cannot be read after reboot}
         - traefik.http.routers.traefik-api.entrypoints=http,https,ssh
         - traefik.http.routers.traefik-api.middlewares=redirect@file,auth@file
         - traefik.http.routers.traefik-api.service=api@internal
         # - traefik.http.routers.traefik-api.tls.certresolver=letsencrypt
       restart_policy:
-        condition: always
+        condition: any
         delay: 2s
         max_attempts: 5
         window: 120s
