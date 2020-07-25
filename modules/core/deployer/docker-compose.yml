@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   agent:
@@ -11,6 +11,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/swarmlet:/opt/swarmlet
+      - /mnt/gfs:/mnt/gfs
       - git-data:/home/git
     secrets:
       - swarmlet-user-secrets
