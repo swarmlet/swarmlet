@@ -37,7 +37,7 @@ init() {
   # install-dependencies $SWARMLET_DEPENDENCIES
   update-package-cache
   notify-package-updates-available
-  $SUDO "$PKG_MANAGER" install -y -qq acl curl apache2-utils moreutils wget &>/dev/null
+  $SUDO "$PKG_MANAGER" install -y -qq acl curl apache2-utils moreutils wget libpcre3 &>/dev/null
   [[ "$NEW_HOSTNAME" != "$(hostname)" ]] && set-hostname "$NEW_HOSTNAME" "$ROOT_DOMAIN"
   [[ $(command -v docker) && $(command -v docker-compose) ]] || install-docker
   install-glusterfs && true

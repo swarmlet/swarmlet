@@ -53,8 +53,8 @@ deploy() {
     docker stack deploy --compose-file $COMPOSE_FILE $REPO_NAME
 
     HOSTS=$(echo "$COMPOSE_CONFIG" | grep -o ".rule=Host(\`.*")
-    DOMAINS="${HOSTS//Host:/}"
-    PROTOCOL=https # TODO: detect exposed protocols
+    DOMAINS=$(echo "$HOSTS" | grep -oP "(?<=\`).*?(?=\`)") # support Traefik v2 host labels
+    PROTOCOL=https                                         # TODO: detect exposed protocols
 
     echo "$FPREFIX Stack deployed:"
     for DOMAIN in ${DOMAINS[@]}; do echo "[$REPO_NAME] — $PROTOCOL://$DOMAIN"; done
