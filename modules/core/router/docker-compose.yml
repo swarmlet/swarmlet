@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  lego:
+  # lego:
   ## https://go-acme.github.io/lego/usage/cli/examples/
   ## build: lego
   # image: goacme:lego
