@@ -1,0 +1,72 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"sync"
+	"time"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/events"
+	"github.com/docker/docker/client"
+)
+
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+	fmt.Println("Swarmlet Lego daemon")
+	path, err := os.Getwd()
+	check(err)
+	err = os.Setenv("DOCKER_HOST", "unix://"+path+"/docker.sock")
+	check(err)
+	ctx := context.Background()
+	var wg sync.WaitGroup
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(err)
+	}
+	eventChan, eventErr := cli.Events(ctx, types.EventsOptions{
+		Since: fmt.Sprintf("%v", time.Now().Unix()),
+	})
+	wg.Add(1)
+	go eventHandler(ctx, eventChan, eventErr, &wg)
+	wg.Wait()
+}
+
+func eventHandler(ctx context.Context, msg <-chan events.Message, err <-chan error, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for {
+		select {
+		case err := <-err:
+			fmt.Println(err)
+			return
+		case msg := <-msg:
+			fmt.Println(msg)
+			/*
+				"Action": "update",
+				   "timeNano": 1596131109742668800,
+				   "Actor": {
+				     "ID": "4qsqvl6un9bzmcyor1s4cotrs",
+				     "Attributes": {
+				       "name": "static-site_frontend"
+				     }
+				   },
+				   "Type": "service",
+				   "scope": "swarm",
+				   "time": 1596131109
+			*/
+			if msg.Scope == "swarm" && msg.Type == "service" {
+				if msg.Action == "update" {
+					serviceID := msg.Actor.ID
+					// https://github.com/moby/moby/blob/v1.13.1/client/service_inspect.go#L14
+					// Need to use client.ServiceInspectWithRaw, but isn't visible at all?
+				}
+			}
+		}
+	}
+}
