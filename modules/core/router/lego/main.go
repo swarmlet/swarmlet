@@ -14,6 +14,8 @@ func check(err error) {
 	}
 }
 
+var legoOutputFolder = "/letsencrypt"
+
 func main() {
 	fmt.Println("Swarmlet Lego daemon")
 	path, err := os.Getwd()
@@ -40,8 +42,9 @@ func eventHandler(event chan *docker.APIEvents, wg *sync.WaitGroup, client *dock
 					check(err)
 					for k, v := range service.Spec.Labels {
 						fmt.Printf("%s -> %s\n", k, v)
-						if k == "swarmlet.domains" {
+						if k == "swarmlet.lego.domains" {
 							fmt.Println("Running lego for domains " + v)
+							// Security warning: v is a user input containing comma-separated domain names, from a Docker service label
 							// TODO: Call lego here
 							// TODO: Inject Traefik TLS labels into service
 						}
