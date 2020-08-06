@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+
+# --- THIS IS PSEUDO CODE ---
+# TODO: convert to Go, etc
+
+# ----- parse: swarmlet labels ------
+# - swarmlet.port=9000
+# - swarmlet.domains=mysite.com,www.mysite.com
+# ----- optional labels -----
+# - swarmlet.enabled=true  # default to true if swarmlet deploy label is detected
+# - swarmlet.protocols=http,https
+# - swarmlet.middlewares=redirect@file,auth@file
+# ??? - swarmlet.middlewares=redirect-https,basic-auth
+
+# ----- output: traefik labels ------
+# - traefik.enable=true
+# - traefik.http.services.portainer.loadbalancer.server.port=9000
+# - traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN}`)
+# - traefik.http.routers.portainer.entrypoints=http,https
+# - traefik.http.routers.portainer.middlewares=redirect@file
+
+
+import sys
+import re
+import parse_yml from parse_yml
+
+
+def Labels(self, name):
+    service_name = name
+    new_labels = {}
+    labels = {
+        'default': lambda x: 'traefik.enable=true',
+        'domains': lambda domains: 'traefik.http.routers.%s.rule=Host(`%s`)' % (service_name, domains),
+        'port': lambda port: 'traefik.http.services.%s.loadbalancer.server.port=%s' % (service_name, port),
+        'entrypoints': lambda entrypoints: 'traefik.http.routers.%s.entrypoints=http,https' % (service_name) if not entrypoints else entrypoints,
+        'middlewares': lambda middlewares: 'traefik.http.routers.%s.middlewares=redirect@file' % (service_name) if middlewares else None,
+    }
+
+    def set_label(self, label, value):
+        new_labels[label] = labels[label](service_name, value)
+
+    def get_labels(self):
+        return new_labels
+
+
+def parse_labels(yml):
+    """Parse Swarmlet deployment labels"""
+
+    services = parse_yml(yml)
+
+    for service in services:
+        service_name = service.name
+
+        if 'deploy' not in service:
+            continue
+
+        deploy_labels = service.deploy.labels
+
+        # skip if traefik labels are used
+        if 'traefik.' in deploy_labels or 'swarmlet.' not in deploy_labels:
+            return deploy_labels
+
+        def get_label(key):
+            filter(lambda label: key in label, deploy_labels)[1:]
+
+        domains_label = get_label('.domains=')
+        port_label = get_label('.port=')
+        entrypoints_label = get_label('.entrypoints=')
+        middlewares_label = get_label('.middlewares=')
+
+        new_deploy_labels = Labels(service_name)
+
+        if domains_label:
+            new_deploy_labels.set_label('domains', domains_label)
+        if port_label:
+            new_deploy_labels.set_label('port', port_label)
+        # etc
+
+    # return yml with updated labels
+
+
+if __name__ == "__main__":
+    input = sys.argv[1]
+    output = parse_labels(input)
+    print(output)
