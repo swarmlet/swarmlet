@@ -1,12 +1,12 @@
 version: "3.7"
 
 # services:
-#   lego-helper:
+#   lego:
 #     build: lego
-#     image: ${SWARMLET_REGISTRY}/lego-helper
+#     image: ${SWARMLET_REGISTRY}/lego
 #     volumes:
 #       - /mnt/gfs/traefik:/letsencrypt
-#       - /var/run/docker.sock:/app/docker.sock # - /var/run/docker.sock:/var/run/docker.sock
+#       - /var/run/docker.sock:/app/docker.sock
 #     configs:
 #       - swarmlet-config
 #     networks:
@@ -28,39 +28,6 @@ version: "3.7"
 #         - traefik.http.routers.lego.rule="Path(`/.well-known/acme-challenge`)"
 #         - traefik.http.routers.lego.priority=999
 #         - traefik.http.routers.lego.entrypoints=http
-
-  # lego-agent:
-  #   ## https://go-acme.github.io/lego/usage/cli/examples/
-  #   ## build: lego
-  #   image: goacme:lego
-  #   command: tail -f /dev/null
-  #   volumes:
-  #     - /mnt/gfs/traefik:/letsencrypt
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   networks:
-  #     - traefik-public
-  #     - swarmlet-network
-  #   deploy:
-  #     mode: replicated
-  #     replicas: 1
-  #     placement:
-  #       constraints: [node.role == manager]
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 2s
-  #       max_attempts: 5
-  #       window: 120s
-  #     labels:
-  #       - traefik.enable=true
-  #       - traefik.http.services.lego.loadbalancer.server.port=5000
-  #       - traefik.http.routers.lego.rule=Host(`router.${DOMAIN}`) # ${TODO: DOMAIN cannot be read after reboot}
-  #       - traefik.http.routers.lego.entrypoints=http,https
-  #       - traefik.http.routers.lego.middlewares=redirect@file,auth@file
-  #       - traefik.http.routers.lego.service=api@internal
-  #       # - traefik.http.routers.lego.tls.certresolver=letsencrypt
 
   traefik:
     image: traefik:v2.2
