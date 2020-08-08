@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  web:
+    image: hashicorp/http-echo
+    command: ["-text", "Hello World.."]
+    deploy:
+      replicas: 1
+      labels:
+        - swarmlet.domains=example.com,www.example.com
+        - swarmlet.port=12345
+    networks:
+      - traefik-public
+
+networks:
+  traefik-public:
+    external: true
