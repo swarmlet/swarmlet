@@ -145,6 +145,6 @@ def parse_labels(compose_file):
 
 
 if __name__ == "__main__":
-    input = sys.argv[1]
+    input = sys.argv[-1]
     output = parse_labels(input)
     print(output)
