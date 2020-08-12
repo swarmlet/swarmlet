@@ -5,8 +5,10 @@ FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
 
-SWARMLET_REPO="https://github.com/swarmlet/swarmlet.git"
+SWARMLET_REPO=${SWARMLET_REPO:="https://github.com/swarmlet/swarmlet.git"}
 SWARMLET_INSTALL_ROOT="/opt/swarmlet"
+CA_PROD="https://acme-v02.api.letsencrypt.org/directory"
+CA_TEST="https://acme-staging-v02.api.letsencrypt.org/directory"
 
 # Check if user is root
 if [[ $EUID -ne 0 ]]; then
@@ -30,6 +32,7 @@ fi
 ENV_CONFIRMED="true"
 declare -A DEFAULT_OPTS=(
   [INSTALLATION_TYPE]=interactive                  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
+  [SWARMLET_REPO]=${SWARMLET_REPO}                 # (default swarmlet github url) The default repo to install
   [INSTALL_BRANCH]=master                          # (default master) The default branch to install
   [SWARMLET_USERNAME]=$USER                        # (default $USER) Used for authentication with the registry and web services / dashboards
   [SWARMLET_PASSWORD]=swarmlet                     # (default swarmlet) Used for authentication with the registry and web services / dashboards
@@ -39,6 +42,7 @@ declare -A DEFAULT_OPTS=(
   [CREATE_SWAP]=false                              # (default false) Allocate 1GB of swap space
   [INSTALL_ZSH]=false                              # (default false) Install 'Oh My Zsh'
   [INSTALL_MODULES]=""                             # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
+  [CA_SERVER]=$CA_PROD                             # (default prod, options: CA_PROD|CA_TEST
   # > TODO:
   # [DEBUG]=                       # (default undefined) Run installation in debug mode
 )
