@@ -132,6 +132,30 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
   echo "$ROOT_DOMAIN"
 }
 
+section-ca-config() {
+  SECTION_TITLE="CA Config"
+  MESSAGE="\nLet's Encrypt configuration.\n\nUse production CA?"
+
+  CA_SERVER_OPTIONS=(
+    true "Use prod CA"
+    false "Use staging CA"
+  )
+
+  CA_SERVER=$(whiptail \
+    --title "$SECTION_TITLE" \
+    --menu "$MESSAGE" \
+    "$TTY_ROWS" "$TTY_COLS" "$((${#CA_SERVER_OPTIONS[@]} / 2))" \
+    "${CA_SERVER_OPTIONS[@]}" \
+    3>&1 1>&2 2>&3)
+
+  EXIT_STATUS=$?
+  [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
+  CA_PROD="https://acme-v02.api.letsencrypt.org/directory"
+  CA_TEST="https://acme-staging-v02.api.letsencrypt.org/directory"
+  ($CA_SERVER) && CA_SERVER=$CA_PROD || CA_SERVER=$CA_TEST
+  echo "$CA_SERVER"
+}
+
 # section-installation-mode() {
 #   SECTION_TITLE="Installation mode"
 #   MESSAGE="\nChoose the installation mode:"
