@@ -32,7 +32,7 @@ fi
 ENV_CONFIRMED="true"
 declare -A DEFAULT_OPTS=(
   [INSTALLATION_TYPE]=interactive                  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
-  [SWARMLET_REPO]=${SWARMLET_REPO}                 # (default swarmlet github url) The default repo to install
+  [SWARMLET_REPO]=$SWARMLET_REPO                 # (default swarmlet github url) The default repo to install
   [INSTALL_BRANCH]=master                          # (default master) The default branch to install
   [SWARMLET_USERNAME]=$USER                        # (default $USER) Used for authentication with the registry and web services / dashboards
   [SWARMLET_PASSWORD]=swarmlet                     # (default swarmlet) Used for authentication with the registry and web services / dashboards
