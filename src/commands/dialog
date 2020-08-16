@@ -134,7 +134,7 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
 
 section-ca-config() {
   SECTION_TITLE="CA Config"
-  MESSAGE="\nUse prod CA?"
+  MESSAGE="\nLet's Encrypt configuration.\n\nUse production CA?"
 
   CA_SERVER_OPTIONS=(
     true "Use prod CA"
