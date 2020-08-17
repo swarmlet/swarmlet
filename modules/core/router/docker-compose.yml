@@ -1,33 +1,33 @@
 version: "3.7"
 
 services:
-    lego:
-      build: lego
-      image: ${SWARMLET_REGISTRY}/lego
-      volumes:
-        - /mnt/gfs/traefik:/letsencrypt
-        - /var/run/docker.sock:/app/docker.sock
-      configs:
-        - swarmlet-config
-      networks:
-        - traefik-public
-        - swarmlet-network
-      deploy:
-        mode: replicated
-        replicas: 1
-        placement:
-          constraints: [node.role == manager]
-        restart_policy:
-          condition: on-failure
-          delay: 2s
-          max_attempts: 5
-          window: 120s
-        labels:
-          - traefik.enable=true
-          - traefik.http.services.lego.loadbalancer.server.port=80
-          - traefik.http.routers.lego.rule="Path(`/.well-known/acme-challenge`)"
-          - traefik.http.routers.lego.priority=999
-          - traefik.http.routers.lego.entrypoints=http
+  lego:
+    build: lego
+    image: ${SWARMLET_REGISTRY}/lego
+    volumes:
+      - /mnt/gfs/traefik:/letsencrypt
+      - /var/run/docker.sock:/app/docker.sock
+    configs:
+      - swarmlet-config
+    networks:
+      - traefik-public
+      - swarmlet-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
+      labels:
+        - traefik.enable=true
+        - traefik.http.services.lego.loadbalancer.server.port=80
+        - traefik.http.routers.lego.rule="Path(`/.well-known/acme-challenge`)"
+        - traefik.http.routers.lego.priority=999
+        - traefik.http.routers.lego.entrypoints=http
 
   label-parser:
     build: label-parser
