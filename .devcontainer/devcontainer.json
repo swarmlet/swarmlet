@@ -7,7 +7,7 @@
 		// Update 'VARIANT' to pick an Ubuntu version. Rebuild the container if it already
 		// exists to update. Available variants: focal (or ubuntu-20.04), bionic (or ubuntu-18.04)
 		"args": {
-			"VARIANT": "ubuntu-20.04"
+			"VARIANT": "ubuntu-18.04"
 		}
 	},
 	// Set *default* container specific settings.json values on container create.
