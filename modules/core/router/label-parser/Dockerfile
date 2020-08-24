@@ -6,4 +6,4 @@ ADD . .
 
 RUN deno cache label-parser.js
 
-ENTRYPOINT ["deno", "run", "--no-check", "--allow-net", "--allow-read=/app", "label-parser.js"]
+ENTRYPOINT ["deno", "run", "--no-check", "--allow-read=/app", "label-parser.js"]
