@@ -9,18 +9,16 @@ const defaultLabels = {
   'swarmlet.enable': (labels, service, enabled = true) => {
     return `traefik.enable=${enabled ? 'true' : 'false'}`
   },
-  'swarmlet.middlewares': (labels, service, middlewares) => {
+  'swarmlet.middlewares': (labels, service, middlewares = 'redirect@file') => {
     return labels.some(label => label.includes('swarmlet.lego.email'))
-      ? `traefik.http.routers.${service}.middlewares=${
-          middlewares ? middlewares : 'redirect@file'
-        }`
+      ? `traefik.http.routers.${service}.middlewares=${middlewares}`
       : undefined
   },
-  'swarmlet.entrypoints': (labels, service, entrypoints) => {
+  'swarmlet.entrypoints': (labels, service, entrypoints = 'http') => {
     return `traefik.http.routers.${service}.entrypoints=${
       labels.some(label => label.includes('swarmlet.lego.email'))
-        ? 'http,https'
-        : 'http'
+        ? `${entrypoints},https`
+        : entrypoints
     }`
   },
 }
@@ -59,13 +57,10 @@ const newLabels = {
     const [domain] = domains
       .split(',')
       .filter(e => !e.includes('/'))
-      // .filter(e => e.match(/(.*)(?=\/)(.*)|(.+[a-z])/gi))
-      // .filter(e => /(.*)(?=\/)(.*)|(.+[a-z])/gi.test(e))
       .filter(e => /([a-z]+\.){1,}[a-z]+/gi.test(e))
 
     const subdomains = domains
       .split(',')
-      // .filter(e => /([a-z]+\.){2,}[a-z]+/gi.test(e))
       .filter(e => /([a-z]+\.){2,}[a-z]+/gi.test(e))
       .map(e => e.replace(/\/.*/g, ''))
       .join(',')
@@ -138,11 +133,11 @@ const parseYml = yml =>
           ),
         }
 
-      case 'networks':
-        return {
-          ...sections,
-          [sectionName]: section,
-        }
+      // case 'networks':
+      //   return {
+      //     ...sections,
+      //     [sectionName]: section,
+      //   }
       default:
         return {
           ...sections,
