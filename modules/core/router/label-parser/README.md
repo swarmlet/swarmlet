@@ -1,7 +1,10 @@
-### Requirements
+### Dependencies
 
 - [Deno](https://deno.land)
-- (dev dependency) [Denon](https://github.com/denosaurs/denon)
+
+### Dev dependencies
+
+- [Denon](https://github.com/denosaurs/denon)
 
 ### Development
 
@@ -24,7 +27,7 @@ denon start
 ### Usage
 
 ```sh
-deno run label-parser.js docker-compose.yml
+deno run --no-check --allow-read label-parser.js docker-compose.yml
 ```
 
 ### Docker
