@@ -75,6 +75,7 @@ services:
       --consul
       --consul.endpoint="consul-leader:8500"
       --acme
+      --acme.caServer=${CA_SERVER}
       --acme.email=${EMAIL}
       --acme.storage="traefik/acme/account"
       --acme.entryPoint=https
