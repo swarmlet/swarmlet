@@ -1,14 +1,15 @@
-version: "3.7"
+version: '3.7'
 
 services:
   web:
     image: hashicorp/http-echo
-    command: ["-text", "Hello World.."]
+    command: ['-text', 'Hello World..']
     deploy:
       replicas: 1
       labels:
-        - swarmlet.domains=example.com,www.example.com
         - swarmlet.port=12345
+        - swarmlet.domains=mydomain.com,www.mydomain.com,test.mydomain.com/page
+        - swarmlet.lego.email=me@mydomain.com
     networks:
       - traefik-public
 

@@ -1,9 +1,9 @@
-FROM python:3.8-alpine
+FROM hayd/alpine-deno:1.3.0
 
 WORKDIR /app
 
-COPY . .
+ADD . .
 
-RUN pip3 --disable-pip-version-check --no-cache-dir install -r requirements.txt
+RUN deno cache label-parser.js
 
-ENTRYPOINT [ "./label-parser" ]
+ENTRYPOINT ["deno", "run", "--no-check", "--allow-net", "--allow-read=/app", "label-parser.js"]
