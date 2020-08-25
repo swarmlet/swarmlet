@@ -21,6 +21,7 @@ init() {
       SSH_AUTHORIZED_KEYS=$(swarmlet dialog set-ssh-authorized-keys)
       NEW_HOSTNAME=$(swarmlet dialog set-hostname)
       ROOT_DOMAIN=$(swarmlet dialog domain-config)
+      CA_SERVER=$(swarmlet dialog ca-config)
       INSTALL_MODULES=$(swarmlet dialog install-modules)
       CREATE_SWAP=$(swarmlet dialog add-swap)
       INSTALL_ZSH=$(swarmlet dialog install-zsh)
@@ -74,6 +75,7 @@ init() {
 		SSH_AUTHORIZED_KEYS="$SSH_AUTHORIZED_KEYS"
 		NEW_HOSTNAME="${NEW_HOSTNAME/ /}"
 		ROOT_DOMAIN="$ROOT_DOMAIN"
+    CA_SERVER="$CA_SERVER"
 		INSTALL_MODULES=$INSTALL_MODULES
 		CREATE_SWAP="$CREATE_SWAP"
 		INSTALL_ZSH="$INSTALL_ZSH"
