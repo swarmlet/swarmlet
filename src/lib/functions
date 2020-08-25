@@ -112,7 +112,8 @@ create-git-user() {
 
 add-ssh-authorized-keys() {
   SSH_AUTHORIZED_KEYS="$1"
-  $SUDO cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >>"$GIT_USER_ROOT"/.ssh/authorized_keys
+  $SUDO cat $(cat $SSH_AUTHORIZED_KEYS 2>/dev/null || echo '') |
+    ts "$SSH_OPTIONS" >>"$GIT_USER_ROOT"/.ssh/authorized_keys
   $SUDO chmod 700 "$GIT_USER_ROOT"/.ssh
   $SUDO chmod 600 "$GIT_USER_ROOT"/.ssh/authorized_keys
   $SUDO chown -R "$GIT_USER:$GIT_USER" "$GIT_USER_ROOT"/.ssh
@@ -124,7 +125,12 @@ install-docker() {
   curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   chmod +x /usr/local/bin/docker-compose
   $SUDO usermod -aG docker "$USER"
-  $SUDO systemctl enable docker
+  pwd
+  if [[ $(pwd) == '/workspaces/swarmlet' ]]; then
+    sudo /etc/init.d/docker start
+  else
+    $SUDO systemctl enable docker
+  fi
 }
 
 install-zsh() {
@@ -162,9 +168,14 @@ install-glusterfs() {
   echo "$PREFIX Installing dependencies"
   apt-get install -y -qq xfsprogs attr glusterfs-server glusterfs-common glusterfs-client >/dev/null
 
-  sleep 2 && systemctl enable glusterfs-server &>/dev/null
-  sleep 1 && systemctl start glusterd &>/dev/null
-  sleep 1 && systemctl status glusterd --no-page
+  pwd
+  if [[ $(pwd) == '/workspaces/swarmlet' ]]; then
+    sleep 2 && glusterd && sleep 2
+  else
+    sleep 2 && systemctl enable glusterfs-server &>/dev/null
+    sleep 1 && sudo /etc/init.d/glusterd &>/dev/null
+    sleep 1 && systemctl status glusterd --no-page
+  fi
 
   # gluster peer probe gluster2
   gluster pool list

@@ -30,6 +30,7 @@ fi
 ENV_CONFIRMED="true"
 declare -A DEFAULT_OPTS=(
   [INSTALLATION_TYPE]=interactive                  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
+  [SWARMLET_REPO]=$SWARMLET_REPO                   # (default swarmlet github url) The default repo to install
   [INSTALL_BRANCH]=master                          # (default master) The default branch to install
   [SWARMLET_USERNAME]=$USER                        # (default $USER) Used for authentication with the registry and web services / dashboards
   [SWARMLET_PASSWORD]=swarmlet                     # (default swarmlet) Used for authentication with the registry and web services / dashboards
@@ -94,7 +95,7 @@ install() {
 
   # TODO: support other package managers
   $SUDO "$PKG_MANAGER" update -y -qq &>/dev/null
-  $SUDO "$PKG_MANAGER" install -y -qq apt-transport-https &>/dev/null
+  $SUDO "$PKG_MANAGER" install -y -qq apt-transport-https whiptail &>/dev/null
   [[ $(command -v git) ]] || $SUDO "$PKG_MANAGER" install -y -qq git
 
   echo "$PREFIX Cloning $SWARMLET_REPO"
