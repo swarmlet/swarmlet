@@ -6,7 +6,8 @@
     "modules",
     "src",
     "storage",
-    "deploy"
+    "deploy",
+    "router"
   ],
   "prettier.singleQuote": true,
   "prettier.trailingComma": "all",
