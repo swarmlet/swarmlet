@@ -65,6 +65,10 @@ const newLabels = {
       .map(e => e.replace(/\/.*/g, ''))
       .join(',')
 
+    // TODO:
+    // Add labels for different domains
+    // `traefik.http.routers.${service}.tls.domains[<INDEX>].main=${domain}`,
+
     return [
       `traefik.http.routers.${service}.tls=true`,
       `traefik.http.routers.${service}.tls.certresolver=letsencrypt`,

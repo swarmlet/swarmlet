@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2143
 
 set -eo pipefail
 [[ $DEBUG ]] && set -x
@@ -30,6 +31,12 @@ deploy() {
 
   if [[ -f $ENTRYPOINT_FILE && $REPO_NAME != "deployer" ]]; then
     source $ENTRYPOINT_FILE
+  fi
+
+  if [[ $(grep -R "swarmlet." "$COMPOSE_FILE") ]]; then
+    echo "$PREFIX Parsing deployment labels"
+    LABEL_PARSER=$(docker ps --filter name=deployer_label-parser -q)
+    docker container exec "$LABEL_PARSER" "$COMPOSE_FILE"
   fi
 
   if [[ -f $COMPOSE_FILE ]]; then
