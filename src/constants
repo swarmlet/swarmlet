@@ -29,7 +29,6 @@ GIT_REPO_ROOT="/var/repo"
 # Traefik settings
 TRAEFIK_NETWORK="traefik-public"
 TRAEFIK_CERTS="/mnt/gfs/traefik"
-DOCKER_SOCKET="/var/run/docker.sock"
 
 # Let's Encrypt CA servers
 CA_PROD="https://acme-v02.api.letsencrypt.org/directory"
