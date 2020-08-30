@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 
 reinstall() {
   declare cmd="reinstall"
   [[ "$1" == "$cmd" ]] && shift 1
 
   swarmlet uninstall
-  curl -fsSL https://get.swarmlet.dev | bash -s ROOT_DOMAIN=$ROOT_DOMAIN
+  curl -fsSL https://get.swarmlet.dev | bash -s ROOT_DOMAIN="$ROOT_DOMAIN"
 }
 
 "$@"
