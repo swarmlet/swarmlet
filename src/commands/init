@@ -17,7 +17,6 @@ init() {
     while ! $INSTALL_CONFIRMED; do
       SWARMLET_USERNAME=$(swarmlet dialog set-username)
       SWARMLET_PASSWORD=$(swarmlet dialog set-password)
-      # INSTALLATION_MODE=$(swarmlet dialog set-installation-mode)
       SSH_AUTHORIZED_KEYS=$(swarmlet dialog set-ssh-authorized-keys)
       NEW_HOSTNAME=$(swarmlet dialog set-hostname)
       ROOT_DOMAIN=$(swarmlet dialog domain-config)
