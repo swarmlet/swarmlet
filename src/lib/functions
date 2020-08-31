@@ -135,67 +135,97 @@ install-zsh() {
 }
 
 get-own-ip-address() {
-  echo "$(hostname -I | awk '{print $1}')"
+  hostname -I | awk '{print $1}'
 }
 
-install-glusterfs() {
-  echo "$PREFIX Installing GlusterFS"
-  IP_ADDRESS=$(get-own-ip-address)
-  PHYSICAL_DRIVE=$(df -P /var | awk 'END {print $1}')
-  GFS_BRICKS_PATH="/var/gluster/bricks"
-  GFS_MOUNT_PATH="/mnt/gfs"
-  GLUSTER_NAME="gluster.$IP_ADDRESS"
+install-ansible() {
+  # TODO: use other package managers "apt-add-repository" equivalent
+  echo "$PREFIX Installing Ansible"
+  "$SUDO" apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
+  "$SUDO" "$PKG_MANAGER" update &>/dev/null
+  "$SUDO" "$PKG_MANAGER" install -y ansible
 
-  echo "$IP_ADDRESS $GLUSTER_NAME" >>/etc/hosts
-  mkdir -p "$GFS_BRICKS_PATH/$GLUSTER_NAME" &>/dev/null
-  echo "$PHYSICAL_DRIVE $GFS_BRICKS_PATH/$GLUSTER_NAME xfs defaults 0 0" >>/etc/fstab
-  mount -a &>/dev/null
-  mkdir "$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" "$GFS_MOUNT_PATH" &>/dev/null
+  echo "$PREFIX Creating Ansible SSH key"
+  ssh-keygen -f ~/.ssh/ansible.pub -t rsa -N '' -b 4096
 
-  # $PKG_MANAGER install -y software-properties-common
-  # $PKG_MANAGER -y update
-  # add-apt-repository -y ppa:gluster/glusterfs-8 && $PKG_MANAGER -y update
-  # $PKG_MANAGER install -y glusterfs-server
-  # systemctl enable glusterd
+  echo "$PREFIX Backing up default Ansible inventory to $ANSIBLE_HOSTS_FILE.backup"
+  cp "$ANSIBLE_HOSTS_FILE" "$ANSIBLE_HOSTS_FILE.backup"
 
-  apt-get update -y -qq >/dev/null
-  echo "$PREFIX Installing dependencies"
-  apt-get install -y -qq xfsprogs attr glusterfs-server glusterfs-common glusterfs-client >/dev/null
+  echo "$PREFIX Updating Ansible inventory $ANSIBLE_HOSTS_FILE"
+  echo -e "\n[all:vars]\nansible_python_interpreter=/usr/bin/python3" >"$ANSIBLE_HOSTS_FILE"
+  echo -e "\n[swarmlet]\nroot@$(get-own-ip-address)" >>"$ANSIBLE_HOSTS_FILE"
 
-  sleep 2 && systemctl enable glusterfs-server &>/dev/null
-  sleep 1 && systemctl start glusterd &>/dev/null
-  sleep 1 && systemctl status glusterd --no-page
+  # TODO: add hosts
+  echo -e "root@$(get-own-ip-address)" >>"$ANSIBLE_HOSTS_FILE"
+  # ssh-copy-id -i ~/.ssh/myansiblehost.pub root@111.111.111.111
+  # ssh-copy-id -i ~/.ssh/myansiblehost.pub root@222.222.222.222
+  # ssh-keyscan -H 111.111.111.111 >> ~/.ssh/known_hosts
+  # ssh-keyscan -H 222.222.222.222 >> ~/.ssh/known_hosts
 
-  # gluster peer probe gluster2
-  gluster pool list
+  # ansible-inventory --list -y
+  echo "$PREFIX Testing Ansible remote connections"
+  # ansible all -m ping -u root
 
-  # TODO: if not joining an existing swarm
-  gluster volume create gfs \
-    "$GLUSTER_NAME:$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" \
-    force
-  # replica 1 \
-
-  gluster volume start gfs >/dev/null
-  # gluster volume set gfs auth.allow "$IP_ADDRESS" >/dev/null
-  # gluster volume status gfs
-
-  echo "localhost:/gfs $GFS_MOUNT_PATH glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0" >>/etc/fstab
-  mount.glusterfs localhost:/gfs "$GFS_MOUNT_PATH"
-
-  echo "$PREFIX Installing GlusterFS Docker plugin"
-  # docker plugin install --alias glusterfs trajano/glusterfs-volume-plugin:latest --grant-all-permissions --disable
-  # docker plugin set glusterfs "SERVERS=$IP_ADDRESS" >/dev/null
-  # docker plugin enable glusterfs >/dev/null
+  # NOTE: execute arbitrary command on all nodes
+  # ansible all -a "df -h" -u root
+  # ansible all -a "$COMMAND" -u "$USER"
 }
 
-# install-ceph() {
+add-ansible-remote() {
+  REMOTE_NAME="$1"
+  REMOTE_ADDR="$2"
+  echo "$PREFIX Adding remote $REMOTE_NAME ($REMOTE_ADDR) to Ansible inventory"
+  echo -e "$REMOTE_NAME ansible_host=$REMOTE_ADDR" >>"$ANSIBLE_HOSTS_FILE"
+}
+
+# install-glusterfs() {
+#   echo "$PREFIX Installing GlusterFS"
 #   IP_ADDRESS=$(get-own-ip-address)
 #   PHYSICAL_DRIVE=$(df -P /var | awk 'END {print $1}')
-#   CEPH_PATH="/etc/ceph"
-#   curl --silent --remote-name --location https://github.com/ceph/ceph/raw/octopus/src/cephadm/cephadm
-#   chmod +x cephadm
-#   mkdir -p $CEPH_PATH
-#   ./cephadm bootstrap --mon-ip "$IP_ADDRESS"
+#   GFS_BRICKS_PATH="/var/gluster/bricks"
+#   GFS_MOUNT_PATH="/mnt/gfs"
+#   GLUSTER_NAME="gluster.$IP_ADDRESS"
+
+#   echo "$IP_ADDRESS $GLUSTER_NAME" >>/etc/hosts
+#   mkdir -p "$GFS_BRICKS_PATH/$GLUSTER_NAME" &>/dev/null
+#   echo "$PHYSICAL_DRIVE $GFS_BRICKS_PATH/$GLUSTER_NAME xfs defaults 0 0" >>/etc/fstab
+#   mount -a &>/dev/null
+#   mkdir "$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" "$GFS_MOUNT_PATH" &>/dev/null
+
+#   # $PKG_MANAGER install -y software-properties-common
+#   # $PKG_MANAGER -y update
+#   # add-apt-repository -y ppa:gluster/glusterfs-8 && $PKG_MANAGER -y update
+#   # $PKG_MANAGER install -y glusterfs-server
+#   # systemctl enable glusterd
+
+#   apt-get update -y -qq >/dev/null
+#   echo "$PREFIX Installing dependencies"
+#   apt-get install -y -qq xfsprogs attr glusterfs-server glusterfs-common glusterfs-client >/dev/null
+
+#   sleep 2 && systemctl enable glusterfs-server &>/dev/null
+#   sleep 1 && systemctl start glusterd &>/dev/null
+#   sleep 1 && systemctl status glusterd --no-page
+
+#   # gluster peer probe gluster2
+#   gluster pool list
+
+#   # TODO: if not joining an existing swarm
+#   gluster volume create gfs \
+#     "$GLUSTER_NAME:$GFS_BRICKS_PATH/$GLUSTER_NAME/brick" \
+#     force
+#   # replica 1 \
+
+#   gluster volume start gfs >/dev/null
+#   # gluster volume set gfs auth.allow "$IP_ADDRESS" >/dev/null
+#   # gluster volume status gfs
+
+#   echo "localhost:/gfs $GFS_MOUNT_PATH glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0" >>/etc/fstab
+#   mount.glusterfs localhost:/gfs "$GFS_MOUNT_PATH"
+
+#   echo "$PREFIX Installing GlusterFS Docker plugin"
+#   # docker plugin install --alias glusterfs trajano/glusterfs-volume-plugin:latest --grant-all-permissions --disable
+#   # docker plugin set glusterfs "SERVERS=$IP_ADDRESS" >/dev/null
+#   # docker plugin enable glusterfs >/dev/null
 # }
 
 # create-partition() {
@@ -293,6 +323,7 @@ is-service-healthy() {
   if [[ $(echo "$REPLICAS" | sed 's/\/[0-9]//') -gt 0 ]]; then
     return 0
   else
+    echo "$PREFIX $SERVICE not (yet) healthy"
     return 1
   fi
 }
@@ -312,13 +343,13 @@ get-random-open-port() {
 nuke() {
   uninstall-swarmlet
   for CONFIG in $(docker config ls --format {{.ID}}); do
-    echo docker config rm "$CONFIG"
+    docker config rm "$CONFIG"
   done
   for SECRET in $(docker secret ls --format {{.ID}}); do
-    echo docker config rm "$SECRET"
+    docker config rm "$SECRET"
   done
   for NETWORK in $(docker network ls --format {{.Name}}); do
-    echo docker config rm "$NETWORK"
+    docker config rm "$NETWORK"
   done
   $SUDO apt-get remove -y --purge docker docker-compose
   $SUDO apt autoremove -y

@@ -30,6 +30,9 @@ GIT_REPO_ROOT="/var/repo"
 TRAEFIK_NETWORK="traefik-public"
 TRAEFIK_CERTS="/mnt/gfs/traefik"
 
+# Ansible settings
+ANSIBLE_HOSTS_FILE="/etc/ansible/hosts"
+
 # Let's Encrypt CA servers
 CA_PROD="https://acme-v02.api.letsencrypt.org/directory"
 CA_TEST="https://acme-staging-v02.api.letsencrypt.org/directory"
