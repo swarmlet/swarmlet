@@ -12,11 +12,6 @@ deploy() {
   while ! is-service-healthy deployer; do sleep 1; done
   while ! is-service-healthy registry; do sleep 1; done
 
-  DEPLOYER_YML_VALIDATOR=$(docker ps --filter name=deployer_yml-validator -q)
-  echo "validator"
-  echo "$DEPLOYER_YML_VALIDATOR"
-  docker container exec "$DEPLOYER_YML_VALIDATOR" /entrypoint validate "$REPO_PATH/docker-compose.yml"
-
   DEPLOYER_AGENT=$(docker ps --filter name=deployer_agent -q)
   docker container exec "$DEPLOYER_AGENT" /entrypoint deploy "$REPO_PATH"
 }
