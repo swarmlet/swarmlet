@@ -23,7 +23,8 @@ deploy() {
   COMPOSE_FILE="$REPO_PATH/docker-compose.yml"
 
   python3 --version
-  python3 -c 'import yaml, sys; yaml.safe_load(sys.stdin)' <"$COMPOSE_FILE"
+  python3 -c 'import yaml, sys; yaml.safe_load(sys.stdin)' <"$COMPOSE_FILE" &>/dev/null
+  [[ $? == "1" ]] && exit 1
 
   if [[ -f $ENV_FILE ]]; then
     set -o allexport
