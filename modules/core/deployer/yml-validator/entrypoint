@@ -12,7 +12,6 @@ validate() {
   declare cmd="validate"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  yq --help
   yq v "$1"
 }
 

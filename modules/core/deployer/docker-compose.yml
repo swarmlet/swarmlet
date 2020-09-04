@@ -32,6 +32,8 @@ services:
     image: ${SWARMLET_REGISTRY}/yml-validator
     entrypoint: /entrypoint
     command: tail -f /dev/null
+    volumes:
+      - git-data:/home/git
     deploy:
       mode: replicated
       replicas: 1
