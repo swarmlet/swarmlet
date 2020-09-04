@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 set -o allexport
 source "/swarmlet-config"
 
@@ -20,6 +21,9 @@ deploy() {
   ENV_FILE="$REPO_PATH/.env"
   ENTRYPOINT_FILE="$REPO_PATH/entrypoint"
   COMPOSE_FILE="$REPO_PATH/docker-compose.yml"
+
+  python3 --version
+  python3 -c 'import yaml, sys; yaml.safe_load(sys.stdin)' <"$COMPOSE_FILE"
 
   if [[ -f $ENV_FILE ]]; then
     set -o allexport
