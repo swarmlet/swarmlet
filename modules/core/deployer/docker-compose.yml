@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   agent:
@@ -18,6 +18,20 @@ services:
       - swarmlet-core-config
       - swarmlet-user-config
       - swarmlet-config
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 120s
+
+  yml-validator:
+    build: yml-validator
+    image: ${SWARMLET_REPO}/yml-validator
+    entrypoint: /entrypoint
+    command: tail -f /dev/null
     deploy:
       mode: replicated
       replicas: 1
