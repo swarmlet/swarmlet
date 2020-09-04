@@ -28,7 +28,7 @@ services:
         window: 120s
 
   yml-validator:
-    build: yml-validator
+    build: ./yml-validator
     image: ${SWARMLET_REPO}/yml-validator
     entrypoint: /entrypoint
     command: tail -f /dev/null
