@@ -27,22 +27,6 @@ services:
         max_attempts: 5
         window: 120s
 
-  yml-validator:
-    build: yml-validator
-    image: ${SWARMLET_REGISTRY}/yml-validator
-    entrypoint: /entrypoint
-    command: tail -f /dev/null
-    volumes:
-      - git-data:/home/git
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        delay: 2s
-        max_attempts: 5
-        window: 120s
-
 networks:
   swarmlet-network:
     external: true
