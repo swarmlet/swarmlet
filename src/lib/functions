@@ -148,12 +148,9 @@ install-ansible() {
   echo "$PREFIX Creating Ansible SSH key"
   ssh-keygen -f ~/.ssh/ansible.pub -t rsa -N '' -b 4096
 
-  echo "$PREFIX Backing up default Ansible inventory to $ANSIBLE_HOSTS_FILE.backup"
-  cp "$ANSIBLE_HOSTS_FILE" "$ANSIBLE_HOSTS_FILE.backup"
-
   echo "$PREFIX Updating Ansible inventory $ANSIBLE_HOSTS_FILE"
   echo -e "\n[all:vars]\nansible_python_interpreter=/usr/bin/python3" >"$ANSIBLE_HOSTS_FILE"
-  echo -e "\n[swarmlet]\nroot@$(get-own-ip-address)" >>"$ANSIBLE_HOSTS_FILE"
+  echo -e "\n[swarmlet]\n" >>"$ANSIBLE_HOSTS_FILE"
 
   # TODO: add hosts
   echo -e "root@$(get-own-ip-address)" >>"$ANSIBLE_HOSTS_FILE"
@@ -165,6 +162,10 @@ install-ansible() {
   # ansible-inventory --list -y
   echo "$PREFIX Testing Ansible remote connections"
   # ansible all -m ping -u root
+
+  # Apply playbook
+  echo "$PREFIX Running Ansible tasks"
+  ansible-playbook -K "$ANSIBLE_ROOT/playbook.yml"
 
   # NOTE: execute arbitrary command on all nodes
   # ansible all -a "df -h" -u root

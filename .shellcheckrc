@@ -1,1 +1,1 @@
-disable=SC2145
+disable=SC2145,SC1091
