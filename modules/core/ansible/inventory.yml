@@ -1,0 +1,18 @@
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    remote_user: root
+    docker_group: docker
+  hosts:
+    localhost:
+
+  # children:
+  #   webservers:
+  #     hosts:
+  #       foo.example.com:
+  #       bar.example.com:
+  #   dbservers:
+  #     hosts:
+  #       one.example.com:
+  #       two.example.com:
+  #       three.example.com:

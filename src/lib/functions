@@ -144,39 +144,22 @@ install-ansible() {
   "$SUDO" apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
   "$SUDO" "$PKG_MANAGER" update &>/dev/null
   "$SUDO" "$PKG_MANAGER" install -y ansible
+  
+  # ansible-galaxy collection install community.general # takes a long time
 
-  echo "$PREFIX Creating Ansible SSH key"
-  ssh-keygen -f ~/.ssh/ansible.pub -t rsa -N '' -b 4096
+  # Run playbook
+  echo "$PREFIX Running Ansible tasks"
+  ansible-playbook "$ANSIBLE_ROOT/swarmlet.yml" -i "$ANSIBLE_INVENTORY_FILE"
 
-  echo "$PREFIX Updating Ansible inventory $ANSIBLE_HOSTS_FILE"
-  echo -e "\n[all:vars]\nansible_python_interpreter=/usr/bin/python3" >"$ANSIBLE_HOSTS_FILE"
-  echo -e "\n[swarmlet]\n" >>"$ANSIBLE_HOSTS_FILE"
+  # echo "$PREFIX Creating Ansible SSH key"
+  # ssh-keygen -f ~/.ssh/ansible.pub -t rsa -N '' -b 4096
 
-  # TODO: add hosts
-  echo -e "root@$(get-own-ip-address)" >>"$ANSIBLE_HOSTS_FILE"
-  # ssh-copy-id -i ~/.ssh/myansiblehost.pub root@111.111.111.111
-  # ssh-copy-id -i ~/.ssh/myansiblehost.pub root@222.222.222.222
-  # ssh-keyscan -H 111.111.111.111 >> ~/.ssh/known_hosts
-  # ssh-keyscan -H 222.222.222.222 >> ~/.ssh/known_hosts
-
-  # ansible-inventory --list -y
   echo "$PREFIX Testing Ansible remote connections"
   # ansible all -m ping -u root
-
-  # Apply playbook
-  echo "$PREFIX Running Ansible tasks"
-  ansible-playbook -K "$ANSIBLE_ROOT/playbook.yml"
 
   # NOTE: execute arbitrary command on all nodes
   # ansible all -a "df -h" -u root
   # ansible all -a "$COMMAND" -u "$USER"
-}
-
-add-ansible-remote() {
-  REMOTE_NAME="$1"
-  REMOTE_ADDR="$2"
-  echo "$PREFIX Adding remote $REMOTE_NAME ($REMOTE_ADDR) to Ansible inventory"
-  echo -e "$REMOTE_NAME ansible_host=$REMOTE_ADDR" >>"$ANSIBLE_HOSTS_FILE"
 }
 
 # install-glusterfs() {

@@ -1,7 +1,0 @@
-- name: 'Installing dependencies'
-  apt: pkg={{ item }} state=installed
-  with_items:
-    - git
-    - docker
-    - docker-compose
-    - glusterfs

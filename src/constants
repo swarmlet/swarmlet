@@ -32,7 +32,7 @@ TRAEFIK_CERTS="/mnt/gfs/traefik"
 
 # Ansible settings
 ANSIBLE_ROOT="$SWARMLET_MODULES_ROOT/core/ansible"
-ANSIBLE_HOSTS_FILE="$ANSIBLE_ROOT/hosts"
+ANSIBLE_INVENTORY_FILE="$ANSIBLE_ROOT/inventory.yml"
 
 # Let's Encrypt CA servers
 CA_PROD="https://acme-v02.api.letsencrypt.org/directory"
