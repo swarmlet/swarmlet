@@ -3,16 +3,41 @@ all:
     ansible_python_interpreter: /usr/bin/python3
     remote_user: root
     docker_group: docker
-  hosts:
-    localhost:
+    # ansible_ssh_user: ansible
+    local_user: "{{ lookup('env', 'USER') }}"
+    gluster_version: 7
+    gluster_volume_name: gv0
+    gluster_brick_path:
+      - '/data/glusterfs/brick01/{{ gluster_volume_name }}'
 
-  # children:
-  #   webservers:
-  #     hosts:
-  #       foo.example.com:
-  #       bar.example.com:
-  #   dbservers:
-  #     hosts:
-  #       one.example.com:
-  #       two.example.com:
-  #       three.example.com:
+  hosts:
+    swarmlet:
+      children:
+        hosts:
+          '{{ ansible_default_ipv4.address }}':
+
+swarmlet:
+  vars:
+    # mem_size_gb: "2"
+    # cpu_size: "2"
+    # additional_disks:
+    #   - size_gb: "120"
+    #     datastore_name: "VSAN_Datastore"
+    #   - size_gb: "120"
+    #     datastore_name: "VSAN_Datastore"
+    disk_additional_disks:
+      - disk: /dev/sdb
+        fstype: ext4
+        mount_options: defaults
+        mount: /var/lib/docker
+        user: root
+        group: root
+        disable_periodic_fsck: false
+
+      - disk: /dev/sdb
+        fstype: xfs
+        mount_options: defaults
+        mount: /data/glusterfs/brick01
+        user: root
+        group: root
+        disable_periodic_fsck: false

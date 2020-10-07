@@ -1,0 +1,20 @@
+- name: Test
+  hosts: all
+  connection: local
+  gather_facts: no
+  tasks:
+    - debug: msg="hostname - {{ inventory_hostname }}"
+
+- name: Test docker_inventory
+  hosts: all
+  connection: local
+  gather_facts: no
+  tasks:
+    - debug: msg="play hosts - {{ play_hosts }}"
+
+- name: Test docker_inventory
+  hosts: all
+  connection: local
+  gather_facts: no
+  tasks:
+    - debug: msg="play hosts - {{ ansible_all_ipv4_addresses }}"

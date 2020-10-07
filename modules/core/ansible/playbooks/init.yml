@@ -1,0 +1,40 @@
+---
+- hosts: swarmlet
+  connection: local
+  vars:
+    force_purge: true
+    install_public_roles: true
+    installation_dir: roles/public
+    installation_prefix: ../
+  pre_tasks:
+    - name: install pre-requirements
+      apt:
+        pkg:
+          - software-properties-common
+          - python3
+          - python3-pip
+          - python-pip
+          - xfsprogs
+          - btrfs-progs
+        state: present
+
+    - name: install needed pip modules
+      pip:
+        name:
+          - netaddr
+          - pyvmomi
+          - docker
+
+    - name: Remove existing vendor roles
+      file:
+        path: '{{ installation_prefix }}{{ installation_dir }}'
+        state: absent
+      when: force_purge | bool
+
+    - name: Install all public roles
+      command: >
+        ansible-galaxy install
+        {{ ( force_purge | bool ) | ternary('--force','') }}
+        --role-file {{ installation_prefix }}roles/requirements.yml
+        --roles-path {{ installation_prefix }}{{ installation_dir }}
+      when: install_public_roles | bool

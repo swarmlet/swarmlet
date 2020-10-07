@@ -1,0 +1,9 @@
+---
+- hosts: swarmlet
+  connection: local
+  become: yes
+  gather_facts: yes
+  roles:
+    - common
+    - disk
+    - docker-install

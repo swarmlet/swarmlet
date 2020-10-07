@@ -1,14 +1,4 @@
-- name: Local setup
-  connection: local
-  hosts: localhost
-  become: yes
-  roles:
-    - setup
-
-
-# plugin: community.general.docker_swarm
-# docker_host: unix://var/run/docker.sock
-
-# To use it in a playbook, specify: community.general.docker.
-
-# community.general.docker_swarm
+---
+- import_playbook: playbooks/init.yml
+- import_playbook: playbooks/docker.yml
+- import_playbook: playbooks/gluster.yml

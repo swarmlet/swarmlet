@@ -1,0 +1,44 @@
+---
+# - name: update apt cache
+#   apt:
+#     update_cache: yes
+#     state: latest
+
+# - name: upgrade all packages
+#   apt:
+#     upgrade: dist
+
+- name: install pre-requirements
+  apt:
+    pkg:
+      - software-properties-common
+      - python3
+      - python3-pip
+      - python-pip
+      - xfsprogs
+      - btrfs-progs
+    state: present
+
+- name: Update the /etc/hosts file with node name
+  tags: etchostsupdate
+  become: yes
+  become_user: root
+  lineinfile:
+    path: '/etc/hosts'
+    regexp: ".*\t{{ hostvars[item]['ansible_hostname']}}\t{{ hostvars[item]['ansible_hostname']}}"
+    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }}\t{{ hostvars[item]['ansible_hostname']}}"
+    state: present
+  register: etchostsupdate
+  with_items: "{{groups['all']}}"
+
+- name: Remove useless apt packages from the cache
+  apt:
+    autoclean: yes
+  tags:
+    - system
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
+  tags:
+    - system

@@ -1,0 +1,10 @@
+---
+- hosts: swarmlet
+  connection: local
+  gather_facts: yes
+  become: yes
+  roles:
+    - disk
+    - role: glusterfs
+      vars:
+        gluster_version: 7

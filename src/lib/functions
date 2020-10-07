@@ -144,12 +144,12 @@ install-ansible() {
   "$SUDO" apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
   "$SUDO" "$PKG_MANAGER" update &>/dev/null
   "$SUDO" "$PKG_MANAGER" install -y ansible
-  
+
   # ansible-galaxy collection install community.general # takes a long time
 
   # Run playbook
   echo "$PREFIX Running Ansible tasks"
-  ansible-playbook "$ANSIBLE_ROOT/swarmlet.yml" -i "$ANSIBLE_INVENTORY_FILE"
+  ansible-playbook "$ANSIBLE_ROOT/swarmlet.yml"
 
   # echo "$PREFIX Creating Ansible SSH key"
   # ssh-keygen -f ~/.ssh/ansible.pub -t rsa -N '' -b 4096
