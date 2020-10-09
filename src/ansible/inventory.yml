@@ -6,25 +6,23 @@ all:
     # ansible_ssh_user: ansible
     local_user: "{{ lookup('env', 'USER') }}"
     gluster_version: 7
-    gluster_volume_name: gv0
+    gluster_volume_name: gfs
     gluster_brick_path:
       - '/data/glusterfs/brick01/{{ gluster_volume_name }}'
+      # foreach host use gfs.<IP> ?
 
-  hosts:
-    swarmlet:
-      children:
-        hosts:
-          '{{ ansible_default_ipv4.address }}':
+  # hosts:
+  #   swarmlet:
+  #     children:
+  #       hosts:
+  #         '{{ ansible_default_ipv4.address }}':
 
 swarmlet:
+  hosts:
+    '{{ inventory_hostname }}':
+      ansible_host: '{{ ansible_default_ipv4.address }}'
+
   vars:
-    # mem_size_gb: "2"
-    # cpu_size: "2"
-    # additional_disks:
-    #   - size_gb: "120"
-    #     datastore_name: "VSAN_Datastore"
-    #   - size_gb: "120"
-    #     datastore_name: "VSAN_Datastore"
     disk_additional_disks:
       - disk: /dev/sdb
         fstype: ext4

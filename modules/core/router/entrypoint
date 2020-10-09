@@ -10,11 +10,11 @@ main() {
 
   echo -e "Leader IP: $LEADER_IP"
 
-  if [[ ! -d $TRAEFIK_CERTS ]]; then
-    echo "$PREFIX Creating $TRAEFIK_CERTS/acme.json"
-    mkdir -p "$TRAEFIK_CERTS"
-    touch "$TRAEFIK_CERTS/acme.json"
-    chmod 600 "$TRAEFIK_CERTS/acme.json"
+  if [[ ! -d $TRAEFIK_DATA ]]; then
+    echo "$PREFIX Creating $TRAEFIK_DATA/acme.json"
+    mkdir -p "$TRAEFIK_DATA"
+    touch "$TRAEFIK_DATA/acme.json"
+    chmod 600 "$TRAEFIK_DATA/acme.json"
   fi
 }
 

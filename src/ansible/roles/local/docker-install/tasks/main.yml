@@ -5,17 +5,6 @@
       - docker
     state: absent
 
-- name: Install dependencies
-  apt:
-    name:
-      - curl
-      - apt-transport-https
-      - software-properties-common
-      - ca-certificates
-      - gnupg-agent
-    update_cache: yes
-    state: present
-
 - name: install needed pip modules
   pip:
     name:

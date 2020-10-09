@@ -7,31 +7,32 @@
     installation_dir: roles/public
     installation_prefix: ../
   pre_tasks:
+    - name: update apt
+      apt:
+        update: yes
+
     - name: install pre-requirements
       apt:
         pkg:
+          - acl
+          - curl
+          - apache2-utils
           - software-properties-common
-          - python3
-          - python3-pip
-          - python-pip
+          - ca-certificates
+          - gnupg-agent
+          - moreutils
+          - wget
+          - libpcre3
           - xfsprogs
           - btrfs-progs
-        state: present
 
-    - name: install needed pip modules
-      pip:
-        name:
-          - netaddr
-          - pyvmomi
-          - docker
-
-    - name: Remove existing vendor roles
+    - name: Remove existing public roles
       file:
         path: '{{ installation_prefix }}{{ installation_dir }}'
         state: absent
       when: force_purge | bool
 
-    - name: Install all public roles
+    - name: Install public roles
       command: >
         ansible-galaxy install
         {{ ( force_purge | bool ) | ternary('--force','') }}

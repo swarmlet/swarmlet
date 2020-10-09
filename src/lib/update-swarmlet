@@ -1,10 +1,10 @@
 # #!/usr/bin/env bash
 
 # set -eo pipefail; [[ $DEBUG ]] && set -x; set -o allexport
-# SWARMLET_CONSTANTS="/opt/swarmlet/src/constants"
-# [[ ! -f "$SWARMLET_CONSTANTS" ]] && SWARMLET_CONSTANTS="/opt/swarmlet/src/variables"
+# SWARMLET_CONSTANTS="/mnt/gfs/swarmlet/src/constants"
+# [[ ! -f "$SWARMLET_CONSTANTS" ]] && SWARMLET_CONSTANTS="/mnt/gfs/swarmlet/src/variables"
 # source $SWARMLET_CONSTANTS
-# [[ ! -f "$SWARMLET_FUNCTIONS" ]] && SWARMLET_FUNCTIONS="/opt/swarmlet/src/functions"
+# [[ ! -f "$SWARMLET_FUNCTIONS" ]] && SWARMLET_FUNCTIONS="/mnt/gfs/swarmlet/src/functions"
 # source $SWARMLET_FUNCTIONS
 # set +o allexport
 
@@ -63,7 +63,6 @@
 #     INSTALL_CONFIRMED=$(swarmlet dialog confirm-install)
 
 #     echo "$PREFIX Creating configs"
-#     docker config create --template-driver golang swarmlet-config $SWARMLET_CONFIG
 #     docker config create swarmlet-core-config $SWARMLET_CONSTANTS
 #     cat << EOM | docker config create swarmlet-user-config -
 # SSH_AUTHORIZED_KEYS="$SSH_AUTHORIZED_KEYS"
@@ -88,14 +87,14 @@
 #     for MODULE in $DIR/*; do
 #       MODULE_NAME=$(basename $MODULE)
 #       rm -rf /var/repo/$MODULE_NAME.git &>/dev/null
-#       rm -rf /home/git/$MODULE_NAME &>/dev/null
+#       rm -rf /mnt/gfs/git/data/$MODULE_NAME &>/dev/null
 #       swarmlet repo create $MODULE_NAME &>/dev/null
 #       git-local-push $MODULE >/dev/null
 #     done
 #   done
 
-#   for REPO in $GIT_USER_ROOT/*; do
-#     pushd $GIT_USER_ROOT >/dev/null
+#   for REPO in $GIT_DATA_ROOT/*; do
+#     pushd $GIT_DATA_ROOT >/dev/null
 #     COMPOSE_FILE=$REPO/docker-compose.yml
 #     [[ -f $COMPOSE_FILE ]] && swarmlet stack deploy --compose-file $COMPOSE_FILE $REPO
 #     popd >/dev/null
@@ -118,14 +117,14 @@
 #     for MODULE in $DIR/*; do
 #       MODULE_NAME=$(basename $MODULE)
 #       rm -rf /var/repo/$MODULE_NAME.git &>/dev/null
-#       rm -rf /home/git/$MODULE_NAME &>/dev/null
+#       rm -rf /mnt/gfs/git/data/$MODULE_NAME &>/dev/null
 #       swarmlet repo create $MODULE_NAME &>/dev/null
 #       git-local-push $MODULE >/dev/null
 #     done
 #   done
 
-#   for REPO in $GIT_USER_ROOT/*; do
-#     pushd $GIT_USER_ROOT >/dev/null
+#   for REPO in $GIT_DATA_ROOT/*; do
+#     pushd $GIT_DATA_ROOT >/dev/null
 #     COMPOSE_FILE=$REPO/docker-compose.yml
 #     [[ -f $COMPOSE_FILE ]] && swarmlet stack deploy --compose-file $COMPOSE_FILE $REPO
 #     popd >/dev/null

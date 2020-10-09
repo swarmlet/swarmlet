@@ -4,4 +4,4 @@ RUN apk update && apk upgrade
 RUN apk add bash apache2-utils
 
 COPY entrypoint /entrypoint
-WORKDIR /home/git
+WORKDIR /mnt/gfs/git/data

@@ -210,8 +210,8 @@ Available memory: $(free -m | grep Mem | awk '{print $4}') MB\n\n\
 If you've selected Swarmprom, consider adding some swap if you have less than 2GB of RAM."
 
   CREATE_SWAP_OPTIONS=(
-    true "Allocate 1GB of swap space"
-    false "Skip this step"
+    "true" "Allocate 1GB of swap space"
+    "false" "Skip this step"
   )
 
   CREATE_SWAP=$(whiptail \
@@ -231,8 +231,8 @@ section-install-zsh() {
   MESSAGE="\nInstall Zsh and Oh My Zsh?"
 
   INSTALL_ZSH_OPTIONS=(
-    true "Install Zsh and Oh My Zsh"
-    false "Skip this step"
+    "true" "Install Zsh and Oh My Zsh"
+    "false" "Skip this step"
   )
 
   INSTALL_ZSH=$(whiptail \
@@ -252,8 +252,8 @@ section-confirm-install() {
   MESSAGE="\nConfiguration complete."
 
   INSTALL_CONFIRM_OPTIONS=(
-    true "Confirm"
-    false "Go back to edit configuration"
+    "true" "Confirm"
+    "false" "Go back to edit configuration"
   )
 
   INSTALL_CONFIRM=$(whiptail \

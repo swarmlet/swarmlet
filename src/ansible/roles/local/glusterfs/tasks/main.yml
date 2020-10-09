@@ -36,7 +36,7 @@
 
 - name: mount glusterfs volume "{{ gluster_volume_name }}"
   mount:
-    name: /mnt/gv0
+    name: /mnt/gfs
     src: '{{ ansible_default_ipv4.address }}:/{{ gluster_volume_name }}'
     fstype: glusterfs
     opts: 'defaults,_netdev'
@@ -58,21 +58,21 @@
 - name: create gluster volume
   gluster_volume:
     state: present
-    name: gv0
+    name: gfs
     bricks: "{{ gluster_brick_path | join(',')}}"
     # rebalance: yes
     # replicas: 1
     force: yes
-    # cluster: '{{ play_hosts }}'
-    cluster:
-      - '{{ ansible_default_ipv4.address }}'
+    cluster: '{{ play_hosts }}'
+    # cluster:
+    #   - '{{ ansible_default_ipv4.address }}'
     host: '{{ ansible_hostname }}'
   run_once: true
 
 - name: configure glusterfs volume
   gluster_volume:
     state: present
-    name: gv0
+    name: gfs
     options:
       { performance.cache-size: 256MB, write-behind: 'off', quick-read: 'on' }
   run_once: true
@@ -80,5 +80,5 @@
 - name: start gluster volume
   gluster_volume:
     state: started
-    name: gv0
+    name: gfs
   run_once: true

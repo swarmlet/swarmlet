@@ -1,0 +1,79 @@
+---
+- hosts: swarmlet
+  connection: local
+  vars:
+    # force_purge: true
+  pre_tasks:
+    - name: Set a hostname
+      hostname:
+        name: $NEW_HOSTNAME
+
+    - name: Add the git user
+      user:
+        name: git
+        uid: 1000
+        shell: /bin/bash
+        groups: git,docker
+        append: yes
+
+    - name: Create git folders
+      file:
+        path: $GIT_REPO_ROOT
+        state: directory
+
+    - name: Set folder permissions
+      acl:
+        entity: git
+        etype: user
+        path: $GIT_REPO_ROOT
+        permissions: rwx
+        state: present
+        # default: yes
+
+    - name: Create ssh directory
+      file:
+        path: $GIT_HOME/.ssh
+        state: directory
+        owner: git
+        group: git
+        mode: '0700'
+
+    - name: Add SSH authorized keys
+      file:
+        path: $GIT_HOME/.ssh/authorized_keys
+        content: 'cat $SSH_AUTHORIZED_KEYS | ts $SSH_OPTIONS'
+        owner: git
+        group: git
+        mode: '0600'
+
+    - name: Add swap
+      swap:
+        swap_file_path: /swapfile
+        swap_file_size_mb: '1024'
+        swap_swappiness: '60'
+        swap_file_state: present
+      when: $CREATE_SWAP | bool
+
+    - name: Install Zsh
+      apt:
+        pkg:
+          - zsh
+      when: $INSTALL_ZSH | bool
+
+    - name: Install Oh-My-Zsh
+      command: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+      when: $INSTALL_ZSH | bool
+
+    - name: Change shell
+      user:
+        name: root
+        shell: /bin/zsh
+      when: $INSTALL_ZSH | bool
+
+    - name: Create a symbolic link
+      file:
+        src: /mnt/gfs/swarmlet/swarmlet
+        dest: /usr/local/sbin/swarmlet
+        owner: root
+        group: root
+        state: link

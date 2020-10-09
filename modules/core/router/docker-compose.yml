@@ -7,8 +7,6 @@ services:
   #   volumes:
   #     - /mnt/gfs/traefik:/letsencrypt
   #     - /var/run/docker.sock:/app/docker.sock
-  #   configs:
-  #     - swarmlet-config
   #   networks:
   #     - traefik-public
   #     - swarmlet-network
@@ -32,8 +30,8 @@ services:
     image: goacme/lego:v3.8.0
     volumes:
       - /mnt/gfs/traefik:/letsencrypt
-    configs:
-      - swarmlet-config
+    # configs:
+    #   - swarmlet-config # deprecated
     networks:
       - swarmlet-network
     entrypoint: /bin/sh
@@ -122,10 +120,6 @@ networks:
   traefik-public:
     external: true
   swarmlet-network:
-    external: true
-
-configs:
-  swarmlet-config:
     external: true
 
 secrets:

@@ -8,16 +8,19 @@
 #   apt:
 #     upgrade: dist
 
-- name: install pre-requirements
+- name: install requirements
   apt:
     pkg:
-      - software-properties-common
       - python3
       - python3-pip
-      - python-pip
-      - xfsprogs
-      - btrfs-progs
+      # - python-pip # for swarm plugin
     state: present
+
+- name: install pip modules
+  pip:
+    name:
+      - netaddr
+      - pyvmomi
 
 - name: Update the /etc/hosts file with node name
   tags: etchostsupdate
@@ -25,8 +28,8 @@
   become_user: root
   lineinfile:
     path: '/etc/hosts'
-    regexp: ".*\t{{ hostvars[item]['ansible_hostname']}}\t{{ hostvars[item]['ansible_hostname']}}"
-    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }}\t{{ hostvars[item]['ansible_hostname']}}"
+    regexp: ".*\t{{ ansible_hostname }}\t{{ ansible_hostname }}"
+    line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
     state: present
   register: etchostsupdate
   with_items: "{{groups['all']}}"

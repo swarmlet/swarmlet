@@ -42,97 +42,97 @@ check-swarmlet-version() {
   popd >/dev/null || exit
 }
 
-update-package-cache() {
-  PKG_CACHE="/var/lib/apt/lists/"
-  UPDATE_PKG_CACHE="$PKG_MANAGER update"
-  TIMESTAMP=$(stat -c %Y $PKG_CACHE)
-  TIMESTAMP_AS_DATE=$(date -d @"$TIMESTAMP" "+%b %e")
-  TODAY=$(date "+%b %e")
+# update-package-cache() {
+#   PKG_CACHE="/var/lib/apt/lists/"
+#   UPDATE_PKG_CACHE="$PKG_MANAGER update"
+#   TIMESTAMP=$(stat -c %Y $PKG_CACHE)
+#   TIMESTAMP_AS_DATE=$(date -d @"$TIMESTAMP" "+%b %e")
+#   TODAY=$(date "+%b %e")
 
-  if [ ! "$TODAY" == "$TIMESTAMP_AS_DATE" ]; then
-    echo "$PREFIX $PKG_MANAGER update has not been run today, updating"
-    $SUDO "$UPDATE_PKG_CACHE" &>/dev/null
-  fi
-}
+#   if [ ! "$TODAY" == "$TIMESTAMP_AS_DATE" ]; then
+#     echo "$PREFIX $PKG_MANAGER update has not been run today, updating"
+#     $SUDO "$UPDATE_PKG_CACHE" &>/dev/null
+#   fi
+# }
 
-notify-package-updates-available() {
-  echo "$PREFIX Checking $PKG_MANAGER for upgraded packages"
-  PKG_COUNT="$PKG_MANAGER -s -o Debug::NoLocking=true upgrade | grep -c ^Inst || true"
-  UPDATES_TO_INSTALL=$(eval "$PKG_COUNT")
-  if [[ $UPDATES_TO_INSTALL -eq 0 ]]; then
-    echo "$PREFIX System up to date, continuing installation"
-  else
-    echo "$PREFIX There are $UPDATES_TO_INSTALL updates available"
-    # TODO: explain why and how to update
-    # echo "$PREFIX Please update your packages"
-  fi
-}
+# notify-package-updates-available() {
+#   echo "$PREFIX Checking $PKG_MANAGER for upgraded packages"
+#   PKG_COUNT="$PKG_MANAGER -s -o Debug::NoLocking=true upgrade | grep -c ^Inst || true"
+#   UPDATES_TO_INSTALL=$(eval "$PKG_COUNT")
+#   if [[ $UPDATES_TO_INSTALL -eq 0 ]]; then
+#     echo "$PREFIX System up to date, continuing installation"
+#   else
+#     echo "$PREFIX There are $UPDATES_TO_INSTALL updates available"
+#     # TODO: explain why and how to update
+#     # echo "$PREFIX Please update your packages"
+#   fi
+# }
 
-pkg-check-and-install() {
-  PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
-  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "$1 installed" || $SUDO "$PKG_INSTALL" "$1"
-}
+# pkg-check-and-install() {
+#   PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
+#   dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "$1 installed" || $SUDO "$PKG_INSTALL" "$1"
+# }
 
-install-dependencies() {
-  echo "$PREFIX Installing dependencies"
-  PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
-  echo "${SWARMLET_DEPENDENCIES[@]}" $PKG_MANAGER
-  # SWARMLET_DEPENDENCIES2="$1"
+# install-dependencies() {
+#   echo "$PREFIX Installing dependencies"
+#   PKG_INSTALL="$PKG_MANAGER --yes --no-install-recommends install"
+#   echo "${SWARMLET_DEPENDENCIES[@]}" $PKG_MANAGER
+#   # SWARMLET_DEPENDENCIES2="$1"
 
-  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | $SUDO debconf-set-selections
-  echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
+#   echo iptables-persistent iptables-persistent/autosave_v4 boolean true | $SUDO debconf-set-selections
+#   echo iptables-persistent iptables-persistent/autosave_v6 boolean false | $SUDO debconf-set-selections
 
-  for PKG in "${SWARMLET_DEPENDENCIES[@]}"; do
-    echo "$PREFIX Checking and installing $PKG"
-    $SUDO pkg-check-and-install "$PKG"
-  done
-}
+#   for PKG in "${SWARMLET_DEPENDENCIES[@]}"; do
+#     echo "$PREFIX Checking and installing $PKG"
+#     $SUDO pkg-check-and-install "$PKG"
+#   done
+# }
 
-set-hostname() {
-  echo "$PREFIX Setting hostname"
-  NEW_HOSTNAME="$1"
-  ROOT_DOMAIN="$2"
+# set-hostname() {
+#   echo "$PREFIX Setting hostname"
+#   NEW_HOSTNAME="$1"
+#   ROOT_DOMAIN="$2"
 
-  if command -v hostnamectl &>/dev/null; then # Prefer hostnamectl, no restart required
-    $SUDO hostnamectl set-hostname "$NEW_HOSTNAME"
-  # Fall back on manual hostname configuration, restart required
-  else
-    $SUDO echo "$NEW_HOSTNAME" >/etc/hostname
-  fi
+#   if command -v hostnamectl &>/dev/null; then # Prefer hostnamectl, no restart required
+#     $SUDO hostnamectl set-hostname "$NEW_HOSTNAME"
+#   # Fall back on manual hostname configuration, restart required
+#   else
+#     $SUDO echo "$NEW_HOSTNAME" >/etc/hostname
+#   fi
 
-  $SUDO sed -i "s/127.0.1.1.*$NEW_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
-}
+#   $SUDO sed -i "s/127.0.1.1.*$NEW_HOSTNAME/127.0.1.1\t$ROOT_DOMAIN/g" /etc/hosts
+# }
 
-create-git-user() {
-  $SUDO adduser "$GIT_USER" --disabled-password --gecos --quiet
-  $SUDO usermod -aG docker "$GIT_USER"
-  mkdir -p "$GIT_REPO_ROOT" "$GIT_USER_ROOT"/.ssh
-  $SUDO setfacl -m u:"$GIT_USER":rwx "$GIT_REPO_ROOT"
-}
+# create-git-user() {
+#   $SUDO adduser "$GIT_USER" --disabled-password --gecos --quiet
+#   $SUDO usermod -aG docker "$GIT_USER"
+#   mkdir -p "$GIT_REPO_ROOT" "$GIT_DATA_ROOT"/.ssh
+#   $SUDO setfacl -m u:"$GIT_USER":rwx "$GIT_REPO_ROOT"
+# }
 
-add-ssh-authorized-keys() {
-  SSH_AUTHORIZED_KEYS="$1"
-  $SUDO cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >>"$GIT_USER_ROOT"/.ssh/authorized_keys
-  $SUDO chmod 700 "$GIT_USER_ROOT"/.ssh
-  $SUDO chmod 600 "$GIT_USER_ROOT"/.ssh/authorized_keys
-  $SUDO chown -R "$GIT_USER:$GIT_USER" "$GIT_USER_ROOT"/.ssh
-}
+# add-ssh-authorized-keys() {
+#   SSH_AUTHORIZED_KEYS="$1"
+#   $SUDO cat "$SSH_AUTHORIZED_KEYS" | ts "$SSH_OPTIONS" >>"$GIT_DATA_ROOT"/.ssh/authorized_keys
+#   $SUDO chmod 700 "$GIT_DATA_ROOT"/.ssh
+#   $SUDO chmod 600 "$GIT_DATA_ROOT"/.ssh/authorized_keys
+#   $SUDO chown -R "$GIT_USER:$GIT_USER" "$GIT_DATA_ROOT"/.ssh
+# }
 
-install-docker() {
-  echo "$PREFIX Installing Docker and Docker Compose"
-  wget -nv -O - https://get.docker.com/ | sh &>/dev/null
-  curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  chmod +x /usr/local/bin/docker-compose
-  $SUDO usermod -aG docker "$USER"
-  $SUDO systemctl enable docker
-}
+# install-docker() {
+#   echo "$PREFIX Installing Docker and Docker Compose"
+#   wget -nv -O - https://get.docker.com/ | sh &>/dev/null
+#   curl -fsSL "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#   chmod +x /usr/local/bin/docker-compose
+#   $SUDO usermod -aG docker "$USER"
+#   $SUDO systemctl enable docker
+# }
 
-install-zsh() {
-  echo "$PREFIX Installing 'Oh My Zsh'"
-  $SUDO apt-get install -y -qq zsh &>/dev/null
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &>/dev/null
-  chsh -s "$(which zsh)"
-}
+# install-zsh() {
+#   echo "$PREFIX Installing 'Oh My Zsh'"
+#   $SUDO apt-get install -y -qq zsh &>/dev/null
+#   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &>/dev/null
+#   chsh -s "$(which zsh)"
+# }
 
 get-own-ip-address() {
   hostname -I | awk '{print $1}'
@@ -252,23 +252,23 @@ git-local-push() {
   git add .
   git commit -m "initial"
   git push "$GIT_REPO_ROOT/$REPO_NAME.git" master
-  chown -R "$GIT_USER:$GIT_USER" "$GIT_USER_ROOT/$REPO_NAME"
+  chown -R "$GIT_USER:$GIT_USER" "$GIT_DATA_ROOT/$REPO_NAME"
   popd >/dev/null || exit
 }
 
-create-swap() {
-  SIZE=${1:-1G}
-  FILE_PATH=${2:-/swapfile}
-  $SUDO fallocate -l "$SIZE" "$FILE_PATH"
-  $SUDO chmod 600 "$FILE_PATH"
-  $SUDO mkswap "$FILE_PATH"
-  $SUDO swapon "$FILE_PATH"
-  echo "$FILE_PATH none swap sw 0 0" | $SUDO tee -a /etc/fstab
-}
+# create-swap() {
+#   SIZE=${1:-1G}
+#   FILE_PATH=${2:-/swapfile}
+#   $SUDO fallocate -l "$SIZE" "$FILE_PATH"
+#   $SUDO chmod 600 "$FILE_PATH"
+#   $SUDO mkswap "$FILE_PATH"
+#   $SUDO swapon "$FILE_PATH"
+#   echo "$FILE_PATH none swap sw 0 0" | $SUDO tee -a /etc/fstab
+# }
 
 uninstall-swarmlet() {
-  if [[ -d "$GIT_USER_ROOT" ]]; then
-    $SUDO rm -rf /home/git
+  if [[ -d "$GIT_DATA_ROOT" ]]; then
+    $SUDO rm -rf /mnt/gfs/git/data
     $SUDO userdel git -f
   fi
   [[ -f /usr/local/sbin/swarmlet ]] && unlink /usr/local/sbin/swarmlet
@@ -282,7 +282,7 @@ reinstall-swarmlet() {
 }
 
 check-existing() {
-  if [[ -d "$GIT_USER_ROOT" ]] ||
+  if [[ -d "$GIT_DATA_ROOT" ]] ||
     [[ -d "$GIT_REPO_ROOT" ]] ||
     [[ -f /usr/local/sbin/swarmlet ]] ||
     [[ -d $SWARMLET_ROOT ]]; then

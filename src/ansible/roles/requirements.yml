@@ -1,0 +1,11 @@
+---
+roles:
+  - name: acl
+    src: ansible.posix
+
+  - name: swap
+    src: geerlingguy.swap
+
+  - name: disk
+    src: aeriscloud.disk
+    version: v2.6.0

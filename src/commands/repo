@@ -67,7 +67,7 @@ repo-ls() {
   for REPO in "$GIT_REPO_ROOT"/*; do
     REPO_BASE=$(basename "$REPO")
     REPO_NAME=${REPO_BASE/.git/}
-    if [ -d "$GIT_USER_ROOT/$REPO_NAME" ]; then
+    if [ -d "$GIT_DATA_ROOT/$REPO_NAME" ]; then
       DEPLOYED="Deployed"
     else
       DEPLOYED="Created"

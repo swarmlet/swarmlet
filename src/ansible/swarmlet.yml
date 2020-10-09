@@ -1,4 +1,5 @@
 ---
-- import_playbook: playbooks/init.yml
+- import_playbook: playbooks/setup.yml
 - import_playbook: playbooks/docker.yml
 - import_playbook: playbooks/gluster.yml
+- import_playbook: playbooks/configure.yml
