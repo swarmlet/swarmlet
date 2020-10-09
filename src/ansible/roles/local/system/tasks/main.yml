@@ -1,0 +1,54 @@
+---
+- name: Set a hostname
+  hostname:
+    name: "{{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
+
+- name: Add the git user
+  user:
+    name: git
+    uid: 1000
+    shell: /bin/bash
+    groups: docker
+    append: yes
+
+- name: Create git folders
+  file:
+    path: "{{ lookup('env', 'GIT_REPO_ROOT') }}"
+    state: directory
+
+- name: Set folder permissions
+  acl:
+    entity: git
+    etype: user
+    path: "{{ lookup('env', 'GIT_REPO_ROOT') }}"
+    permissions: rwx
+    state: present
+    # default: yes
+
+- name: Create ssh directory
+  file:
+    path: "{{ lookup('env', 'GIT_ROOT') }}/.ssh"
+    state: directory
+    owner: git
+    group: git
+    mode: '0700'
+
+- name: Read authorized SSH keys
+  command: cat "{{ lookup('env', 'SSH_AUTHORIZED_KEYS') }}"
+  register: authorized_keys
+
+- name: Add SSH authorized keys
+  copy:
+    content: "{{ lookup('env', 'SSH_OPTIONS') }}{{ authorized_keys.stdout }}"
+    dest: "{{ lookup('env', 'GIT_ROOT') }}/.ssh/authorized_keys"
+    owner: git
+    group: git
+    mode: '0600'
+
+- name: Create a symbolic link
+  file:
+    src: "{{ lookup('env', 'SWARMLET_ROOT') }}/swarmlet"
+    dest: /usr/local/sbin/swarmlet
+    owner: root
+    group: root
+    state: link

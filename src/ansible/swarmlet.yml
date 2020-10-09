@@ -1,4 +1,25 @@
 ---
+- hosts: swarmlet
+  connection: local
+  vars:
+    force_purge: true
+    install_public_roles: true
+    installation_dir: roles/public
+  pre_tasks:
+    - name: Remove existing public roles
+      file:
+        path: '{{ installation_dir }}'
+        state: absent
+      when: force_purge | bool
+
+    - name: Install public roles
+      command: >
+        ansible-galaxy install
+        {{ ( force_purge | bool ) | ternary('--force','') }}
+        --role-file roles/requirements.yml
+        --roles-path {{ installation_dir }}
+      when: install_public_roles | bool
+
 - import_playbook: playbooks/setup.yml
 - import_playbook: playbooks/docker.yml
 - import_playbook: playbooks/gluster.yml

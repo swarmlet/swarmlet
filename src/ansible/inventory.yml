@@ -11,16 +11,15 @@ all:
       - '/data/glusterfs/brick01/{{ gluster_volume_name }}'
       # foreach host use gfs.<IP> ?
 
-  # hosts:
-  #   swarmlet:
-  #     children:
-  #       hosts:
-  #         '{{ ansible_default_ipv4.address }}':
+  hosts:
+    swarmlet:
+      children:
+        hosts:
+          '{{ ansible_default_ipv4.address }}':
 
 swarmlet:
-  hosts:
-    '{{ inventory_hostname }}':
-      ansible_host: '{{ ansible_default_ipv4.address }}'
+  # hosts:
+  #   '{{ ansible_default_ipv4.address }}':
 
   vars:
     disk_additional_disks:

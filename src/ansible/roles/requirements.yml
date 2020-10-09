@@ -1,11 +1,15 @@
 ---
-roles:
+collections:
   - name: acl
-    src: ansible.posix
+    src: ansible.posix.acl
 
+roles:
   - name: swap
     src: geerlingguy.swap
 
   - name: disk
     src: aeriscloud.disk
     version: v2.6.0
+
+  - name: oh-my-zsh
+    src: gantsign.oh-my-zsh

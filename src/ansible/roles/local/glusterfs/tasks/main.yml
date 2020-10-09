@@ -63,9 +63,9 @@
     # rebalance: yes
     # replicas: 1
     force: yes
-    cluster: '{{ play_hosts }}'
-    # cluster:
-    #   - '{{ ansible_default_ipv4.address }}'
+    # cluster: '{{ play_hosts }}'
+    cluster:
+      - '{{ ansible_default_ipv4.address }}'
     host: '{{ ansible_hostname }}'
   run_once: true
 

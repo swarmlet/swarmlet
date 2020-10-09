@@ -1,15 +1,11 @@
 ---
 - hosts: swarmlet
   connection: local
-  vars:
-    force_purge: true
-    install_public_roles: true
-    installation_dir: roles/public
-    installation_prefix: ../
   pre_tasks:
-    - name: update apt
+    - name: update apt cache
       apt:
-        update: yes
+        update_cache: yes
+        cache_valid_time: 3600
 
     - name: install pre-requirements
       apt:
@@ -25,17 +21,3 @@
           - libpcre3
           - xfsprogs
           - btrfs-progs
-
-    - name: Remove existing public roles
-      file:
-        path: '{{ installation_prefix }}{{ installation_dir }}'
-        state: absent
-      when: force_purge | bool
-
-    - name: Install public roles
-      command: >
-        ansible-galaxy install
-        {{ ( force_purge | bool ) | ternary('--force','') }}
-        --role-file {{ installation_prefix }}roles/requirements.yml
-        --roles-path {{ installation_prefix }}{{ installation_dir }}
-      when: install_public_roles | bool
