@@ -1,27 +1,4 @@
 ---
-- name: update apt cache
-  apt:
-    update_cache: yes
-    state: latest
-
-# - name: upgrade all packages
-#   apt:
-#     upgrade: dist
-
-- name: install requirements
-  apt:
-    pkg:
-      - python3
-      - python3-pip
-      # - python-pip # for swarm plugin
-    state: present
-
-- name: install pip modules
-  pip:
-    name:
-      - netaddr
-      - pyvmomi
-
 - name: Update the /etc/hosts file with node name
   tags: etchostsupdate
   become: yes
@@ -37,11 +14,7 @@
 - name: Remove useless apt packages from the cache
   apt:
     autoclean: yes
-  tags:
-    - system
 
 - name: Remove dependencies that are no longer required
   apt:
     autoremove: yes
-  tags:
-    - system

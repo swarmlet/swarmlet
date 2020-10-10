@@ -1,4 +1,6 @@
 ---
+- debug: msg="Configuring system"
+
 - name: Set a hostname
   hostname:
     name: "{{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
@@ -45,7 +47,12 @@
     group: git
     mode: '0600'
 
-- name: Create a symbolic link
+- name: Copy Swarmlet directory
+  synchronize:
+    src: /tmp/swarmlet/
+    dest: /mnt/gfs/swarmlet/
+
+- name: Create symbolic link
   file:
     src: "{{ lookup('env', 'SWARMLET_ROOT') }}/swarmlet"
     dest: /usr/local/sbin/swarmlet
