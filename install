@@ -120,12 +120,10 @@ install() {
   # [[ $(command -v swarmlet) ]] || ln -s ./"$SWARMLET_INSTALL_ROOT/swarmlet" /usr/local/sbin/
 
   echo "$PREFIX Initializing Swarmlet"
-  alias swarmlet="$SWARMLET_INSTALL_ROOT/swarmlet"
-  swarmlet init
+  "$SWARMLET_INSTALL_ROOT/swarmlet" init
+  unset SWARMLET_INSTALL_ROOT
 
   echo "$PREFIX Verifying installation"
-  unset SWARMLET_INSTALL_ROOT
-  unalias swarmlet
   [[ $(command -v swarmlet) ]] || exit 1
   echo "$PREFIX Installation verified"
 
