@@ -11,4 +11,5 @@ node_modules
 *.code-workspace
 /**/.git
 /misc
+/.vscode
 modules/core/router/lego/lego
