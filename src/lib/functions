@@ -142,7 +142,7 @@ install-ansible() {
   # TODO: use other package managers "apt-add-repository" equivalent
   echo "$PREFIX Installing Ansible"
   "$SUDO" apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
-  "$SUDO" "$PKG_MANAGER" update -y -qq &>/dev/null
+  "$SUDO" "$PKG_MANAGER" update -y &>/dev/null
   "$SUDO" "$PKG_MANAGER" install -y -qq ansible &>/dev/null
 
   # sudo apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
