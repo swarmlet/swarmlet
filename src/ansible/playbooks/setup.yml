@@ -1,5 +1,5 @@
 ---
-- hosts: swarmlet
+- hosts: localhost
   connection: local
   vars:
     force_purge: true
@@ -7,7 +7,7 @@
     installation_dir: roles/public
     installation_prefix: ../
   pre_tasks:
-    - debug: msg="Setting up Ansible, this can take a few minutes"
+    - debug: msg="Setting up Ansible, this will take a few minutes"
 
     - name: update apt cache
       apt:
@@ -25,9 +25,11 @@
           - gnupg-agent
           - moreutils
           - wget
+          - tree
           - libpcre3
           - xfsprogs
           - btrfs-progs
+          # - python-pip
           - python3
           - python3-pip
 

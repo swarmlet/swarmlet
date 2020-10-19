@@ -1,5 +1,5 @@
 ---
-- name: print hostname and ipv4 address
+- name: starting glusterfs installation
   debug:
     msg: '{{ ansible_hostname }} {{ ansible_default_ipv4.address }}'
 
@@ -37,7 +37,7 @@
 - name: mount glusterfs volume "{{ gluster_volume_name }}"
   mount:
     name: /mnt/gfs
-    src: '{{ ansible_default_ipv4.address }}:/{{ gluster_volume_name }}'
+    src: '{{ inventory_hostname }}:/{{ gluster_volume_name }}'
     fstype: glusterfs
     opts: 'defaults,_netdev'
     state: mounted

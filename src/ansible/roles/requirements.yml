@@ -3,6 +3,9 @@ collections:
   - name: acl
     src: ansible.posix.acl
 
+  - name: crypto
+    src: community.crypto
+
 roles:
   - name: swap
     src: geerlingguy.swap

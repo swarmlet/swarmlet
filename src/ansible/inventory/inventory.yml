@@ -12,12 +12,12 @@ all:
       # foreach host use gfs.<IP> ?
 
   hosts:
-    swarmlet:
+    swarm:
       children:
         hosts:
           '{{ ansible_default_ipv4.address }}':
 
-swarmlet:
+managers:
   # hosts:
   #   '{{ ansible_default_ipv4.address }}':
 
@@ -38,3 +38,7 @@ swarmlet:
         user: root
         group: root
         disable_periodic_fsck: false
+
+workers:
+  vars:
+    test: yes

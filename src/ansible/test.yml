@@ -5,12 +5,19 @@
   tasks:
     - debug: msg="hostname - {{ inventory_hostname }}"
 
-- name: Test docker_inventory
+- name: Test groups
   hosts: all
   connection: local
   gather_facts: no
   tasks:
-    - debug: msg="play hosts - {{ play_hosts }}"
+    - debug: msg="groups - {{ groups }}"
+
+# - name: Test docker_inventory
+#   hosts: all
+#   connection: local
+#   gather_facts: no
+#   tasks:
+#     - debug: msg="play hosts - {{ play_hosts }}"
 
 - name: Test docker_inventory
   hosts: all

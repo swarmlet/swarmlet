@@ -1,0 +1,20 @@
+---
+- import_playbook: playbooks/docker.yml
+- import_playbook: playbooks/gluster.yml
+- import_playbook: playbooks/configure.yml
+# first node:
+# - install ansible
+# - run ansible playbooks:
+# - setup # todo: create ansible ssh keys
+# - swarmlet-init
+# - docker
+# - gluster
+# - configure
+# - swarm is initialized and glusterfs volume mounted
+
+# new node:
+# - paste swarmlet join command
+# - run script served from manager node, hosted temporarily on a traefik route
+# - add ansible ssh key to authorized_keys
+# - callback to first node to run swarmlet-update playbook (does ansible update automatically?)
+# - manager node should update it's inventory..

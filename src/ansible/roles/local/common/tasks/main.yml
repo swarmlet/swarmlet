@@ -9,9 +9,9 @@
     line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
     state: present
   register: etchostsupdate
-  with_items: "{{groups['all']}}"
+  with_items: '{{ groups.all }}'
 
-- name: Remove useless apt packages from the cache
+- name: Remove unused apt packages from the cache
   apt:
     autoclean: yes
 

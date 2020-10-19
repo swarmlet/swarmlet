@@ -1,5 +1,5 @@
 ---
-- debug: msg="Configuring system"
+- debug: msg="Configuring {{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
 
 - name: Set a hostname
   hostname:
@@ -54,7 +54,7 @@
 
 - name: Create symbolic link
   file:
-    src: "{{ lookup('env', 'SWARMLET_ROOT') }}/swarmlet"
+    src: /mnt/gfs/swarmlet/swarmlet
     dest: /usr/local/sbin/swarmlet
     owner: root
     group: root

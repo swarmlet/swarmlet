@@ -1,5 +1,5 @@
 ---
-- hosts: swarmlet
+- hosts: swarm
   connection: local
   gather_facts: yes
   become: yes
