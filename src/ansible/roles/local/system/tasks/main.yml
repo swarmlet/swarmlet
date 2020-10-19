@@ -1,9 +1,5 @@
 ---
-- debug: msg="Configuring {{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
-
-- name: Set a hostname
-  hostname:
-    name: "{{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
+- debug: msg="Configuring {{ inventory_hostname }}"
 
 - name: Add the git user
   user:

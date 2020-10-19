@@ -7,12 +7,20 @@
     installation_dir: roles/public
     installation_prefix: ../
   pre_tasks:
-    - debug: msg="Setting up Ansible, this will take a few minutes"
+    - name: info
+      debug: msg="Starting system setup"
+
+    - name: set hostname
+      hostname:
+        name: "{{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
 
     - name: update apt cache
       apt:
         update_cache: yes
         cache_valid_time: 3600
+
+    - name: info
+      debug: msg="Installing packages, this takes a while"
 
     - name: install pre-requirements
       apt:
@@ -29,6 +37,10 @@
           - libpcre3
           - xfsprogs
           - btrfs-progs
+
+    - name: install python
+      apt:
+        pkg:
           - python-pip
           - python3
           - python3-pip

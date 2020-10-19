@@ -37,7 +37,6 @@ init() {
     done
 
     echo "$FPREFIX Configuration confirmed"
-    echo "$PREFIX The installation will take a few minutes to complete"
   else
     echo "$PREFIX Starting noninteractive installation"
   fi
