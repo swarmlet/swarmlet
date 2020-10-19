@@ -42,7 +42,6 @@ done
 
 # Define default environment variables
 OPTS_CONFIRMED="true"
-export SWARMLET_INSTALL="true"
 declare -A DEFAULT_OPTS=(
   [INSTALLATION_TYPE]="interactive"                  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
   [SWARMLET_REPO]="$SWARMLET_REPO"                   # (default swarmlet github url) The default repo to install
