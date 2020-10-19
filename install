@@ -56,7 +56,7 @@ declare -A DEFAULT_OPTS=(
   [INSTALL_ZSH]="false"                              # (default false) Install 'Oh My Zsh'
   [INSTALL_MODULES]=""                               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
   [CA_SERVER]="production"                           # (default production, options: production|staging) The Let's Encrypt server to use
-  [DEBUG]="false"                                    # (default false) TODO: Run installation in debug mode
+  [DEBUG]=""                                         # (default undefined) TODO: Run installation in debug mode
 )
 
 # Set default environment variables
@@ -116,15 +116,12 @@ install() {
     popd >/dev/null
   fi
 
-  # echo "$PREFIX Linking executable"
-  # [[ $(command -v swarmlet) ]] || ln -s ./"$SWARMLET_INSTALL_ROOT/swarmlet" /usr/local/sbin/
-
   echo "$PREFIX Initializing Swarmlet"
   "$SWARMLET_INSTALL_ROOT/swarmlet" init
   unset SWARMLET_INSTALL_ROOT
 
   echo "$PREFIX Verifying installation"
-  [[ $(command -v swarmlet) ]] || exit 1
+  [[ $(command -v swarmlet) ]] || exit
   echo "$PREFIX Installation verified"
 
   echo "$FPREFIX Server initialized as manager node"

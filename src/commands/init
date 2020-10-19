@@ -12,9 +12,6 @@ init() {
     "$SWARMLET_INSTALL_ROOT/swarmlet" "$@"
   }
 
-  echo "$FPREFIX Print environment"
-  printenv && true
-
   if [[ "$INSTALLATION_TYPE" == "interactive" ]]; then
     echo "$PREFIX Starting interactive installation"
     swarmlet dialog welcome
@@ -44,6 +41,8 @@ init() {
   else
     echo "$PREFIX Starting noninteractive installation"
   fi
+
+  # printenv
 
   install-ansible && true
 

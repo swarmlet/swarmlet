@@ -9,17 +9,12 @@ FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
 
-if [[ "$SWARMLET_INSTALL" == "true" ]]; then
-  SWARMLET_ROOT="$SWARMLET_INSTALL_ROOT"
-else
-  SWARMLET_ROOT="/mnt/gfs/swarmlet"
-fi
+SWARMLET_ROOT="${SWARMLET_INSTALL_ROOT:="/mnt/gfs/swarmlet"}"
+COMMAND="$SWARMLET_ROOT/src/commands/$1"
 
 source "$SWARMLET_ROOT/src/constants"
 source "$SWARMLET_FUNCTIONS"
 set +o allexport
-
-COMMAND="$SWARMLET_ROOT/src/commands/$1"
 
 if [[ -f "$COMMAND" ]]; then
   "$COMMAND" "$@"

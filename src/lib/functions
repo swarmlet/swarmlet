@@ -127,12 +127,12 @@ check-swarmlet-version() {
 #   $SUDO systemctl enable docker
 # }
 
-# install-zsh() {
-#   echo "$PREFIX Installing 'Oh My Zsh'"
-#   $SUDO apt-get install -y -qq zsh &>/dev/null
-#   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &>/dev/null
-#   chsh -s "$(which zsh)"
-# }
+install-zsh() {
+  echo "$PREFIX Installing 'Oh My Zsh'"
+  $SUDO apt-get install -y -qq zsh &>/dev/null
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended &>/dev/null
+  chsh -s "$(which zsh)"
+}
 
 get-own-ip-address() {
   hostname -I | awk '{print $1}'
@@ -142,17 +142,19 @@ install-ansible() {
   # TODO: use other package managers "apt-add-repository" equivalent
   echo "$PREFIX Installing Ansible"
   "$SUDO" apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
-  "$SUDO" "$PKG_MANAGER" update &>/dev/null
-  "$SUDO" "$PKG_MANAGER" install -y ansible
+  "$SUDO" "$PKG_MANAGER" update -y -qq &>/dev/null
+  "$SUDO" "$PKG_MANAGER" install -y -qq ansible &>/dev/null
 
-  # ansible-galaxy collection install community.general # takes a long time
+  # sudo apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
+  # sudo apt-get update &>/dev/null
+  # sudo apt-get install -y ansible &>/dev/null
 
-  # Run playbook
-  echo "$PREFIX Running Ansible tasks"
-  ansible-playbook "$ANSIBLE_ROOT/swarmlet.yml"
-
-  # echo "$PREFIX Creating Ansible SSH key"
-  # ssh-keygen -f ~/.ssh/ansible.pub -t rsa -N '' -b 4096
+  # Run playbooks
+  echo "$PREFIX Running Ansible playbooks"
+  pushd "$ANSIBLE_ROOT" &>/dev/null || exit
+  ansible-playbook "$ANSIBLE_ROOT/playbooks/setup.yml"
+  ansible-playbook "$ANSIBLE_ROOT/swarmlet-init.yml"
+  popd &>/dev/null || exit
 
   echo "$PREFIX Testing Ansible remote connections"
   # ansible all -m ping -u root
