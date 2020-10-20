@@ -12,24 +12,24 @@
       - docker-py
     state: absent
 
-      - name: install needed pip modules
+- name: install pip modules
   pip:
     name:
       - docker
 
-- name: add the offial Docker repo GPG key
+- name: add the Docker repo GPG key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
 
-- name: add the offial Docker repo
+- name: add the Docker apt repository
   apt_repository:
     repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable'
     state: present
     filename: docker.io
     update_cache: yes
 
-- name: Install the offical docker packages
+- name: Install docker packages
   apt:
     pkg:
       - docker-ce
@@ -61,7 +61,7 @@
     enabled: yes
     state: restarted
 
-- name: Check if swarm is already created
+- name: Check if swarm exists
   docker_swarm_info:
     nodes: yes
   register: swarm_info
