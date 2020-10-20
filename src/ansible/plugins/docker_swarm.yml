@@ -1,4 +1,4 @@
-plugin: community.general.docker_swarm
+plugin: docker_swarm
 docker_host: unix://var/run/docker.sock
-vars:
-  ansible_python_interpreter: /usr/bin/python2.7
+#vars:
+#  ansible_python_interpreter: /usr/bin/python2.7

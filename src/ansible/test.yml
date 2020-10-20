@@ -6,11 +6,20 @@
     - debug: msg="hostname - {{ inventory_hostname }}"
 
 - name: Test groups
-  hosts: all
-  connection: local
+  hosts: swarm
+  # connection: local
   gather_facts: no
   tasks:
-    - debug: msg="groups - {{ groups }}"
+    - debug: msg="{{ groups }}"
+
+    - name: Get info on all nodes
+      docker_node_info:
+      register: result
+      connection: local
+
+    - debug: msg="{{ result.nodes[0].Status.Addr }} {{ result.nodes[0].Status.State }}"
+    # - debug: msg="{{ item.Status.Addr }} {{ item.Status.State }}"
+    #   loop: "{{ result.nodes }}"
 
 # - name: Test docker_inventory
 #   hosts: all
