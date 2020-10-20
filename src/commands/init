@@ -41,22 +41,19 @@ init() {
     echo "$PREFIX Starting noninteractive installation"
   fi
 
-  # printenv
-
-  install-ansible && true
+  install-ansible
 
   echo "$PREFIX Installing modules"
+  SWARMLET_MODULES=()
+  for MODULE in $("$SWARMLET_MODULES_ROOT"/core); do
+    SWARMLET_MODULES+=("core/$MODULE")
+  done
 
-  # SWARMLET_MODULES=()
-  # for MODULE in "$SWARMLET_MODULES_ROOT"/core/*; do
-  #   SWARMLET_MODULES+=("core/$(basename "$MODULE")")
-  # done
-
-  # # TODO: refactor this mess
-  # # INSTALL_MODULES must be in this format: (module1 module2), or "" to skip optional modules installation
-  # for MODULE in $(echo "${INSTALL_MODULES[@]}" | sed -r "s/\(|\)//g"); do
-  #   SWARMLET_MODULES+=("recommends/$(basename "$MODULE")")
-  # done
+  # TODO: refactor this mess
+  # INSTALL_MODULES must be in this format: (module1 module2), or "" to skip optional modules installation
+  for MODULE in $(echo "${INSTALL_MODULES[@]}" | sed -r "s/\(|\)//g"); do
+    SWARMLET_MODULES+=("recommends/$(basename "$MODULE")")
+  done
 
   swarmlet stack deploy registry "$SWARMLET_MODULES_ROOT"/core
   swarmlet stack build deployer "$SWARMLET_MODULES_ROOT"/core

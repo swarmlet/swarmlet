@@ -48,6 +48,8 @@ section-set-username() {
   SECTION_TITLE="User configuration - username"
   MESSAGE="\nEnter your username.\nDefault: $USER"
 
+  # TODO: validate: no spaces
+
   SWARMLET_USERNAME=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
@@ -101,7 +103,8 @@ section-set-hostname() {
 Example: swarm-manager-1\n\
 Current: $HOSTNAME"
 
-  # TODO: use whiptail password input
+  # TODO: validate: no spaces
+
   NEW_HOSTNAME=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
