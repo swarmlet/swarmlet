@@ -75,3 +75,11 @@
     size: 4096
     state: present
     force: no
+
+- name: Create Traefik directory
+  file:
+    path: "{{ lookup('env', 'GFS_MOUNT') }}/traefik"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'

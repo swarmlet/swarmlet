@@ -13,7 +13,7 @@
     attachable: yes
     driver: overlay
 
-- name: create htpasswd
+- name: generate htpasswd
   command: htpasswd -nbB "{{ lookup('env', 'SWARMLET_USERNAME') }}" "{{ lookup('env', 'SWARMLET_PASSWORD') }}"
   register: htpasswd
 
