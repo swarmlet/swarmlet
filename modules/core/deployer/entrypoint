@@ -36,12 +36,12 @@ deploy() {
     source "$ENTRYPOINT_FILE"
   fi
 
-  if [[ $(grep "swarmlet." "$COMPOSE_FILE") ]]; then
-    echo "$PREFIX Parsing deployment labels"
-    LABEL_PARSER=$(docker ps --filter name=deployer_label-parser -q)
-    # PARSED_COMPOSE_FILE=$(docker container exec "$LABEL_PARSER" "$COMPOSE_FILE")
-    docker container exec "$LABEL_PARSER" "$COMPOSE_FILE"
-  fi
+  # if [[ $(grep "swarmlet." "$COMPOSE_FILE") ]]; then
+  #   echo "$PREFIX Parsing deployment labels"
+  #   LABEL_PARSER=$(docker ps --filter name=deployer_label-parser -q)
+  #   # PARSED_COMPOSE_FILE=$(docker container exec "$LABEL_PARSER" "$COMPOSE_FILE")
+  #   docker container exec "$LABEL_PARSER" "$COMPOSE_FILE"
+  # fi
 
   if [[ -f $COMPOSE_FILE ]]; then
     COMPOSE_CONFIG=$(docker-compose config)
