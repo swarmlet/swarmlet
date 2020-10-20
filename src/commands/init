@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2143,SC2011,SC2068,SC2015,SC2139
+# shellcheck disable=SC2143,SC2011,SC2068,SC2015,SC2139,SC2045
 
 set -eo pipefail
 [[ $DEBUG ]] && set -x
@@ -45,7 +45,7 @@ init() {
 
   echo "$PREFIX Installing modules"
   SWARMLET_MODULES=()
-  for MODULE in $("$SWARMLET_MODULES_ROOT"/core); do
+  for MODULE in $(ls "$SWARMLET_MODULES_ROOT"/core); do
     SWARMLET_MODULES+=("core/$MODULE")
   done
 
