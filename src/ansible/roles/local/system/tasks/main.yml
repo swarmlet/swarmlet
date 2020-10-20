@@ -68,7 +68,7 @@
   vars:
     ssh_key_path: /mnt/gfs/ansible/.ssh
     ssh_key_filename: id_rsa_ansible
-  crypto.openssh_keypair:
+  openssh_keypair:
     path: '{{ ssh_key_path }}/{{ ssh_key_filename }}'
     type: rsa
     size: 4096

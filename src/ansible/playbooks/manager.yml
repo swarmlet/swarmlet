@@ -8,14 +8,14 @@
     install_zsh: "{{ lookup('env', 'INSTALL_ZSH') }}"
     ssh_key_path: ~/.ssh
     ssh_key_filename: id_rsa_ansible
-  pre_tasks:
-    - name: generate SSH key "{{ ssh_key_filename }}"
-      crypto.openssh_keypair:
-        path: '{{ ssh_key_path }}/{{ ssh_key_filename }}'
-        type: rsa
-        size: 4096
-        state: present
-        force: no
+  # pre_tasks:
+  #   - name: generate SSH key "{{ ssh_key_filename }}"
+  #     openssh_keypair:
+  #       path: '{{ ssh_key_path }}/{{ ssh_key_filename }}'
+  #       type: rsa
+  #       size: 4096
+  #       state: present
+  #       force: no
   roles:
     - common
     - disk
