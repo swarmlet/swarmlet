@@ -306,7 +306,7 @@ is-service-healthy() {
   SERVICE="$1"
   REPLICAS=$(docker stack services "$SERVICE" --format={{.Replicas}})
 
-  if [[ $(echo "$REPLICAS" | sed 's/\/[0-9]//') -gt 0 ]]; then
+  if [[ $(echo "$REPLICAS" | sed 's/\/[0-9]//' | tr '\n0' ' ' | tr -d '[:space:]') -gt 0 ]]; then
     return 0
   else
     echo "$PREFIX $SERVICE not (yet) healthy"
