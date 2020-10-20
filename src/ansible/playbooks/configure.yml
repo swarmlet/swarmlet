@@ -11,6 +11,9 @@
     - disk
     - system
     - role: swap
+      swap_file_path: /swapfile
+      swap_file_size_mb: '1024'
+      swap_swappiness: '60'
       when: 'create_swap is defined'
     - role: oh-my-zsh
       users:
