@@ -1,5 +1,5 @@
 ---
-- name: remove conflicting ubuntu pacakges
+- name: remove conflicting ubuntu packages
   apt:
     pkg:
       - docker
