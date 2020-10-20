@@ -12,25 +12,26 @@
 
 - name: Create git folders
   file:
-    path: "{{ lookup('env', 'GIT_REPO_ROOT') }}"
-    state: directory
-
-- name: Set folder permissions
-  acl:
-    entity: git
-    etype: user
-    path: "{{ lookup('env', 'GIT_REPO_ROOT') }}"
-    permissions: rwx
-    state: present
-    # default: yes
-
-- name: Create ssh directory
-  file:
-    path: "{{ lookup('env', 'GIT_ROOT') }}/.ssh"
+    path: '{{ item }}'
     state: directory
     owner: git
     group: git
-    mode: '0700'
+    mode: 0775
+    recurse: yes
+  loop:
+    - "{{ lookup('env', 'GIT_ROOT') }}"
+    - "{{ lookup('env', 'GIT_REPO_ROOT') }}"
+    - "{{ lookup('env', 'GIT_DATA_ROOT') }}"
+    - "{{ lookup('env', 'GIT_ROOT') }}/.ssh"
+
+- name: Set permissions
+  acl:
+    entity: git
+    etype: user
+    path: "{{ lookup('env', 'GIT_ROOT') }}"
+    permissions: rwx
+    state: present
+    # default: yes
 
 - name: Read authorized SSH keys
   command: cat "{{ lookup('env', 'SSH_AUTHORIZED_KEYS') }}"
