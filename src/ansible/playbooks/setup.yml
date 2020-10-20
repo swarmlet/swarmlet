@@ -1,0 +1,66 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    force_purge: true
+    install_public_roles: true
+    installation_dir: roles/public
+    installation_prefix: ../
+  pre_tasks:
+    - name: info
+      debug: msg="Starting system setup"
+
+    - name: set hostname
+      hostname:
+        name: "{{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
+
+    - name: update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: info
+      debug: msg="Installing packages, this takes a while"
+
+    - name: install pre-requirements
+      apt:
+        pkg:
+          - acl
+          - curl
+          - apache2-utils
+          - software-properties-common
+          - ca-certificates
+          - gnupg-agent
+          - moreutils
+          - wget
+          - tree
+          - libpcre3
+          - xfsprogs
+          - btrfs-progs
+
+    - name: install python
+      apt:
+        pkg:
+          - python-pip
+          - python3
+          - python3-pip
+
+    - name: install pip modules
+      pip:
+        name:
+          - netaddr
+          - pyvmomi
+
+    - name: Remove existing public roles
+      file:
+        path: '{{ installation_prefix }}{{ installation_dir }}'
+        state: absent
+      when: force_purge | bool
+
+    - name: Install public roles
+      command: >
+        ansible-galaxy install
+        {{ ( force_purge | bool ) | ternary('--force','') }}
+        --role-file {{ installation_prefix }}roles/requirements.yml
+        --roles-path {{ installation_prefix }}{{ installation_dir }}
+      when: install_public_roles | bool

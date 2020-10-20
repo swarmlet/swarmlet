@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2162,SC2001
+# shellcheck disable=SC2162,SC2001,SC2139
 
 FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
 
-SWARMLET_REPO=${SWARMLET_REPO:="https://github.com/swarmlet/swarmlet.git"}
-SWARMLET_INSTALL_ROOT="/opt/swarmlet"
+export SWARMLET_REPO=${SWARMLET_REPO:="https://github.com/swarmlet/swarmlet.git"}
+export SWARMLET_INSTALL_ROOT="/tmp/swarmlet"
 
 # Check if user is root
 if [[ $EUID -ne 0 ]]; then
@@ -26,23 +26,36 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
   exit 1
 fi
 
+# Define package managers
+declare -A PKG_MANAGERS=(
+  ["/etc/redhat-release"]=yum
+  ["/etc/arch-release"]=pacman
+  ["/etc/gentoo-release"]=emerge
+  ["/etc/SuSE-release"]=zypp
+  ["/etc/debian_version"]=apt-get
+)
+
+# Select correct package manager
+for KEY in "${!PKG_MANAGERS[@]}"; do
+  [[ -f $KEY ]] && export PKG_MANAGER="${PKG_MANAGERS[$KEY]}"
+done
+
 # Define default environment variables
-ENV_CONFIRMED="true"
+OPTS_CONFIRMED="true"
 declare -A DEFAULT_OPTS=(
-  [INSTALLATION_TYPE]=interactive                  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
-  [SWARMLET_REPO]=$SWARMLET_REPO                   # (default swarmlet github url) The default repo to install
-  [INSTALL_BRANCH]=master                          # (default master) The default branch to install
-  [SWARMLET_USERNAME]=$USER                        # (default $USER) Used for authentication with the registry and web services / dashboards
-  [SWARMLET_PASSWORD]=swarmlet                     # (default swarmlet) Used for authentication with the registry and web services / dashboards
-  [SSH_AUTHORIZED_KEYS]=$HOME/.ssh/authorized_keys # (default root) The authorized SSH keys for git deployments
-  [NEW_HOSTNAME]=$HOSTNAME                         # (default $HOSTNAME) Optional: set a new hostname
-  [ROOT_DOMAIN]=""                                 # (default undefined) The domain to use for deployment of included services
-  [CREATE_SWAP]=false                              # (default false) Allocate 1GB of swap space
-  [INSTALL_ZSH]=false                              # (default false) Install 'Oh My Zsh'
-  [INSTALL_MODULES]=""                             # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
-  [CA_SERVER]=production                           # (default production, options: production|staging) The Let's Encrypt server to use
-  # > TODO:
-  # [DEBUG]=                       # (default undefined) Run installation in debug mode
+  [INSTALLATION_TYPE]="interactive"                  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
+  [SWARMLET_REPO]="$SWARMLET_REPO"                   # (default swarmlet github url) The default repo to install
+  [INSTALL_BRANCH]="master"                          # (default master) The default branch to install
+  [SWARMLET_USERNAME]="$USER"                        # (default $USER) Used for authentication with the registry and web services / dashboards
+  [SWARMLET_PASSWORD]="swarmlet"                     # (default swarmlet) Used for authentication with the registry and web services / dashboards
+  [SSH_AUTHORIZED_KEYS]="$HOME/.ssh/authorized_keys" # (default root) The authorized SSH keys for git deployments
+  [NEW_HOSTNAME]="$HOSTNAME"                         # (default $HOSTNAME) Optional: set a new hostname
+  [ROOT_DOMAIN]=""                                   # (default undefined) The domain to use for deployment of included services
+  [CREATE_SWAP]="false"                              # (default false) Allocate 1GB of swap space
+  [INSTALL_ZSH]="false"                              # (default false) Install 'Oh My Zsh'
+  [INSTALL_MODULES]=""                               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
+  [CA_SERVER]="production"                           # (default production, options: production|staging) The Let's Encrypt server to use
+  [DEBUG]=""                                         # (default undefined) TODO: Run installation in debug mode
 )
 
 # Set default environment variables
@@ -60,44 +73,28 @@ while [[ "$#" -gt 0 ]]; do
     ;;
   *)
     echo "Unknown argument: $1"
-    ENV_CONFIRMED="false"
+    OPTS_CONFIRMED="false"
     shift
     ;;
   esac
 done
 
-if [[ $ENV_CONFIRMED == "false" ]]; then
+if [[ $OPTS_CONFIRMED == "false" ]]; then
   echo "$PREFIX Current environment:"
   for KEY in "${!DEFAULT_OPTS[@]}"; do printenv | grep "$KEY"; done
   [[ $INSTALLLATION_TYPE == "noninteractive" ]] && echo "$PREFIX Exiting" && exit 1
   read -p "$PREFIX Press enter to continue with this configuration" </dev/tty
 fi
 
-# Define package managers
-declare -A PKG_MANAGERS=(
-  ["/etc/redhat-release"]=yum
-  ["/etc/arch-release"]=pacman
-  ["/etc/gentoo-release"]=emerge
-  ["/etc/SuSE-release"]=zypp
-  ["/etc/debian_version"]=apt-get
-)
-
-# Select correct package manager
-for MANAGER in "${!PKG_MANAGERS[@]}"; do
-  [[ -f $MANAGER ]] && PKG_MANAGER="${PKG_MANAGERS[$MANAGER]}"
-done
-
 set -eo pipefail
 [[ $DEBUG ]] && set -x
 
 install() {
   echo "$FPREFIX Installing Swarmlet"
-  echo "$PREFIX Installing required packages"
 
-  # TODO: support other package managers
+  echo "$PREFIX Installing required packages"
   $SUDO "$PKG_MANAGER" update -y -qq &>/dev/null
-  $SUDO "$PKG_MANAGER" install -y -qq apt-transport-https &>/dev/null
-  [[ $(command -v git) ]] || $SUDO "$PKG_MANAGER" install -y -qq git
+  $SUDO "$PKG_MANAGER" install -y -qq git apt-transport-https &>/dev/null
 
   echo "$PREFIX Cloning $SWARMLET_REPO"
   if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]]; then
@@ -118,11 +115,13 @@ install() {
     popd >/dev/null
   fi
 
-  echo "$PREFIX Linking executable"
-  [[ $(command -v swarmlet) ]] || ln -s $SWARMLET_INSTALL_ROOT/swarmlet /usr/local/sbin/
-
   echo "$PREFIX Initializing Swarmlet"
-  swarmlet init
+  "$SWARMLET_INSTALL_ROOT/swarmlet" init
+  unset SWARMLET_INSTALL_ROOT
+
+  echo "$PREFIX Verifying installation"
+  [[ $(command -v swarmlet) ]] || exit
+  echo "$PREFIX Installation verified"
 
   echo "$FPREFIX Server initialized as manager node"
   swarmlet node ls

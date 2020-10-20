@@ -1,0 +1,10 @@
+---
+- hosts: swarm
+  connection: local
+  gather_facts: yes
+  become: yes
+  roles:
+    - common
+    - disk
+    - docker-install
+    - docker-configure

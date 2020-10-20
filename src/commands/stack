@@ -22,7 +22,7 @@ stack-build() {
   if [ "$(ls -A "$STACK_ROOT")" ]; then
     pushd "$STACK_ROOT" >/dev/null
 
-    while ! is-service-healthy registry; do sleep 1; done
+    while ! is-service-healthy registry; do sleep 2; done
 
     echo "$SWARMLET_REGISTRY_PASSWORD" | docker login --password-stdin \
       -u "$SWARMLET_REGISTRY_USERNAME" \

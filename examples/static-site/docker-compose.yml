@@ -1,27 +1,22 @@
-version: '3.7'
+version: "3.7"
 
 # Built-in environment variables
 # SWARMLET_REGISTRY // Defaults to the internal swarm registry at localhost:5000/v2
 
 services:
   frontend:
-    image: ${SWARMLET_REGISTRY}/static-site
+    image: ${SWARMLET_REGISTRY}/static
     build: .
+    # volumes:
+    #   - /mnt/gfs/test:/usr/share/nginx/html
     deploy:
-      replicas: 1
+      replicas: 3
       labels:
         - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.static-site.enable=true
-        - traefik.static-site.port=5000
-        - traefik.static-site.frontend.rule=Host:static-site.${DOMAIN}
-        - traefik.static-site.frontend.entryPoints=http,https
-        - traefik.static-site.frontend.passHostHeader=true
-        - traefik.static-site.frontend.headers.SSLRedirect=true
-        - traefik.static-site.frontend.headers.SSLHost=static-site.${DOMAIN}
-        - traefik.static-site.frontend.headers.STSIncludeSubdomains=true
-        - traefik.static-site.frontend.headers.STSPreload=true
+        - traefik.http.services.static.loadbalancer.server.port=5000
+        - traefik.http.routers.static.rule=Host(`static.${DOMAIN}`)
+        - traefik.http.routers.static.entrypoints=http,https
+        - traefik.http.routers.static.middlewares=redirect@file
     networks:
       - traefik-public
 

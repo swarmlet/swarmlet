@@ -9,8 +9,8 @@ deploy() {
 
   REPO_PATH=$1
 
-  while ! is-service-healthy deployer; do sleep 1; done
-  while ! is-service-healthy registry; do sleep 1; done
+  while ! is-service-healthy deployer; do sleep 2; done
+  while ! is-service-healthy registry; do sleep 2; done
 
   DEPLOYER_AGENT=$(docker ps --filter name=deployer_agent -q)
   docker container exec "$DEPLOYER_AGENT" /entrypoint deploy "$REPO_PATH"

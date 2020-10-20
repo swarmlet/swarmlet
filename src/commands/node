@@ -31,7 +31,7 @@ node-join() {
   # allow exposing the random port via traefik temporarily
   # exchange certificates
   # ssh into remote, install requirements and set up
-  # what to do with the git user and the repos in /var/repo and /home/git
+  # what to do with the git user and the repos in /mnt/gfs/git/repo and /mnt/gfs/git/data
 
   JOIN_COMMAND="curl -fsSL $(node-join-url "$ROLE") | bash"
 

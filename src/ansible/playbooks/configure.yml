@@ -1,0 +1,21 @@
+---
+- hosts: swarm
+  connection: local
+  gather_facts: yes
+  become: yes
+  vars:
+    create_swap: "{{ lookup('env', 'CREATE_SWAP') }}"
+    install_zsh: "{{ lookup('env', 'INSTALL_ZSH') }}"
+  roles:
+    - common
+    - disk
+    - system
+    - role: swap
+      swap_file_path: /swapfile
+      swap_file_size_mb: '1024'
+      swap_swappiness: '60'
+      when: 'create_swap is defined'
+    - role: oh-my-zsh
+      users:
+        - username: '{{ remote_user }}'
+      when: 'install_zsh is defined'

@@ -1,0 +1,122 @@
+---
+- name: remove conflicting ubuntu packages
+  apt:
+    pkg:
+      - docker
+    state: absent
+
+- name: install needed pip modules
+  pip:
+    name:
+      - docker
+
+- name: add the offial Docker repo GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: add the offial Docker repo
+  apt_repository:
+    repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable'
+    state: present
+    filename: docker.io
+    update_cache: yes
+
+- name: Install the offical docker packages
+  apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+
+- name: Start docker on boot
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: 'Create {{ docker_group }} system group'
+  group:
+    name: '{{ docker_group }}'
+    state: present
+
+- name: 'Add remote user {{ remote_user }} to group {{ docker_group }}'
+  user:
+    name: '{{ remote_user }}'
+    group: '{{ docker_group }}'
+    append: yes
+
+- name: Install docker-compose
+  command: pip3 install docker-compose
+
+- name: Ensure that the docker service is enabled and started at boot time
+  service:
+    name: docker
+    enabled: yes
+    state: restarted
+
+- name: Check if swarm is already created
+  docker_swarm_info:
+    nodes: yes
+  register: swarm_info
+  run_once: true
+  ignore_errors: yes
+
+- name: Bootstrap docker swarm
+  docker_swarm:
+    state: present
+    advertise_addr: '{{ ansible_default_ipv4.address }}'
+    debug: yes
+  register: swarm_info
+  run_once: true
+
+- name: add glusterfs ppa repo
+  apt_repository:
+    validate_certs: no
+    repo: 'ppa:gluster/glusterfs-{{ gluster_version }}'
+    filename: 'glusterfs-{{ gluster_version }}'
+    update_cache: yes
+    state: present
+
+# install gluster client on swarm node
+- name: install glusterfs client
+  apt:
+    name: glusterfs-client
+    state: present
+# - name: make glusterfs mount dir
+#   file:
+#     path: '/mnt/{{ gluster_volume_name }}'
+#     state: directory
+
+# - name: "mount glusterfs volume {{ gluster_volume_name }}"
+#   mount:
+#     name: "{{ gluster_volume_name }}"
+#     src: '{{ inventory_hostname }}:/{{ gluster_brick_path }}'
+#     fstype: glusterfs
+#     opts: 'defaults,_netdev'
+#     state: mounted
+
+# delegate_to: '{{ groups.docker[0] }}'
+# when: swarm_info.docker_swarm_active == false or swarm_info.docker_swarm_active is not defined
+# - name: gather tokens from bootstrapped swarm
+#   docker_swarm_info:
+#     nodes: yes
+#   register: swarm_info
+#   run_once: true
+#   delegate_to: '{{ groups.docker[0] }}'
+
+# - name: Add swarm masters to bootstrapped cluster
+#   docker_swarm:
+#     state: join
+#     debug: yes
+#     remote_addrs: "{{ hostvars[groups.docker[0]]['ansible_default_ipv4']['address'] }}"
+#     join_token: '{{ swarm_info.swarm_facts.JoinTokens.Manager }}'
+#     advertise_addr: '{{ ansible_default_ipv4.address }}'
+#   when: swarm_master is defined and swarm_master | bool == True
+
+# - name: Add other swarm workers to bootstrapped cluster
+#   docker_swarm:
+#     state: join
+#     remote_addrs: "{{ hostvars[groups.docker[0]]['ansible_default_ipv4']['address'] }}"
+#     join_token: '{{ swarm_info.swarm_facts.JoinTokens.Worker }}'
+#     advertise_addr: '{{ ansible_default_ipv4.address }}'
+#   when: swarm_master is not defined

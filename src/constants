@@ -1,38 +1,41 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-# ----------------------------
-# config: swarmlet-core-config
-# ----------------------------
-# Docker config file
-
-# Docker settings
-DOCKER_SOCKET="/var/run/docker.sock"
+# GlusterFS settings
+GFS_MOUNT="/mnt/gfs"
 
 # Swarmlet settings
-SWARMLET_ROOT="/opt/swarmlet"
-SWARMLET_LIB="$SWARMLET_ROOT/src/lib"
-SWARMLET_CONSTANTS="$SWARMLET_ROOT/src/constants"
-SWARMLET_CONFIG="$SWARMLET_ROOT/src/config"
-SWARMLET_HOOKS="$SWARMLET_ROOT/src/hooks"
+SWARMLET_ROOT="${SWARMLET_INSTALL_ROOT:="$GFS_MOUNT/swarmlet"}"
+SWARMLET_SRC="$SWARMLET_ROOT/src"
+SWARMLET_LIB="$SWARMLET_SRC/lib"
+SWARMLET_CONSTANTS="$SWARMLET_SRC/constants"
+SWARMLET_CONFIG="$SWARMLET_SRC/config"
+SWARMLET_HOOKS="$SWARMLET_SRC/hooks"
 SWARMLET_MODULES_ROOT="$SWARMLET_ROOT/modules"
 SWARMLET_FUNCTIONS="$SWARMLET_LIB/functions"
 SWARMLET_REGISTRY="localhost:5000/v2"
 SWARMLET_NETWORK="swarmlet-network"
 
+# Ansible settings
+ANSIBLE_ROOT="$SWARMLET_SRC/ansible"
+
+# Docker settings
+DOCKER_SOCKET="/var/run/docker.sock"
+
 # Git user settings
 GIT_USER="git"
-GIT_DATA="git-data"
-GIT_USER_ROOT="/home/$GIT_USER"
-GIT_REPO_ROOT="/var/repo"
+GIT_ROOT="$GFS_MOUNT/git"
+GIT_REPO_ROOT="$GIT_ROOT/repo"
+GIT_DATA_ROOT="$GIT_ROOT/data"
 
 # Traefik settings
-TRAEFIK_NETWORK=traefik-public
+TRAEFIK_NETWORK="traefik-public"
+TRAEFIK_DATA="$GFS_MOUNT/traefik"
 
 # Let's Encrypt CA servers
 CA_PROD="https://acme-v02.api.letsencrypt.org/directory"
 CA_TEST="https://acme-staging-v02.api.letsencrypt.org/directory"
 
 # SSH settings for the git user
-SSH_COMMAND="command=\"$SWARMLET_LIB/sshcommand $GIT_REPO_ROOT $SWARMLET_HOOKS\""
+SSH_COMMAND="command=\"/mnt/gfs/swarmlet/src/lib/sshcommand $GIT_REPO_ROOT /mnt/gfs/swarmlet/src/hooks\""
 SSH_OPTIONS="no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,$SSH_COMMAND"

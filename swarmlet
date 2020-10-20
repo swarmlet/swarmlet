@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034,SC1090,SC2143
+# shellcheck disable=SC2034,SC1090,SC2143,SC2139
 
 set -eo pipefail
 [[ $DEBUG ]] && set -x
@@ -9,12 +9,11 @@ FPREFIX="=====>"
 PREFIX="----->"
 INDENT="      "
 
-SWARMLET_ROOT="/opt/swarmlet"
+SWARMLET_ROOT="${SWARMLET_INSTALL_ROOT:="/mnt/gfs/swarmlet"}"
 COMMAND="$SWARMLET_ROOT/src/commands/$1"
 
 source "$SWARMLET_ROOT/src/constants"
 source "$SWARMLET_FUNCTIONS"
-
 set +o allexport
 
 if [[ -f "$COMMAND" ]]; then

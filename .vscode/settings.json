@@ -4,6 +4,15 @@
     "vscode",
     "examples",
     "modules",
-    "src"
-  ]
+    "src",
+    "storage",
+    "deploy",
+    "router",
+    "ansible"
+  ],
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "all",
+  "prettier.semi": false,
+  "autoimport.useSemiColon": false,
+  "editor.formatOnSave": true
 }

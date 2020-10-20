@@ -1,0 +1,44 @@
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    remote_user: root
+    docker_group: docker
+    # ansible_ssh_user: ansible
+    local_user: "{{ lookup('env', 'USER') }}"
+    gluster_version: 7
+    gluster_volume_name: gfs
+    gluster_brick_path:
+      - '/data/glusterfs/brick01/{{ gluster_volume_name }}'
+      # foreach host use gfs.<IP> ?
+
+  hosts:
+    swarm:
+      children:
+        hosts:
+          '{{ ansible_default_ipv4.address }}':
+
+managers:
+  # hosts:
+  #   '{{ ansible_default_ipv4.address }}':
+
+  vars:
+    disk_additional_disks:
+      - disk: /dev/sdb
+        fstype: ext4
+        mount_options: defaults
+        mount: /var/lib/docker
+        user: root
+        group: root
+        disable_periodic_fsck: false
+
+      - disk: /dev/sdb
+        fstype: xfs
+        mount_options: defaults
+        mount: /data/glusterfs/brick01
+        user: root
+        group: root
+        disable_periodic_fsck: false
+
+workers:
+  vars:
+    test: yes

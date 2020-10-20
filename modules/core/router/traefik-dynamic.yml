@@ -1,0 +1,9 @@
+http:
+  middlewares:
+    redirect:
+      redirectScheme:
+        scheme: https
+        # permanent: true
+    auth:
+      basicAuth:
+        usersFile: /run/secrets/security.htpasswd
