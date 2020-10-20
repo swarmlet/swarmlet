@@ -5,6 +5,7 @@
   user:
     name: git
     uid: 1000
+    home: "{{ lookup('env', 'GIT_ROOT') }}"
     shell: /bin/bash
     groups: docker
     append: yes
@@ -37,7 +38,7 @@
 
 - name: Add SSH authorized keys
   copy:
-    content: "{{ lookup('env', 'SSH_OPTIONS') }}{{ authorized_keys.stdout }}"
+    content: "{{ lookup('env', 'SSH_OPTIONS') }} {{ authorized_keys.stdout }}"
     dest: "{{ lookup('env', 'GIT_ROOT') }}/.ssh/authorized_keys"
     owner: git
     group: git
@@ -46,11 +47,11 @@
 - name: Copy Swarmlet directory
   synchronize:
     src: /tmp/swarmlet/
-    dest: /mnt/gfs/swarmlet/
+    dest: "{{ lookup('env', 'GFS_MOUNT') }}/swarmlet"
 
 - name: Create symbolic link
   file:
-    src: /mnt/gfs/swarmlet/swarmlet
+    src: "{{ lookup('env', 'GFS_MOUNT') }}/swarmlet/swarmlet"
     dest: /usr/local/sbin/swarmlet
     owner: root
     group: root
@@ -58,7 +59,7 @@
 
 - name: Create Ansible directory
   file:
-    path: '/mnt/gfs/ansible/.ssh'
+    path: "{{ lookup('env', 'GFS_MOUNT') }}/ansible/.ssh"
     state: directory
     owner: root
     group: root
@@ -66,7 +67,7 @@
 
 - name: Create Ansible SSH key
   vars:
-    ssh_key_path: /mnt/gfs/ansible/.ssh
+    ssh_key_path: "{{ lookup('env', 'GFS_MOUNT') }}/ansible/.ssh"
     ssh_key_filename: id_rsa_ansible
   openssh_keypair:
     path: '{{ ssh_key_path }}/{{ ssh_key_filename }}'
