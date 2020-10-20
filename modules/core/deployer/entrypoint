@@ -7,7 +7,7 @@ set -o allexport
 
 source "/swarmlet-core-config"
 source "/swarmlet-user-config"
-source "/var/run/secrets/swarmlet-user-secrets"
+source "/run/secrets/swarmlet-user-secrets"
 
 main() {
   tail -f /dev/null
