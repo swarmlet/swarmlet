@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: swarm
   connection: local
   vars:
     force_purge: true
@@ -50,6 +50,7 @@
         name:
           - netaddr
           - pyvmomi
+          - docker
 
     - name: Remove existing public roles
       file:

@@ -9,36 +9,32 @@ all:
     gluster_volume_name: gfs
     gluster_brick_path:
       - '/data/glusterfs/brick01/{{ gluster_volume_name }}'
-      # foreach host use gfs.<IP> ?
 
+swarm:
   hosts:
-    swarm:
-      children:
-        hosts:
-          '{{ ansible_default_ipv4.address }}':
+    localhost:
+      hosts:
+        '{{ ansible_default_ipv4.address }}':
 
-managers:
-  # hosts:
-  #   '{{ ansible_default_ipv4.address }}':
-
+manager:
   vars:
-    disk_additional_disks:
-      - disk: /dev/sdb
-        fstype: ext4
-        mount_options: defaults
-        mount: /var/lib/docker
-        user: root
-        group: root
-        disable_periodic_fsck: false
+    # disk_additional_disks:
+    #   - disk: /dev/sdb
+    #     fstype: ext4
+    #     mount_options: defaults
+    #     mount: /var/lib/docker
+    #     user: root
+    #     group: root
+    #     disable_periodic_fsck: false
 
-      - disk: /dev/sdb
-        fstype: xfs
-        mount_options: defaults
-        mount: /data/glusterfs/brick01
-        user: root
-        group: root
-        disable_periodic_fsck: false
+    #   - disk: /dev/sdb
+    #     fstype: xfs
+    #     mount_options: defaults
+    #     mount: /data/glusterfs/brick01
+    #     user: root
+    #     group: root
+    #     disable_periodic_fsck: false
 
-workers:
+worker:
   vars:
-    test: yes
+    # test: yes
