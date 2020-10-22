@@ -7,8 +7,6 @@ services:
       - SWARMPIT_DB=http://db:5984
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    ports:
-      - 8080:8080
     networks:
       - swarmpit-network
       - swarmlet-network

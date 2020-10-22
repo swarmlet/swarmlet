@@ -48,7 +48,7 @@ services:
         window: 120s
 
   traefik:
-    image: traefik:v2.2
+    image: traefik:v2.3
     restart: always
     secrets:
       - security.htpasswd
@@ -65,13 +65,12 @@ services:
       - swarmlet-network
     command:
       # https://docs.traefik.io/reference/static-configuration/cli/
-      # check metrics via influxdb or prometheus
+      # Check metrics via influxdb or prometheus
       ## Log Settings (options: ERROR, DEBUG, PANIC, FATAL, WARN, INFO) - https://docs.traefik.io/observability/logs/ ##
-      # - --log.level=DEBUG # <== Setting the level of the logs from traefik
       - --log.level=INFO # <== Setting the level of the logs from traefik
       ## API Settings - https://docs.traefik.io/operations/api/, endpoints - https://docs.traefik.io/operations/api/#endpoints ##
       # - --api=true
-      - --api.insecure=true # TODO: remove in production
+      # - --api.insecure=true # remove in production
       - --api.dashboard=true
       - --api.debug=true # <== Enabling additional endpoints for debugging and profiling
       ## Provider Settings - https://docs.traefik.io/providers/docker/#provider-configuration ##
@@ -81,7 +80,6 @@ services:
       - --providers.docker.network=traefik-public
       - --providers.docker.exposedbydefault=false
       ## Entrypoints Settings - https://docs.traefik.io/routing/entrypoints/#configuration ##
-      - --entrypoints.ssh.address=:22
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
       ## TLS Settings
@@ -91,6 +89,7 @@ services:
       - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      # Use Let's Encrypt staging server
       # - --certificatesresolvers.letsencrypt.acme.caserver="https://acme-staging-v02.api.letsencrypt.org/directory"
       # - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=digitalocean
       # - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
@@ -106,10 +105,9 @@ services:
         - traefik.enable=true
         - traefik.http.services.traefik-api.loadbalancer.server.port=8080
         - traefik.http.routers.traefik-api.rule=Host(`router.${DOMAIN}`) # ${TODO: DOMAIN cannot be read after reboot}
-        - traefik.http.routers.traefik-api.entrypoints=http,https,ssh
+        - traefik.http.routers.traefik-api.entrypoints=http,https
         - traefik.http.routers.traefik-api.middlewares=redirect@file,auth@file
         - traefik.http.routers.traefik-api.service=api@internal
-        # - traefik.http.routers.traefik-api.tls.certresolver=letsencrypt
       restart_policy:
         condition: any
         delay: 2s
