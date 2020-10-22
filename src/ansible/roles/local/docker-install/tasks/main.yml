@@ -75,33 +75,6 @@
     debug: yes
   register: swarm_info
   run_once: true
-
-- name: add glusterfs ppa repo
-  apt_repository:
-    validate_certs: no
-    repo: 'ppa:gluster/glusterfs-{{ gluster_version }}'
-    filename: 'glusterfs-{{ gluster_version }}'
-    update_cache: yes
-    state: present
-
-# install gluster client on swarm node
-- name: install glusterfs client
-  apt:
-    name: glusterfs-client
-    state: present
-# - name: make glusterfs mount dir
-#   file:
-#     path: '/mnt/{{ gluster_volume_name }}'
-#     state: directory
-
-# - name: "mount glusterfs volume {{ gluster_volume_name }}"
-#   mount:
-#     name: "{{ gluster_volume_name }}"
-#     src: '{{ inventory_hostname }}:/{{ gluster_brick_path }}'
-#     fstype: glusterfs
-#     opts: 'defaults,_netdev'
-#     state: mounted
-
 # delegate_to: '{{ groups.docker[0] }}'
 # when: swarm_info.docker_swarm_active == false or swarm_info.docker_swarm_active is not defined
 # - name: gather tokens from bootstrapped swarm

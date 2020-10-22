@@ -11,6 +11,20 @@
   register: etchostsupdate
   with_items: '{{ groups.all }}'
 
+- name: Update the hosts.debian.tmpl file
+  tags: etchostsupdate
+  become: yes
+  become_user: root
+  lineinfile:
+    path: '/etc/cloud/templates/hosts.debian.tmpl'
+    regexp: ".*\t{{ ansible_hostname }}\t{{ ansible_hostname }}"
+    line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
+    state: present
+  register: etchostsupdate
+  with_items: '{{ groups.all }}'
+  ignore_errors: yes
+  when: "'/etc/cloud/templates/hosts.debian.tmpl' is file"
+
 - name: Remove unused apt packages from the cache
   apt:
     autoclean: yes
