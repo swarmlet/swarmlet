@@ -5,6 +5,10 @@ set -eo pipefail
 [[ $DEBUG ]] && set -x
 set -o allexport
 
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
 source "/swarmlet-core-config"
 source "/swarmlet-user-config"
 source "/run/secrets/swarmlet-user-secrets"
