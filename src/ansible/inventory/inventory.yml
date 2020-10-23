@@ -11,12 +11,12 @@ all:
     gluster_brick_path:
       - '/data/glusterfs/brick01/{{ gluster_volume_name }}'
 
+leader:
+  vars:
+    ansible_connection: local
   hosts:
-    leader:
-      children:
-        hosts:
-          '{{ ansible_default_ipv4.address }}':
-            ansible_connection: local
+    localhost:
+      '{{ ansible_default_ipv4.address }}':
 
 swarm:
 manager:
