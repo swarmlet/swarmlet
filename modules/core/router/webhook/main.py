@@ -153,6 +153,7 @@ def main():
             "      curl -fsSL http://%s:%s%s/%s | bash"
             % (args.interface, args.port, "/join", args.key)
         )
+        print("\n-----> Waiting for remote..")
         try:
             server.serve_forever()
         except:

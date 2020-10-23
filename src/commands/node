@@ -38,8 +38,6 @@ node-join() {
     "ansible-playbook add-host.yml -i inventory/inventory.yml --extra-vars 'host={host} address={address}'"
   # "ansible-playbook add-host.yml -i inventory/inventory.yml --extra-vars 'host={host} address={address} role=$ROLE'"
 
-  echo
-  echo "$PREFIX Waiting for remote.."
   popd >/dev/null
 }
 
