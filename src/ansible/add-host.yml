@@ -1,6 +1,5 @@
 ---
-- hosts: localhost
-  connection: local
+- hosts: leader
   gather_facts: no
   vars:
     host_name: '{{ host }}'
