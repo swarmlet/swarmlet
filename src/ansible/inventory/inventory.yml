@@ -4,6 +4,7 @@ all:
     remote_user: root
     ansible_ssh_user: root
     ansible_ssh_private_key_file: '/mnt/{{ gluster_volume_name }}/ansible/.ssh/id_rsa_ansible'
+    ansible_ssh_known_hosts: '/mnt/{{ gluster_volume_name }}/ansible/.ssh/known_hosts'
     docker_group: docker
     local_user: "{{ lookup('env', 'USER') }}"
     gluster_version: 7
