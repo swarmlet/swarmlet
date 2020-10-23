@@ -75,6 +75,7 @@
     debug: yes
   register: swarm_info
   run_once: true
+  when: swarm_info.docker_swarm_active is not defined or swarm_info.docker_swarm_active == false
 # delegate_to: '{{ groups.docker[0] }}'
 # when: swarm_info.docker_swarm_active == false or swarm_info.docker_swarm_active is not defined
 # - name: gather tokens from bootstrapped swarm

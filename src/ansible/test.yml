@@ -3,7 +3,7 @@
   connection: local
   gather_facts: no
   tasks:
-    - debug: msg="hostname - {{ inventory_hostname }}"
+    - debug: msg="adding new node to the swarm {{ host }} {{ address }}"
 
 - name: Test groups
   hosts: swarm
@@ -20,7 +20,6 @@
     - debug: msg="{{ result.nodes[0].Status.Addr }} {{ result.nodes[0].Status.State }}"
     # - debug: msg="{{ item.Status.Addr }} {{ item.Status.State }}"
     #   loop: "{{ result.nodes }}"
-
 # - name: Test docker_inventory
 #   hosts: all
 #   connection: local
@@ -28,9 +27,9 @@
 #   tasks:
 #     - debug: msg="play hosts - {{ play_hosts }}"
 
-- name: Test docker_inventory
-  hosts: all
-  connection: local
-  gather_facts: no
-  tasks:
-    - debug: msg="play hosts - {{ ansible_all_ipv4_addresses }}"
+# - name: Test docker_inventory
+#   hosts: all
+#   connection: local
+#   gather_facts: no
+#   tasks:
+#     - debug: msg="play hosts - {{ ansible_all_ipv4_addresses }}"

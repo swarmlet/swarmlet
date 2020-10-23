@@ -26,26 +26,26 @@ services:
   #       - traefik.http.routers.lego.rule="Path(`/.well-known/acme-challenge`)"
   #       - traefik.http.routers.lego.priority=999
   #       - traefik.http.routers.lego.entrypoints=http
-  lego-agent:
-    image: goacme/lego:v3.8.0
-    volumes:
-      - /mnt/gfs/traefik:/letsencrypt
-    # configs:
-    #   - swarmlet-config # deprecated
-    networks:
-      - swarmlet-network
-    entrypoint: /bin/sh
-    command: tail -f /dev/null
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints: [node.role == manager]
-      restart_policy:
-        condition: on-failure
-        delay: 2s
-        max_attempts: 5
-        window: 120s
+  # lego-agent:
+  #   image: goacme/lego:v3.8.0
+  #   volumes:
+  #     - /mnt/gfs/traefik:/letsencrypt
+  #   # configs:
+  #   #   - swarmlet-config # deprecated
+  #   networks:
+  #     - swarmlet-network
+  #   entrypoint: /bin/sh
+  #   command: tail -f /dev/null
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     placement:
+  #       constraints: [node.role == manager]
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 2s
+  #       max_attempts: 5
+  #       window: 120s
 
   traefik:
     image: traefik:v2.3
