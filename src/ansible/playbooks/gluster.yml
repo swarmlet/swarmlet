@@ -1,6 +1,5 @@
 ---
-- hosts: swarm
-  connection: local
+- hosts: leader
   gather_facts: yes
   become: yes
   roles:

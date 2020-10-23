@@ -1,6 +1,5 @@
 ---
-- hosts: localhost
-  connection: local
+- hosts: leader
   vars:
     force_purge: true
     install_public_roles: true
