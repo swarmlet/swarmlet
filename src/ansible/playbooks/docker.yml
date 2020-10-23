@@ -1,5 +1,5 @@
 ---
-- hosts: swarm
+- hosts: localhost
   connection: local
   gather_facts: yes
   become: yes
@@ -7,4 +7,13 @@
     - common
     - disk
     - docker-install
-    - docker-configure
+    # - docker-configure
+
+- hosts: swarm
+  gather_facts: yes
+  become: yes
+  roles:
+    - common
+    - disk
+    - docker-join
+    # - docker-configure

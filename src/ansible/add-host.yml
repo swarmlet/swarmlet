@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    host_name: '{{ host }}'
+    host_address: '{{ address }}'
+    ssh_known_hosts_file: '{{ ansible_ssh_known_hosts }}'
+    ssh_known_hosts: '{{ groups.all }}'
+  tasks:
+    - name: Adding hosts from server response
+      add_host:
+        name: '{{ host_address }}'
+        groups: [swarm]
+
+    # - debug: msg="{{ host_name }} {{ host_address }} {{ groups }}"
+
+    - name: For each host, scan for its ssh public key
+      shell: 'ssh-keyscan {{ item }},`dig +short {{ item }}`'
+      with_items: '{{ groups.swarm }}'
+      register: ssh_known_host_results
+      ignore_errors: yes
+
+    # - debug: msg="{{ ssh_known_host_results.results }}"
+
+    - name: Add/update the public key in the '{{ ssh_known_hosts_file }}'
+      known_hosts:
+        name: '{{ item.item }}'
+        key: '{{ item.stdout }}'
+        path: '{{ ssh_known_hosts_file }}'
+      with_items: '{{ ssh_known_host_results.results }}'
+
+- import_playbook: playbooks/docker.yml
