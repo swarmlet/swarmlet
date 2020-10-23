@@ -7,7 +7,7 @@
     - common
     - disk
     - docker-install
-    # - docker-configure
+    - docker-configure
 
 - hosts: swarm
   gather_facts: yes
@@ -15,5 +15,5 @@
   roles:
     - common
     - disk
-    - docker-join
+    # - docker-join
     # - docker-configure
