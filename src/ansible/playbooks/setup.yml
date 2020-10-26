@@ -37,11 +37,10 @@
           - xfsprogs
           - btrfs-progs
 
-    - name: install python
+    - name: install pip
       apt:
         pkg:
           - python-pip
-          - python3
           - python3-pip
 
     - name: install pip modules
