@@ -35,7 +35,6 @@ def get_handler(args):
             return result == 0
 
         def _exec(self, parameters):
-            # print(parameters.get("host"))
             CommandHandler.exec_in_progress = True
             if args.template:
                 try:
@@ -71,11 +70,12 @@ def get_handler(args):
                         )
                         .replace(
                             "{{ CALLBACK_URL }}",
-                            "http://%s:%s%s" % (args.interface, args.port, "/callback"),
+                            "http://%s:%s%s/%s"
+                            % (args.interface, args.port, "/callback", args.key),
                         )
                     )
                     self.wfile.write(bytes(data, "utf-8"))
-            elif "/callback" in path:
+            elif "/callback/%s" % args.key in path:
                 t = threading.Thread(target=self._exec, args=[parameters])
                 t.daemon = True
                 t.start()
@@ -150,7 +150,7 @@ def main():
             os._exit(1)
 
         print(
-            "      curl -fsSL http://%s:%s%s/%s | bash"
+            "       curl -fsSL http://%s:%s%s/%s | bash"
             % (args.interface, args.port, "/join", args.key)
         )
         print("\n-----> Waiting for remote..")
