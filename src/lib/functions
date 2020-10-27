@@ -55,11 +55,8 @@ install-ansible() {
   echo "$PREFIX Running Ansible playbooks"
   pushd "$ANSIBLE_ROOT" &>/dev/null || exit
   ansible-playbook "$ANSIBLE_ROOT/playbooks/setup.yml"
-  ansible-playbook "$ANSIBLE_ROOT/swarmlet-init.yml"
+  ansible-playbook "$ANSIBLE_ROOT/swarmlet.yml"
   popd &>/dev/null || exit
-
-  # TODO: Configure new nodes using dynamic inventory plugin
-  # ansible-playbook -i plugins/docker_swarm.yml -i inventory/inventory.yml test.yml
 }
 
 abort-installation() {
