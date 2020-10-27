@@ -1,13 +1,5 @@
-- name: Test
-  hosts: all
-  connection: local
-  gather_facts: no
-  tasks:
-    - debug: msg="adding new node to the swarm {{ host }} {{ address }}"
-
 - name: Test groups
-  hosts: swarm
-  # connection: local
+  hosts: leader
   gather_facts: no
   tasks:
     - debug: msg="{{ groups }}"

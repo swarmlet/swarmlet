@@ -43,12 +43,12 @@
     state: mounted
   when: mount_dir.stat.exists == False
 
-# - name: add peers to gluster cluster
-#   gluster_peer:
-#     state: present
-#     nodes: '{{ groups.manager }}'
-#   delegate_to: '{{ groups.leader[0] }}'
-#   when: '{{ groups.manager[0] }} is defined'
+- name: add peers to gluster cluster
+  gluster_peer:
+    state: present
+    nodes: '{{ groups.manager }}'
+  delegate_to: '{{ groups.manager[0] }}'
+  when: 'groups.manager[0] is defined'
 
 - name: create glusterfs brick dir
   file:

@@ -12,10 +12,13 @@
       - docker-py
     state: absent
 
+# - name: install pip modules
+#   pip:
+#     name:
+#       - docker
+
 - name: install pip modules
-  pip:
-    name:
-      - docker
+  command: pip install docker
 
 - name: add the Docker repo GPG key
   apt_key:
