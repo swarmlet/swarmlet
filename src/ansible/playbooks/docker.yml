@@ -1,5 +1,5 @@
 ---
-- hosts: swarm
+- hosts: leader,swarm
   gather_facts: yes
   become: yes
   roles:
