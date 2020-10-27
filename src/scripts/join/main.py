@@ -6,6 +6,7 @@ import os
 import threading
 import socket
 import uuid
+import requests
 
 try:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
@@ -101,7 +102,6 @@ def get_handler(args):
 def main():
     with socket.socket() as s:
         s.bind(("", 0))
-        ip = socket.gethostbyname(socket.gethostname())
         port = s.getsockname()[1]
         s.close()
 
@@ -127,7 +127,10 @@ def main():
             "-p", "--port", type=int, default=port, help="the port to listen on"
         )
         parser.add_argument(
-            "-i", "--interface", default=str(ip), help="the IP address to listen on"
+            "-i",
+            "--interface",
+            default=requests.get("https://checkip.amazonaws.com").text.strip(),
+            help="the IP address to listen on",
         )
         parser.add_argument(
             "-s",
