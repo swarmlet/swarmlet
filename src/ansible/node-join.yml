@@ -1,6 +1,7 @@
 ---
-- hosts: leader
-  gather_facts: no
+- hosts: leader,swarm
+  become: yes
+  gather_facts: yes
   vars:
     host_name: '{{ host }}'
     host_address: '{{ address }}'
