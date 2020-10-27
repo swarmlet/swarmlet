@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+[[ $DEBUG ]] && set -x
+
+play() {
+  declare cmd="play"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  PLAYBOOK_FILE="$1"
+  PLAYBOOK_NAME=$(basename "$1")
+
+  pushd "$ANSIBLE_ROOT" &>/dev/null
+
+  echo "$FPREFIX Running Ansible playbook $PLAYBOOK_NAME"
+  ansible-playbook -i plugins/docker_swarm.yml -i inventory/inventory.yml "$PLAYBOOK_FILE"
+
+  popd >/dev/null
+}
+
+"$@"
