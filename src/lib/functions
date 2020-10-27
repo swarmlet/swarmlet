@@ -58,7 +58,7 @@ install-ansible() {
   ansible-playbook "$ANSIBLE_ROOT/swarmlet.yml"
 
   echo "$PREFIX Fetching collections"
-  ansible-galaxy ansible-galaxy collection install community.general &>/dev/null
+  ansible-galaxy collection install community.general &>/dev/null
 
   popd &>/dev/null || exit
 }
