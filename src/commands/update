@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+[[ $DEBUG ]] && set -x
+
+update() {
+  declare cmd="update"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  echo "$FPREFIX Updating Swarmlet"
+
+  pushd "$SWARMLET_ROOT" >/dev/null
+  git reset --hard origin "$INSTALL_BRANCH"
+  git pull
+  popd >/dev/null
+}
+
+"$@"
