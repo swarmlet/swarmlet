@@ -1,17 +1,31 @@
 ---
-# - name: Update the /etc/hosts file with node name
-#   tags: etchostsupdate
-#   path: '/etc/hosts'
-#   line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
-#   with_items: '{{ groups.all }}'
+- name: Update the /etc/hosts file with node name
+  become: yes
+  become_user: root
+  lineinfile:
+    path: '/etc/hosts'
+    regexp: ".*\t{{ ansible_hostname }}\t{{ ansible_hostname }}"
+    line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
+    state: present
+  with_items: '{{ groups.all }}'
 
-# - name: Update the hosts.debian.tmpl file
-#   tags: etchostsupdate
-#   path: '/etc/cloud/templates/hosts.debian.tmpl'
-#   line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
-#   with_items: '{{ groups.all }}'
-#   when: "'/etc/cloud/templates/hosts.debian.tmpl' is file"
-#   ignore_errors: yes
+- name: Update the hosts.debian.tmpl file
+  become: yes
+  become_user: root
+  lineinfile:
+    path: '/etc/cloud/templates/hosts.debian.tmpl'
+    regexp: ".*\t{{ ansible_hostname }}\t{{ ansible_hostname }}"
+    line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
+    state: present
+  with_items: '{{ groups.all }}'
+  ignore_errors: yes
+  when: "'/etc/cloud/templates/hosts.debian.tmpl' is file"
+
+- name: install pip
+  apt:
+    pkg:
+      - python-pip
+      - python3-pip
 
 - name: Remove unused apt packages from the cache
   apt:

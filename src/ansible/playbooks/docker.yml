@@ -1,18 +1,14 @@
 ---
-- hosts: leader
-  gather_facts: yes
-  become: yes
-  roles:
-    - common
-    - disk
-    - docker-install
-    - docker-configure
-
 - hosts: swarm
   gather_facts: yes
   become: yes
   roles:
     - common
     - disk
-    # - docker-join
-    # - docker-configure
+    - docker-install
+
+- hosts: leader
+  gather_facts: yes
+  become: yes
+  roles:
+    - docker-configure

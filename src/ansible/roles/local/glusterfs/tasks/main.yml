@@ -46,8 +46,9 @@
 # - name: add peers to gluster cluster
 #   gluster_peer:
 #     state: present
-#     nodes: '{{ play_hosts }}'
-#   delegate_to: '{{ play_hosts | first }}'
+#     nodes: '{{ groups.manager }}'
+#   delegate_to: '{{ groups.leader[0] }}'
+#   when: '{{ groups.manager[0] }} is defined'
 
 - name: create glusterfs brick dir
   file:

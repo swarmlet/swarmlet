@@ -13,6 +13,11 @@
       hostname:
         name: "{{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
 
+    - name: Adding leader to swarm group
+      add_host:
+        name: '{{ groups.leader[0] }}'
+        groups: [swarm]
+
     - name: update apt cache
       apt:
         update_cache: yes
@@ -49,6 +54,7 @@
           - netaddr
           - pyvmomi
           - docker
+          - requests
 
     - name: Remove existing public roles
       file:
