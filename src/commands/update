@@ -7,12 +7,20 @@ update() {
   declare cmd="update"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  ENV=$(docker container exec "$(docker ps --filter name=deployer_agent -q)" /entrypoint printenv)
+  BRANCH=$(echo "${ENV%%BASH_FUNC*}" | grep INSTALL_BRANCH | grep -o "[a-z].*$")
+
   echo "$FPREFIX Updating Swarmlet"
+  echo "$PREFIX Pulling from $BRANCH branch"
 
   pushd "$SWARMLET_ROOT" >/dev/null
-  git reset --hard origin "$INSTALL_BRANCH"
+  git reset --hard origin "$BRANCH"
   git pull
   popd >/dev/null
+
+  echo "$PREFIX Current version:"
+  echo "$INDENT Swarmlet $(check-swarmlet-version)"
+  echo "$PREFIX Done"
 }
 
 "$@"

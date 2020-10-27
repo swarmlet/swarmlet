@@ -38,7 +38,7 @@ check-bash-version() {
 
 check-swarmlet-version() {
   pushd "$SWARMLET_ROOT" >/dev/null || exit
-  git describe --match "v*" "$INSTALL_BRANCH"
+  git describe --tags --match "v*" "$INSTALL_BRANCH"
   popd >/dev/null || exit
 }
 

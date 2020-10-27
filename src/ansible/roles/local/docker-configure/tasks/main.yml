@@ -55,6 +55,7 @@
       INSTALL_MODULES="{{ lookup('env', 'INSTALL_MODULES') }}"
       CREATE_SWAP="{{ lookup('env', 'CREATE_SWAP') }}"
       INSTALL_ZSH="{{ lookup('env', 'INSTALL_ZSH') }}"
+      INSTALL_BRANCH="{{ lookup('env', 'INSTALL_BRANCH') }}"
       LEADER_IP="{{ ansible_default_ipv4.address }}"
     state: present
   ignore_errors: yes
