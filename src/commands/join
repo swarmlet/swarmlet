@@ -23,7 +23,7 @@ join-manager() {
     "ansible-playbook \
     -i $ANSIBLE_ROOT/plugins/docker_swarm.yml \
     -i $ANSIBLE_ROOT/inventory/inventory.yml \
-    --extra-vars 'host={host} address={address}' \
+    --extra-vars 'host={host} address={address} swarm_manager=true' \
     $ANSIBLE_ROOT/node-join.yml"
 
   popd >/dev/null
