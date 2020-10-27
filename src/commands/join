@@ -21,7 +21,7 @@ join-manager() {
   python3 \
     "$SWARMLET_SCRIPTS/join/main.py" \
     "ansible-playbook \
-    -i $ANSIBLE_ROOT/plugins/docker-swarm.yml \
+    -i $ANSIBLE_ROOT/plugins/docker_swarm.yml \
     -i $ANSIBLE_ROOT/inventory/inventory.yml \
     --extra-vars 'host={host} address={address}' \
     $ANSIBLE_ROOT/node-join.yml"

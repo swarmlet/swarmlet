@@ -1,17 +1,17 @@
 ---
-- name: Update the /etc/hosts file with node name
-  tags: etchostsupdate
-  path: '/etc/hosts'
-  line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
-  with_items: '{{ groups.all }}'
+# - name: Update the /etc/hosts file with node name
+#   tags: etchostsupdate
+#   path: '/etc/hosts'
+#   line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
+#   with_items: '{{ groups.all }}'
 
-- name: Update the hosts.debian.tmpl file
-  tags: etchostsupdate
-  path: '/etc/cloud/templates/hosts.debian.tmpl'
-  line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
-  with_items: '{{ groups.all }}'
-  when: "'/etc/cloud/templates/hosts.debian.tmpl' is file"
-  ignore_errors: yes
+# - name: Update the hosts.debian.tmpl file
+#   tags: etchostsupdate
+#   path: '/etc/cloud/templates/hosts.debian.tmpl'
+#   line: "{{ ansible_default_ipv4.address }}\t{{ ansible_hostname }}"
+#   with_items: '{{ groups.all }}'
+#   when: "'/etc/cloud/templates/hosts.debian.tmpl' is file"
+#   ignore_errors: yes
 
 - name: Remove unused apt packages from the cache
   apt:
