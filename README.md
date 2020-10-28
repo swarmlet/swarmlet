@@ -24,7 +24,7 @@ This project is in beta and definitely not production-ready yet.
 
 Why choose Kubernetes over Docker + Docker Swarm?  
 Why not automate some deployment things to get a pretty simple, versatile and solid setup?  
-Bonus, you're familiar with Docker already.  
+Bonus, you're familiar with Docker already.
 
 How:  
 Install `swarmlet` on a server. Develop projects locally as usual, add a `docker-compose.yml` file to describe your application stack, add a git remote, e.g. [`git remote add swarm git@my-swarm:my-project`](https://swarmlet.dev/docs/getting-started/ssh-key-setup).  
@@ -33,41 +33,41 @@ Then simply `git push swarm master` to deploy the project on your swarm (server 
 ## What is Swarmlet?
 
 Swarmlet is a thin wrapper around [Docker Compose](https://docs.docker.com/compose/) and [Docker Swarm mode](https://docs.docker.com/engine/swarm/).  
-[Traefik](https://github.com/containous/traefik), [Let's Encrypt](https://letsencrypt.org), [Matamo](https://matomo.org/), [Swarmpit](https://swarmpit.io), [Swarmprom](https://github.com/stefanprodan/swarmprom) and [Portainer](https://www.portainer.io) are included by default.  
-Swarmlet uses these to provide automatic SSL, load balancing, analytics and various metrics dashboards.
+A few core services, [Traefik](https://github.com/containous/traefik) (v2.3), [Let's Encrypt](https://letsencrypt.org), [Ansible](https://www.ansible.com/) and [GlusterFS](https://www.gluster.org/) are included by default.  
+These enable automatic SSL, load balancing, swarm state management and distributed file storage.  
+Let's Encrypt wildcard certificates support - [more info](https://doc.traefik.io/traefik/https/acme/#wildcard-domains).
+
+During the installation you can choose to install [Matamo](https://matomo.org/), [Portainer](https://www.portainer.io/), [Swarmpit](https://swarmpit.io) and [Swarmprom](https://github.com/stefanprodan/swarmprom).  
+These optional services are included to provide analytics and various metrics dashboards.
 
 This project is aimed at developers that want to experiment with application deployment in a flexible multi-server / high-availability environment. The goal is to be able to set up your own swarm and deploy your app(s) in minutes.
 
 ## Getting started
 
-1. Create a new VPS running Ubuntu 18.04 x64 and log in as root
-1. Install Swarmlet (optionally [with some swap]() if your server has less than 2gb of memory)
-1. [Edit your SSH config](https://swarmlet.dev/docs/getting-started/ssh-key-setup) to be able to use `ssh swarm` instead of `ssh root@123.23.12.123`
+1. Install Swarmlet on a new VPS running Ubuntu 18.04 x64 as root.
+1. [Edit your local SSH config](https://swarmlet.dev/docs/getting-started/ssh-key-setup) to use `ssh swarm` instead of `ssh root@123.23.12.123`
 1. Use an existing project, or clone one of the [examples](https://swarmlet.dev/docs/examples/static-site)
-1. Add a `docker-compose.yml` file in the root of your project: [example docker-compose.yml](https://github.com/swarmlet/swarmlet/blob/master/examples/basic-example/docker-compose.yml)
-1. Add a git remote: `git remote add swarm git@swarm:my-project`  
-   (notice the syntax `git@<name-configured-in-ssh-config>:<project-name>`)
+1. Add a [`docker-compose.yml`](https://swarmlet.dev/docs/getting-started/deploying-applications) file in the root of your project
+1. Add a git remote: [`git remote add swarm git@swarm:my-project`](https://swarmlet.dev/docs/getting-started/ssh-key-setup)
 1. Deploy your application stack to the swarm using `git push swarm master`
-1. SSL certificates for web facing services are generated automatically using Let's Encrypt  
-   (assuming you've assigned a domain to your server in your DNS configuration)
 
-**[Example application setup and deployment guide](https://swarmlet.dev/docs/getting-started/deploying-applications#example-application-setup)**
+> [Example application setup and deployment guide](https://swarmlet.dev/docs/getting-started/deploying-applications#example-app-setup)
 
 ## Installation
 
-- **Requirements**: Bash 4.0 or higher (run `bash --version`).
+Make sure you have a (sub) domain available which is pointed to your server, this is necessary to access the Traefik or Portainer/Matomo dashboards located at e.g. `portainer.your-domain.com`.
 
-### Quick interactive installation
-
-**[Full installation instructions can be found here](https://swarmlet.dev/docs/getting-started/installation)**  
-Make sure you have a (sub) domain available which is pointed to your server, this is necessary to access the included dashboards such as Swarmpit or Matomo.
 To install the latest version of Swarmlet, log in to your server as root and run:
 
 ```shell
 curl -fsSL https://get.swarmlet.dev | bash
 ```
 
-### Headless installation [(options)](https://swarmlet.dev/docs/getting-started/installation)
+The installation should take a few minutes to complete.
+
+> [Full installation instructions can be found here](https://swarmlet.dev/docs/getting-started/installation)
+
+### Custom installation [(options)](https://swarmlet.dev/docs/getting-started/installation)
 
 ```shell
 # Headless (noninteractive) installation:
@@ -75,20 +75,12 @@ curl -fsSL https://get.swarmlet.dev | bash -s \
   INSTALLATION_TYPE=noninteractive \
   INSTALL_ZSH=true \
   CREATE_SWAP=true \
-  INSTALL_MODULES="(matomo swarmpit)" \
+  INSTALL_MODULES="matomo swarmpit" \
   NEW_HOSTNAME=swarm-manager-1 \
   SWARMLET_USERNAME=admin \
   SWARMLET_PASSWORD=nicepassword \
   ROOT_DOMAIN=dev.mydomain.com
-
-# Install a different branch
-BRANCH=develop
-curl -fsSL https://raw.githubusercontent.com/swarmlet/swarmlet/$BRANCH/install | bash -s \
-  INSTALL_BRANCH=$BRANCH \
-  INSTALLATION_TYPE=interactive
 ```
-
-The installation should take a few minutes to complete.
 
 ## Examples
 
@@ -100,10 +92,8 @@ Swarmlet includes various examples of services that you can deploy to your serve
 - [Basic example - Python web server + Redis](https://swarmlet.dev/docs/examples/python-redis)
 - [Moderate example - NGINX + React app + Node.js API](https://swarmlet.dev/docs/examples/nginx-react-node)
 - (FIX) [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
-- [Portainer Edge Agent](https://github.com/swarmlet/swarmlet/tree/master/examples)
 - (FIX) [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
 - (FIX) [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
-- (TODO) [HAProxy](https://swarmlet.dev/docs/examples/haproxy) (Replacing Traefik with HAProxy)
 
 All these examples and the [Swarmlet documentation and website](https://swarmlet.dev) are running on a €5/mo _single_ server 'cluster', using Swarmlet for deployments.
 
