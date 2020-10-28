@@ -25,31 +25,7 @@ node-join() {
   declare cmd="join"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  ROLE=$1
-  # NODE_IP=$2
-
-  # allow exposing the random port via traefik temporarily
-  # exchange certificates
-  # ssh into remote, install requirements and set up
-  # what to do with the git user and the repos in /var/repo and /home/git
-
-  JOIN_COMMAND="curl -fsSL $(node-join-url "$ROLE") | bash"
-
-  echo "$FPREFIX Joining a $ROLE node to swarm"
-  echo "$PREFIX To add a $ROLE to this swarm, run the following command on the target node"
-  echo -e "\n$INDENT $JOIN_COMMAND\n"
-
-}
-
-node-join-url() {
-  declare cmd="join-url"
-  [[ "$1" == "$cmd" ]] && shift 1
-
-  ROLE=$1
-  JOIN_URL=${ROOT_DOMAIN:-"$LEADER_IP:$(get-random-open-port)"}
-  # JOIN_TOKEN=$(docker swarm join-token "$ROLE" | grep -w "^docker swarm join" | sed 's/    //')
-
-  echo "$JOIN_URL"
+  swarmlet join "$@"
 }
 
 node-remove() {
@@ -57,7 +33,6 @@ node-remove() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   # NODE_IP=$1
-
 }
 
 "$@"

@@ -1,0 +1,41 @@
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    remote_user: root
+    ansible_ssh_user: root
+    ansible_ssh_private_key_file: '/mnt/{{ gluster_volume_name }}/ansible/.ssh/id_rsa_ansible'
+    ansible_ssh_known_hosts: '/mnt/{{ gluster_volume_name }}/ansible/.ssh/known_hosts'
+    docker_group: docker
+    local_user: "{{ lookup('env', 'USER') }}"
+    gluster_version: 7
+    gluster_volume_name: gfs
+    gluster_brick_path:
+      - '/data/glusterfs/brick01/{{ gluster_volume_name }}'
+
+leader:
+  vars:
+    ansible_connection: local
+  hosts:
+    localhost:
+      '{{ ansible_default_ipv4.address }}':
+
+swarm:
+manager:
+worker:
+  # vars:
+  # disk_additional_disks:
+  #   - disk: /dev/sdb
+  #     fstype: ext4
+  #     mount_options: defaults
+  #     mount: /var/lib/docker
+  #     user: root
+  #     group: root
+  #     disable_periodic_fsck: false
+
+  #   - disk: /dev/sdb
+  #     fstype: xfs
+  #     mount_options: defaults
+  #     mount: /data/glusterfs/brick01
+  #     user: root
+  #     group: root
+  #     disable_periodic_fsck: false

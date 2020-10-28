@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+FPREFIX="=====>"
+PREFIX="----->"
+INDENT="      "
+
+echo "$FPREFIX Joining node to swarm"
+
+echo "{{ SSH_PUBLIC_KEY }}" >>~/.ssh/authorized_keys
+sleep 2
+
+echo "$PREFIX Still busy"
+sleep 2
+
+HOST_NAME="$(hostname)"
+IP_ADDR="$(hostname -I | awk '{print $1}')"
+
+curl -fsSL "{{ CALLBACK_URL }}?host=$HOST_NAME&address=$IP_ADDR"

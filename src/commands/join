@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+[[ $DEBUG ]] && set -x
+
+join() {
+  declare cmd="join"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  join-"$@"
+}
+
+join-manager() {
+  ROLE=$1
+
+  pushd "$ANSIBLE_ROOT" >/dev/null
+
+  echo "$PREFIX To add a $ROLE node to this swarm, run the following join command on the target:"
+  echo
+
+  python3 \
+    "$SWARMLET_SCRIPTS/join/main.py" \
+    "ansible-playbook \
+    -i $ANSIBLE_ROOT/plugins/docker_swarm.yml \
+    -i $ANSIBLE_ROOT/inventory/inventory.yml \
+    --extra-vars 'host={host} address={address} swarm_manager=true' \
+    $ANSIBLE_ROOT/node-join.yml"
+
+  popd >/dev/null
+}
+
+join-worker() {
+  declare cmd="worker"
+  [[ "$1" == "$cmd" ]] && shift 1
+}
+
+"$@"

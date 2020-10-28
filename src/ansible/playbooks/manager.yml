@@ -1,0 +1,14 @@
+---
+- hosts: managers
+  connection: local
+  gather_facts: yes
+  become: yes
+  vars:
+    create_swap: "{{ lookup('env', 'CREATE_SWAP') }}"
+    install_zsh: "{{ lookup('env', 'INSTALL_ZSH') }}"
+    ssh_key_path: ~/.ssh
+    ssh_key_filename: id_rsa_ansible
+  roles:
+    - common
+    - disk
+    - system

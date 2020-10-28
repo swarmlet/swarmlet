@@ -1,0 +1,107 @@
+---
+- name: remove conflicting ubuntu packages
+  apt:
+    pkg:
+      - docker
+    state: absent
+
+- name: clean pip modules
+  pip:
+    name:
+      - docker
+      - docker-py
+    state: absent
+
+# - name: install pip modules
+#   pip:
+#     name:
+#       - docker
+
+- name: install pip modules
+  command: pip install docker
+
+- name: add the Docker repo GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: add the Docker apt repository
+  apt_repository:
+    repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable'
+    state: present
+    filename: docker.io
+    update_cache: yes
+
+- name: Install docker packages
+  apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+
+- name: Start docker on boot
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: 'Create {{ docker_group }} system group'
+  group:
+    name: '{{ docker_group }}'
+    state: present
+
+- name: 'Add remote user {{ remote_user }} to group {{ docker_group }}'
+  user:
+    name: '{{ remote_user }}'
+    group: '{{ docker_group }}'
+    append: yes
+
+- name: Install docker-compose
+  command: pip3 install docker-compose
+
+- name: Ensure that the docker service is enabled and started at boot time
+  service:
+    name: docker
+    enabled: yes
+    state: restarted
+
+- name: Check if swarm exists
+  docker_swarm_info:
+    nodes: yes
+  register: swarm_info
+  run_once: true
+  ignore_errors: yes
+  delegate_to: '{{ groups.leader[0] }}'
+
+- name: Bootstrap docker swarm
+  docker_swarm:
+    state: present
+    advertise_addr: '{{ ansible_default_ipv4.address }}'
+    debug: yes
+  register: swarm_info
+  run_once: true
+  when: swarm_info.docker_swarm_active is not defined or swarm_info.docker_swarm_active == false
+  delegate_to: '{{ groups.leader[0] }}'
+
+- name: gather tokens from bootstrapped swarm
+  docker_swarm_info:
+    nodes: yes
+  register: swarm_info
+  run_once: true
+  delegate_to: '{{ groups.leader[0] }}'
+
+- name: Add swarm masters to bootstrapped cluster
+  docker_swarm:
+    state: join
+    debug: yes
+    remote_addrs: "{{ hostvars[groups.leader[0]]['ansible_default_ipv4']['address'] }}"
+    join_token: '{{ swarm_info.swarm_facts.JoinTokens.Manager }}'
+    advertise_addr: '{{ ansible_default_ipv4.address }}'
+  when: swarm_manager is defined and swarm_manager | bool == True
+
+- name: Add other swarm workers to bootstrapped cluster
+  docker_swarm:
+    state: join
+    remote_addrs: "{{ hostvars[groups.leader[0]]['ansible_default_ipv4']['address'] }}"
+    join_token: '{{ swarm_info.swarm_facts.JoinTokens.Worker }}'
+    advertise_addr: '{{ ansible_default_ipv4.address }}'
+  when: swarm_manager is not defined

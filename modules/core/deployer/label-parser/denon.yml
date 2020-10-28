@@ -1,0 +1,9 @@
+allow:
+  read: true
+  write: /app
+
+scripts:
+  start:
+    cmd: "deno run label-parser.js"
+    desc: "Swarmlet label parser"
+    unstable: true

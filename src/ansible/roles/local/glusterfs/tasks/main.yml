@@ -1,0 +1,85 @@
+---
+- name: starting glusterfs installation
+  debug:
+    msg: '{{ ansible_hostname }} {{ ansible_default_ipv4.address }}'
+
+- name: add glusterfs ppa repo
+  apt_repository:
+    validate_certs: no
+    repo: 'ppa:gluster/glusterfs-{{ gluster_version }}'
+    filename: 'glusterfs-{{ gluster_version }}'
+    update_cache: yes
+    state: present
+
+- name: install glusterfs
+  apt:
+    pkg:
+      - glusterfs-server
+      - glusterfs-client
+    state: present
+
+- name: Ensure that the glusterfs service is enabled and started at boot time
+  service:
+    name: glusterd
+    enabled: yes
+    state: started
+
+- name: make glusterfs mount dir
+  file:
+    path: '/mnt/{{ gluster_volume_name }}'
+    state: directory
+
+- name: stat mount dir
+  stat:
+    path: '/mnt/{{ gluster_volume_name }}'
+  register: mount_dir
+
+- name: mount glusterfs volume "{{ gluster_volume_name }}"
+  mount:
+    name: /mnt/gfs
+    src: '{{ inventory_hostname }}:/{{ gluster_volume_name }}'
+    fstype: glusterfs
+    opts: 'defaults,_netdev'
+    state: mounted
+  when: mount_dir.stat.exists == False
+
+- name: add peers to gluster cluster
+  gluster_peer:
+    state: present
+    nodes: '{{ groups.manager }}'
+  delegate_to: '{{ groups.manager[0] }}'
+  when: 'groups.manager[0] is defined'
+
+- name: create glusterfs brick dir
+  file:
+    path: '{{ item }}'
+    state: directory
+  loop: '{{ gluster_brick_path }}'
+
+- name: create gluster volume
+  gluster_volume:
+    state: present
+    name: gfs
+    bricks: "{{ gluster_brick_path | join(',')}}"
+    # rebalance: yes
+    # replicas: 1
+    force: yes
+    # cluster: '{{ play_hosts }}'
+    cluster:
+      - '{{ ansible_default_ipv4.address }}'
+    host: '{{ ansible_hostname }}'
+  run_once: true
+
+- name: configure glusterfs volume
+  gluster_volume:
+    state: present
+    name: gfs
+    options:
+      { performance.cache-size: 256MB, write-behind: 'off', quick-read: 'on' }
+  run_once: true
+
+- name: start gluster volume
+  gluster_volume:
+    state: started
+    name: gfs
+  run_once: true

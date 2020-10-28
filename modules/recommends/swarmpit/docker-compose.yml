@@ -7,10 +7,8 @@ services:
       - SWARMPIT_DB=http://db:5984
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    ports:
-      - 8080:8080
     networks:
-      - swarmpit-net
+      - swarmpit-network
       - swarmlet-network
       - traefik-public
     deploy:
@@ -22,23 +20,18 @@ services:
         constraints:
           - node.role == manager
       labels:
-        - traefik.frontend.rule=Host:swarmpit.${DOMAIN}
         - traefik.enable=true
-        - traefik.port=8080
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        # Traefik service that listens to HTTP
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        # Traefik service that listens to HTTPS
-        - traefik.webservice.frontend.entryPoints=https
+        - traefik.http.services.swarmpit.loadbalancer.server.port=8080
+        - traefik.http.routers.swarmpit.rule=Host(`swarmpit.${DOMAIN}`)
+        - traefik.http.routers.swarmpit.entrypoints=http,https
+        - traefik.http.routers.swarmpit.middlewares=redirect@file
 
   db:
     image: couchdb:2.3.0
     volumes:
       - db-data:/opt/couchdb/data
     networks:
-      - swarmpit-net
+      - swarmpit-network
     deploy:
       resources:
         limits:
@@ -55,7 +48,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - swarmpit-net
+      - swarmpit-network
       - swarmlet-network
     deploy:
       mode: global
@@ -68,7 +61,7 @@ services:
           memory: 32M
 
 networks:
-  swarmpit-net:
+  swarmpit-network:
     driver: overlay
     attachable: true
   swarmlet-network:

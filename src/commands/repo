@@ -31,10 +31,6 @@ repo-create() {
   chown -R "$GIT_USER":"$GIT_USER" "$REPO_PATH"
 
   echo "$INDENT Created remote repository $REPO_NAME"
-  echo "$PREFIX Ready for deploy"
-  echo "$INDENT Add a git remote to your local repository:"
-  echo "$INDENT $ git remote add swarm git@swarm:$REPO_NAME"
-  echo -e "$INDENT $ git push swarm master\n"
 }
 
 repo-rm() {
@@ -67,7 +63,7 @@ repo-ls() {
   for REPO in "$GIT_REPO_ROOT"/*; do
     REPO_BASE=$(basename "$REPO")
     REPO_NAME=${REPO_BASE/.git/}
-    if [ -d "$GIT_USER_ROOT/$REPO_NAME" ]; then
+    if [ -d "$GIT_DATA_ROOT/$REPO_NAME" ]; then
       DEPLOYED="Deployed"
     else
       DEPLOYED="Created"

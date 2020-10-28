@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   frontend:
@@ -6,43 +6,33 @@ services:
     build:
       context: ./frontend
       args:
-        REACT_APP_API_URL: https://api.${DOMAIN}
+        REACT_APP_API_URL: https://api.react-node.${DOMAIN}
+    networks:
+      - traefik-public
     deploy:
       mode: replicated
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.react-node.port=5000
-        - traefik.react-node.frontend.rule=Host:react-node.${DOMAIN}
-        - traefik.react-node.frontend.entryPoints=http,https
-        - traefik.react-node.frontend.passHostHeader=true
-        - traefik.react-node.frontend.headers.SSLRedirect=true
-        - traefik.react-node.frontend.headers.SSLHost=react-node.${DOMAIN}
-        - traefik.react-node.frontend.headers.STSIncludeSubdomains=true
-        - traefik.react-node.frontend.headers.STSPreload=true
-    networks:
-      - traefik-public
+        - traefik.http.services.react-node-frontend.loadbalancer.server.port=5000
+        - traefik.http.routers.react-node-frontend.rule=Host(`react-node.${DOMAIN}`)
+        - traefik.http.routers.react-node-frontend.entrypoints=http,https
+        - traefik.http.routers.react-node-frontend.middlewares=redirect@file
 
   api:
     image: ${SWARMLET_REGISTRY}/react-node-api
     build: ./api
+    networks:
+      - traefik-public
     deploy:
       mode: replicated
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.react-node.port=8080
-        - traefik.react-node.frontend.rule=Host:api.react-node.${DOMAIN}
-        - traefik.react-node.frontend.entryPoints=http,https
-        - traefik.react-node.frontend.passHostHeader=true
-        - traefik.react-node.frontend.headers.SSLRedirect=true
-        - traefik.react-node.frontend.headers.SSLHost=api.react-node.${DOMAIN}
-        - traefik.react-node.frontend.headers.STSIncludeSubdomains=true
-        - traefik.react-node.frontend.headers.STSPreload=true
-    networks:
-      - traefik-public
+        - traefik.http.services.react-node-api.loadbalancer.server.port=8080
+        - traefik.http.routers.react-node-api.rule=Host(`api.react-node.${DOMAIN}`)
+        - traefik.http.routers.react-node-api.entrypoints=http,https
+        - traefik.http.routers.react-node-api.middlewares=redirect@file
 
 networks:
   traefik-public:

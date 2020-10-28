@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   swarmlet-registry:
@@ -20,21 +20,16 @@ services:
     ports:
       - "5000:5000"
     deploy:
-      mode: replicated
-      replicas: 1
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
       labels:
         - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.swarmlet-registry.enable=true
-        - traefik.swarmlet-registry.port=5000
-        - traefik.swarmlet-registry.frontend.rule=Host:registry.${DOMAIN}
-        - traefik.swarmlet-registry.frontend.entryPoints=http,https
-        - traefik.swarmlet-registry.frontend.passHostHeader=true
-        - traefik.swarmlet-registry.frontend.headers.SSLRedirect=true
-        - traefik.swarmlet-registry.frontend.headers.SSLHost=registry.${DOMAIN}
-        - traefik.swarmlet-registry.frontend.headers.STSIncludeSubdomains=true
-        - traefik.swarmlet-registry.frontend.headers.STSPreload=true
+        - traefik.http.services.registry.loadbalancer.server.port=5000
+        - traefik.http.routers.registry.rule=Host(`registry.${DOMAIN}`)
+        - traefik.http.routers.registry.entrypoints=http,https
+        - traefik.http.routers.registry.middlewares=redirect@file,auth@file
       placement:
         constraints:
           - node.role == manager

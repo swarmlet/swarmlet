@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1091
 
 set -eo pipefail
 [[ $DEBUG ]] && set -x
 
-# shellcheck disable=SC1091
-source "/opt/swarmlet/src/constants"
+source "/mnt/gfs/swarmlet/src/constants"
 
 echo "$PREFIX Repository received"
 REPO_SRC=$PWD
 REPO_BASE=$(basename "$REPO_SRC")
 REPO_NAME=${REPO_BASE/.git/}
-REPO_DEST=$GIT_USER_ROOT/$REPO_NAME
+REPO_DEST=$GIT_DATA_ROOT/$REPO_NAME
 # COMMIT_HASH=$(git rev-parse --short=6 HEAD)
 
 if [ -d "$REPO_DEST" ]; then

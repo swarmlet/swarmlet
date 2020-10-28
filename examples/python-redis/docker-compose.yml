@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   web-1:
@@ -8,14 +8,11 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        - traefik.frontend.rule=Host:${DOMAIN}
         - traefik.enable=true
-        - traefik.port=8000
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
+        - traefik.http.services.python-redis.loadbalancer.server.port=8000
+        - traefik.http.routers.python-redis.rule=Host(`${DOMAIN}`)
+        - traefik.http.routers.python-redis.entrypoints=http,https
+        - traefik.http.routers.python-redis.middlewares=redirect@file
     networks:
       - swarmlet-network
       - traefik-public
@@ -30,4 +27,3 @@ networks:
     external: true
   traefik-public:
     external: true
-

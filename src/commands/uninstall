@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-set -eo pipefail; [[ $DEBUG ]] && set -x
+set -eo pipefail
+[[ $DEBUG ]] && set -x
 
 uninstall() {
   declare cmd="uninstall"
   [[ "$1" == "$cmd" ]] && shift 1
 
   rm /usr/local/sbin/swarmlet
-  rm -rf "$SWARMLET_ROOT" "$GIT_REPO_ROOT" "$GIT_USER_ROOT"
+  rm -rf "$SWARMLET_ROOT" "$GIT_REPO_ROOT" "$GIT_DATA_ROOT"
   deluser "$GIT_USER"
 }
 

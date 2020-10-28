@@ -22,7 +22,13 @@ This project is in beta and definitely not production-ready yet.
 
 ### _TL;DR_
 
-Install `swarmlet` on a server. Develop projects locally, describe your project application stack in a `docker-compose.yml` file and simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging are enabled by default.
+Why choose Kubernetes over Docker + Docker Swarm?  
+Why not automate some deployment things to get a pretty simple, versatile and solid setup?  
+Bonus, you're familiar with Docker already.  
+
+How:  
+Install `swarmlet` on a server. Develop projects locally as usual, add a `docker-compose.yml` file to describe your application stack, add a git remote, e.g. [`git remote add swarm git@my-swarm:my-project`](https://swarmlet.dev/docs/getting-started/ssh-key-setup).  
+Then simply `git push swarm master` to deploy the project on your swarm (server cluster). A load balancer, SSL, and metrics/logging (optional) are enabled by default.
 
 ## What is Swarmlet?
 

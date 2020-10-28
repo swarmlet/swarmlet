@@ -48,6 +48,8 @@ section-set-username() {
   SECTION_TITLE="User configuration - username"
   MESSAGE="\nEnter your username.\nDefault: $USER"
 
+  # TODO: validate: no spaces
+
   SWARMLET_USERNAME=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
@@ -101,7 +103,8 @@ section-set-hostname() {
 Example: swarm-manager-1\n\
 Current: $HOSTNAME"
 
-  # TODO: use whiptail password input
+  # TODO: validate: no spaces
+
   NEW_HOSTNAME=$(whiptail \
     --title "$SECTION_TITLE" \
     --inputbox "$MESSAGE" \
@@ -118,7 +121,7 @@ section-domain-config() {
   SECTION_TITLE="Domain name configuration"
   MESSAGE="\nEnter the domain name you want to use with Swarmlet.\n\n\
 Frontends of modules such as Traefik and Matomo will be hosted on subdomains of this domain.\n\
-Access the Traefik dashboard at https://traefik.yourdomain.com for example."
+Access the Traefik dashboard at https://router.yourdomain.com for example."
 
   ROOT_DOMAIN=$(whiptail \
     --title "$SECTION_TITLE" \
@@ -134,7 +137,8 @@ Access the Traefik dashboard at https://traefik.yourdomain.com for example."
 
 section-ca-config() {
   SECTION_TITLE="CA Config"
-  MESSAGE="\nLet's Encrypt configuration.\n\nUse production CA?"
+  MESSAGE="\nLet's Encrypt configuration.\n\nUse production CA? (recommended)\n\
+The staging server is useful to avoid reaching rate limits during development."
 
   CA_SERVER_OPTIONS=(
     true "Use prod CA"
@@ -155,27 +159,6 @@ section-ca-config() {
   ($CA_SERVER) && CA_SERVER=$CA_PROD || CA_SERVER=$CA_TEST
   echo "$CA_SERVER"
 }
-
-# section-installation-mode() {
-#   SECTION_TITLE="Installation mode"
-#   MESSAGE="\nChoose the installation mode:"
-
-#   INSTALLATION_MODE_OPTIONS=(
-#     full "Full installation"
-#     minimal "Minimal installation"
-#     custom "Custom installation"
-#   )
-
-#   INSTALLATION_MODE=$(whiptail \
-#     --title "$SECTION_TITLE" \
-#     --menu "$MESSAGE" \
-#     "$TTY_ROWS" "$TTY_COLS" "$((${#INSTALLATION_MODE_OPTIONS[@]} / 2))" \
-#     "${INSTALLATION_MODE_OPTIONS[@]}" \
-#     3>&1 1>&2 2>&3)
-
-#   EXIT_STATUS=$?; [[ "$EXIT_STATUS" -eq "1" ]] && abort-installation
-#   echo $INSTALLATION_MODE
-# }
 
 section-install-modules() {
   SECTION_TITLE="Install modules"
@@ -210,8 +193,8 @@ Available memory: $(free -m | grep Mem | awk '{print $4}') MB\n\n\
 If you've selected Swarmprom, consider adding some swap if you have less than 2GB of RAM."
 
   CREATE_SWAP_OPTIONS=(
-    true "Allocate 1GB of swap space"
-    false "Skip this step"
+    "true" "Allocate 1GB of swap space"
+    "false" "Skip this step"
   )
 
   CREATE_SWAP=$(whiptail \
@@ -228,11 +211,11 @@ If you've selected Swarmprom, consider adding some swap if you have less than 2G
 
 section-install-zsh() {
   SECTION_TITLE="Optional: Install Zsh"
-  MESSAGE="\nInstall Zsh and Oh My Zsh?"
+  MESSAGE="\nInstall Zsh and Oh My Zsh? (recommended)"
 
   INSTALL_ZSH_OPTIONS=(
-    true "Install Zsh and Oh My Zsh"
-    false "Skip this step"
+    "true" "Install Zsh and Oh My Zsh"
+    "false" "Skip this step"
   )
 
   INSTALL_ZSH=$(whiptail \
@@ -252,8 +235,8 @@ section-confirm-install() {
   MESSAGE="\nConfiguration complete."
 
   INSTALL_CONFIRM_OPTIONS=(
-    true "Confirm"
-    false "Go back to edit configuration"
+    "true" "Confirm"
+    "false" "Go back to edit configuration"
   )
 
   INSTALL_CONFIRM=$(whiptail \

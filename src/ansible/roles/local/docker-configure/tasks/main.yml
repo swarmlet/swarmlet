@@ -1,0 +1,61 @@
+---
+- debug: msg="Configuring Docker"
+
+- name: "create docker network: {{ lookup('env', 'SWARMLET_NETWORK') }}"
+  docker_network:
+    name: "{{ lookup('env', 'SWARMLET_NETWORK') }}"
+    attachable: yes
+    driver: overlay
+  ignore_errors: yes
+
+- name: "create docker network: {{ lookup('env', 'TRAEFIK_NETWORK') }}"
+  docker_network:
+    name: "{{ lookup('env', 'TRAEFIK_NETWORK') }}"
+    attachable: yes
+    driver: overlay
+  ignore_errors: yes
+
+- name: generate htpasswd
+  command: htpasswd -nbB "{{ lookup('env', 'SWARMLET_USERNAME') }}" "{{ lookup('env', 'SWARMLET_PASSWORD') }}"
+  register: htpasswd
+
+- name: 'create docker secret: security.htpasswd'
+  docker_secret:
+    name: security.htpasswd
+    data: '{{ htpasswd.stdout }}'
+    state: present
+  ignore_errors: yes
+
+- name: 'create docker secret: swarmlet-user-secrets'
+  docker_secret:
+    name: swarmlet-user-secrets
+    data: |
+      SWARMLET_USERNAME="{{ lookup('env', 'SWARMLET_USERNAME') }}"
+      SWARMLET_PASSWORD="{{ lookup('env', 'SWARMLET_PASSWORD') }}"
+      SWARMLET_REGISTRY_USERNAME="{{ lookup('env', 'SWARMLET_USERNAME') }}"
+      SWARMLET_REGISTRY_PASSWORD="{{ lookup('env', 'SWARMLET_PASSWORD') }}"
+    state: present
+  ignore_errors: yes
+
+- name: 'create docker config: swarmlet-core-config'
+  docker_config:
+    name: swarmlet-core-config
+    data: "{{ lookup('file', lookup('env', 'SWARMLET_CONSTANTS')) }}"
+    state: present
+  ignore_errors: yes
+
+- name: 'create docker config: swarmlet-user-config'
+  docker_config:
+    name: swarmlet-user-config
+    data: |
+      SSH_AUTHORIZED_KEYS="{{ lookup('env', 'SSH_AUTHORIZED_KEYS') }}"
+      NEW_HOSTNAME="{{ lookup('env', 'NEW_HOSTNAME') }}"
+      ROOT_DOMAIN="{{ lookup('env', 'ROOT_DOMAIN') }}"
+      CA_SERVER="{{ lookup('env', 'CA_SERVER') }}"
+      INSTALL_MODULES="{{ lookup('env', 'INSTALL_MODULES') }}"
+      CREATE_SWAP="{{ lookup('env', 'CREATE_SWAP') }}"
+      INSTALL_ZSH="{{ lookup('env', 'INSTALL_ZSH') }}"
+      INSTALL_BRANCH="{{ lookup('env', 'INSTALL_BRANCH') }}"
+      LEADER_IP="{{ ansible_default_ipv4.address }}"
+    state: present
+  ignore_errors: yes

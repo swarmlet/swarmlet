@@ -1,0 +1,86 @@
+---
+- debug: msg="Configuring {{ inventory_hostname }}"
+
+- name: Add the git user
+  user:
+    name: git
+    uid: 1000
+    home: "{{ lookup('env', 'GIT_ROOT') }}"
+    shell: /bin/bash
+    groups: docker
+    append: yes
+
+- name: Create git folders
+  file:
+    path: '{{ item }}'
+    state: directory
+    owner: git
+    group: git
+    mode: 0775
+    recurse: yes
+  loop:
+    - "{{ lookup('env', 'GIT_ROOT') }}"
+    - "{{ lookup('env', 'GIT_REPO_ROOT') }}"
+    - "{{ lookup('env', 'GIT_DATA_ROOT') }}"
+    - "{{ lookup('env', 'GIT_ROOT') }}/.ssh"
+
+- name: Set permissions
+  acl:
+    entity: git
+    etype: user
+    path: "{{ lookup('env', 'GIT_ROOT') }}"
+    permissions: rwx
+    state: present
+    # default: yes
+
+- name: Read authorized SSH keys
+  command: cat "{{ lookup('env', 'SSH_AUTHORIZED_KEYS') }}"
+  register: authorized_keys
+
+- name: Add SSH authorized keys
+  copy:
+    content: "{{ lookup('env', 'SSH_OPTIONS') }} {{ authorized_keys.stdout }}"
+    dest: "{{ lookup('env', 'GIT_ROOT') }}/.ssh/authorized_keys"
+    owner: git
+    group: git
+    mode: '0600'
+
+- name: Copy Swarmlet directory
+  synchronize:
+    src: /tmp/swarmlet/
+    dest: "{{ lookup('env', 'GFS_MOUNT') }}/swarmlet"
+
+- name: Create symbolic link
+  file:
+    src: "{{ lookup('env', 'GFS_MOUNT') }}/swarmlet/swarmlet"
+    dest: /usr/local/sbin/swarmlet
+    owner: root
+    group: root
+    state: link
+
+- name: Create Ansible directory
+  file:
+    path: "{{ lookup('env', 'GFS_MOUNT') }}/ansible/.ssh"
+    state: directory
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Create Ansible SSH key
+  vars:
+    ssh_key_path: "{{ lookup('env', 'GFS_MOUNT') }}/ansible/.ssh"
+    ssh_key_filename: id_rsa_ansible
+  openssh_keypair:
+    path: '{{ ssh_key_path }}/{{ ssh_key_filename }}'
+    type: rsa
+    size: 4096
+    state: present
+    force: no
+
+- name: Create Traefik directory
+  file:
+    path: "{{ lookup('env', 'GFS_MOUNT') }}/traefik"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'

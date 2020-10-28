@@ -1,0 +1,14 @@
+---
+- hosts: leader,swarm
+  gather_facts: yes
+  become: yes
+  roles:
+    - common
+    - disk
+    - docker-install
+
+- hosts: leader
+  gather_facts: yes
+  become: yes
+  roles:
+    - docker-configure

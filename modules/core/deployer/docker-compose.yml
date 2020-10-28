@@ -1,4 +1,4 @@
-version: "3.7"
+version: '3.7'
 
 services:
   agent:
@@ -9,15 +9,14 @@ services:
     networks:
       - swarmlet-network
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/swarmlet:/opt/swarmlet
-      - git-data:/home/git
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/gfs/swarmlet:/mnt/gfs/swarmlet:ro
+      - /mnt/gfs/git/data:/mnt/gfs/git/data:ro
     secrets:
       - swarmlet-user-secrets
     configs:
       - swarmlet-core-config
       - swarmlet-user-config
-      - swarmlet-config
     deploy:
       mode: replicated
       replicas: 1
@@ -27,12 +26,24 @@ services:
         max_attempts: 5
         window: 120s
 
+  # label-parser:
+  #   build: label-parser
+  #   image: ${SWARMLET_REGISTRY}/label-parser
+  #   entrypoint: /bin/sh
+  #   command: tail -f /dev/null
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     placement:
+  #       constraints: [node.role == manager]
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 2s
+  #       max_attempts: 5
+  #       window: 120s
+
 networks:
   swarmlet-network:
-    external: true
-
-volumes:
-  git-data:
     external: true
 
 secrets:
@@ -43,6 +54,4 @@ configs:
   swarmlet-core-config:
     external: true
   swarmlet-user-config:
-    external: true
-  swarmlet-config:
     external: true

@@ -1,0 +1,4 @@
+ControlMaster auto
+ControlPersist 30m
+UserKnownHostsFile config/known_hosts
+HashKnownHosts no
