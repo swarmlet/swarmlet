@@ -47,6 +47,7 @@
         pkg:
           - python-pip
           - python3-pip
+          - python3-setuptools
 
     - name: install pip modules
       pip:
