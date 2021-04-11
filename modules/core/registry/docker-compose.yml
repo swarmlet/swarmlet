@@ -30,9 +30,6 @@ services:
         - traefik.http.routers.registry.rule=Host(`registry.${DOMAIN}`)
         - traefik.http.routers.registry.entrypoints=http,https
         - traefik.http.routers.registry.middlewares=redirect@file,auth@file
-      placement:
-        constraints:
-          - node.role == manager
 
 volumes:
   registry-data:

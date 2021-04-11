@@ -24,7 +24,6 @@
 - name: install pip
   apt:
     pkg:
-      - python-pip
       - python3-pip
 
 - name: Remove unused apt packages from the cache
