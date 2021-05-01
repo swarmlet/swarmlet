@@ -4,7 +4,6 @@
 - name: Add the git user
   user:
     name: git
-    uid: 1000
     home: "{{ lookup('env', 'GIT_ROOT') }}"
     shell: /bin/bash
     groups: docker
