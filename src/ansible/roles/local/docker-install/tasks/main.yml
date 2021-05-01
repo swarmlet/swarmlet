@@ -18,7 +18,7 @@
 #       - docker
 
 - name: install pip modules
-  command: pip install docker
+  command: pip3 install docker
 
 - name: add the Docker repo GPG key
   apt_key:
