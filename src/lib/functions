@@ -48,9 +48,20 @@ get-own-ip-address() {
 
 install-ansible() {
   echo "$PREFIX Installing Ansible"
-  $SUDO apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
-  $SUDO "$PKG_MANAGER" update -y -qq &>/dev/null
-  $SUDO "$PKG_MANAGER" install -y -qq ansible &>/dev/null
+
+  . /etc/os-release
+
+  if [ "${ID}" = "ubuntu" ]; then
+    $SUDO apt-add-repository -y --update ppa:ansible/ansible
+    $SUDO "$PKG_MANAGER" update -y
+    $SUDO "$PKG_MANAGER" install -y ansible
+  fi
+
+  if [ "${ID}" = "debian" ]; then
+    # TODO: install backports repo
+    $SUDO "$PKG_MANAGER" update -y
+    $SUDO "$PKG_MANAGER" install -y -t buster-backports ansible
+  fi
 
   echo "$PREFIX Running Ansible playbooks"
   pushd "$ANSIBLE_ROOT" &>/dev/null || exit
