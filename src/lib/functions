@@ -49,7 +49,7 @@ get-own-ip-address() {
 install-ansible() {
   echo "$PREFIX Installing Ansible"
 
-  . /etc/os-release
+  source /etc/os-release
 
   if [ "${ID}" = "ubuntu" ]; then
     $SUDO apt-add-repository -y --update ppa:ansible/ansible
