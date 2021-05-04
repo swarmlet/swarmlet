@@ -31,6 +31,15 @@
     state: present
     filename: docker.io
     update_cache: yes
+  when: hostvars[inventory_hostname].ansible_distribution == 'Ubuntu'
+
+- name: add the Docker apt repository
+  apt_repository:
+    repo: 'deb https://download.docker.com/linux/debian buster stable'
+    state: present
+    filename: docker
+    update_cache: yes
+  when: hostvars[inventory_hostname].ansible_distribution == 'Debian'
 
 - name: Install docker packages
   apt:
