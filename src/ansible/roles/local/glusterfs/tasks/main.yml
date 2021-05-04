@@ -10,6 +10,7 @@
     filename: 'glusterfs-{{ gluster_version }}'
     update_cache: yes
     state: present
+  when: hostvars[inventory_hostname].ansible_distribution == 'Ubuntu'
 
 - name: install glusterfs
   apt:
@@ -17,6 +18,16 @@
       - glusterfs-server
       - glusterfs-client
     state: present
+  when: hostvars[inventory_hostname].ansible_distribution == 'Ubuntu'
+
+- name: install glusterfs
+  apt:
+    pkg:
+      - glusterfs-server
+      - glusterfs-client
+    state: present
+    default_release: buster-backports
+  when: hostvars[inventory_hostname].ansible_distribution == 'Debian'
 
 - name: Ensure that the glusterfs service is enabled and started at boot time
   service:
