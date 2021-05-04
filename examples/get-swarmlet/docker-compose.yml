@@ -8,15 +8,10 @@ services:
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.get-swarmlet.port=80
-        - traefik.get-swarmlet.frontend.rule=Host:get.${DOMAIN}
-        - traefik.get-swarmlet.frontend.entryPoints=http,https
-        - traefik.get-swarmlet.frontend.passHostHeader=true
-        - traefik.get-swarmlet.frontend.headers.SSLRedirect=true
-        - traefik.get-swarmlet.frontend.headers.SSLHost=${DOMAIN}
-        - traefik.get-swarmlet.frontend.headers.STSIncludeSubdomains=true
-        - traefik.get-swarmlet.frontend.headers.STSPreload=true
+        - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${APP_PORT}
+        - traefik.http.routers.${APP_NAME}.rule=Host(`${APP_NAME}.${ROOT_DOMAIN}`)
+        - traefik.http.routers.${APP_NAME}.entrypoints=http,https
+        - traefik.http.routers.${APP_NAME}.middlewares=redirect@file
     networks:
       - traefik-public
 

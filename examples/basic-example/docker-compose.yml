@@ -1,32 +1,21 @@
 version: '3.7'
 
-# Built-in environment variables
-# SWARMLET_REGISTRY // Defaults to the internal swarm registry at localhost:5000/v2
-
 services:
   basic-example:
-    image: ${SWARMLET_REGISTRY}/basic-example
+    image: ${SWARMLET_REGISTRY}/${APP_NAME}
     build: .
 
   web:
     image: hashicorp/http-echo
-    command: ["-text", "Hello World.."]
+    command: ['-text', 'Hello ${APP_NAME}..']
     deploy:
       replicas: 1
       labels:
-        # Specify the (sub) domain for this service
-        - traefik.frontend.rule=Host:echo.${DOMAIN}
-        # Enable Traefik for thiis service
         - traefik.enable=true
-        # The service port Traefik will expose to ${DOMAIN}:80 (and ${DOMAIN}:443)
-        - traefik.port=5678
-        # Expose service to public
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        # Enable SSL and redirect HTTP to HTTPS
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
+        - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${APP_PORT}
+        - traefik.http.routers.${APP_NAME}.rule=Host(`${APP_NAME}.${ROOT_DOMAIN}`)
+        - traefik.http.routers.${APP_NAME}.entrypoints=http,https
+        - traefik.http.routers.${APP_NAME}.middlewares=redirect@file
     networks:
       - traefik-public
 
