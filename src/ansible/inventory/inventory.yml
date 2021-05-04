@@ -1,8 +1,8 @@
 all:
   vars:
     ansible_python_interpreter: /usr/bin/python3
-    remote_user: root
-    ansible_ssh_user: root
+    remote_user: ubuntu
+    ansible_ssh_user: ubuntu
     ansible_ssh_private_key_file: '/mnt/{{ gluster_volume_name }}/ansible/.ssh/id_rsa_ansible'
     ansible_ssh_known_hosts: '/mnt/{{ gluster_volume_name }}/ansible/.ssh/known_hosts'
     docker_group: docker
