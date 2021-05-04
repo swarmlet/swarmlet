@@ -17,4 +17,4 @@
     - role: oh-my-zsh
       users:
         - username: '{{ remote_user }}'
-      when: 'install_zsh is defined'
+      when: 'install_zsh is defined and install_zsh == True'
