@@ -121,7 +121,7 @@ section-domain-config() {
   SECTION_TITLE="Domain name configuration"
   MESSAGE="\nEnter the domain name you want to use with Swarmlet.\n\n\
 Frontends of modules such as Traefik and Matomo will be hosted on subdomains of this domain.\n\
-Access the Traefik dashboard at https://router.yourdomain.com for example."
+Access the Traefik dashboard at https://traefik.yourdomain.com for example."
 
   ROOT_DOMAIN=$(whiptail \
     --title "$SECTION_TITLE" \

@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   web:
-    image: sentry:9.1
+    image: sentry:latest
     environment:
       SENTRY_REDIS_HOST: redis
       SENTRY_SECRET_KEY: ${SENTRY_SECRET_KEY}
@@ -18,17 +18,10 @@ services:
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.tags=traefik-public
-        - traefik.docker.network=traefik-public
-        - traefik.sentry.enable=true
-        - traefik.sentry.port=9000
-        - traefik.sentry.frontend.rule=Host:sentry.${DOMAIN}
-        - traefik.sentry.frontend.entryPoints=http,https
-        - traefik.sentry.frontend.passHostHeader=true
-        - traefik.sentry.frontend.headers.SSLRedirect=true
-        - traefik.sentry.frontend.headers.SSLHost=sentry.${DOMAIN}
-        - traefik.sentry.frontend.headers.STSIncludeSubdomains=true
-        - traefik.sentry.frontend.headers.STSPreload=true
+        - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${APP_PORT}
+        - traefik.http.routers.${APP_NAME}.rule=Host(`${APP_NAME}.${ROOT_DOMAIN}`)
+        - traefik.http.routers.${APP_NAME}.entrypoints=https
+        - traefik.http.routers.${APP_NAME}.middlewares=redirect@file
 
   redis:
       image: redis:alpine
