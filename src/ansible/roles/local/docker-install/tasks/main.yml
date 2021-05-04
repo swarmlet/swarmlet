@@ -25,7 +25,7 @@
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
 
-- name: add the Docker apt repository
+- name: add the Ubuntu Docker apt repository
   apt_repository:
     repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable'
     state: present
@@ -33,7 +33,7 @@
     update_cache: yes
   when: hostvars[inventory_hostname].ansible_distribution == 'Ubuntu'
 
-- name: add the Docker apt repository
+- name: add the Debian Docker apt repository
   apt_repository:
     repo: 'deb https://download.docker.com/linux/debian buster stable'
     state: present
