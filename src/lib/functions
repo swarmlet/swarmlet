@@ -103,7 +103,7 @@ git-local-push() {
   git init
   git-set-config "$ROOT_DOMAIN"
   git add .
-  git commit -m "initial"
+  git commit -m "initial" || true
   git push "$GIT_REPO_ROOT/$REPO_NAME.git" master
   chown -R "$GIT_USER:$GIT_USER" "$GIT_DATA_ROOT/$REPO_NAME"
   popd >/dev/null || exit
