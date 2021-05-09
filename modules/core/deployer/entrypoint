@@ -65,7 +65,7 @@ deploy() {
     fi
 
     echo "$PREFIX Deploying $REPO_NAME"
-    docker stack deploy --compose-file "$COMPOSE_FILE" "$REPO_NAME"
+    docker stack deploy --with-registry-auth --resolve-image always --compose-file "$COMPOSE_FILE" "$REPO_NAME"
 
     HOSTS=$(echo "$COMPOSE_CONFIG" | grep -o ".rule=Host(\`.*")
     DOMAINS=$(echo "$HOSTS" | grep -o "(?<=\`).*?(?=\`)") # support Traefik v2 host labels
