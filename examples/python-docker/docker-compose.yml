@@ -22,9 +22,10 @@ services:
   redis:
     image: redis:alpine
     networks:
-      - python-docker
+      - swarmlet-network
 
 networks:
-  python-docker:
+  swarmlet-network:
+    external: true
   traefik-public:
     external: true

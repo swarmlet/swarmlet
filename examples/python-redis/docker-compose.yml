@@ -14,15 +14,16 @@ services:
         - traefik.http.routers.${APP_NAME}.entrypoints=http,https
         - traefik.http.routers.${APP_NAME}.middlewares=redirect@file
     networks:
-      - python-redis
+      - swarmlet-network
       - traefik-public
 
   redis:
     image: redis:alpine
     networks:
-      - python-redis
+      - swarmlet-network
 
 networks:
-  python-redis:
+  swarmlet-network:
+    external: true
   traefik-public:
     external: true

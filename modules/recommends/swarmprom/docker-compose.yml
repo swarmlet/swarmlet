@@ -86,15 +86,11 @@ services:
         limits:
           memory: 128M
       labels:
-        - traefik.frontend.rule=Host:grafana.${DOMAIN}
         - traefik.enable=true
-        - traefik.port=3000
-        - traefik.tags=${TRAEFIK_PUBLIC_TAG:-traefik-public}
-        - traefik.docker.network=traefik-public
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        - traefik.webservice.frontend.entryPoints=https
-
+        - traefik.http.services.grafana.loadbalancer.server.port=3000
+        - traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN}`) # ${TODO: DOMAIN cannot be read after reboot}
+        - traefik.http.routers.grafana.entrypoints=http,https
+        - traefik.http.routers.grafana.service=grafana
   alertmanager:
     image: stefanprodan/swarmprom-alertmanager:v0.14.0
     networks:
@@ -122,17 +118,12 @@ services:
         limits:
           memory: 128M
       labels:
-        - traefik.frontend.rule=Host:alertmanager.${DOMAIN}
         - traefik.enable=true
-        - traefik.port=9093
-        - traefik.tags=${TRAEFIK_PUBLIC_TAG:-traefik-public}
-        - traefik.docker.network=traefik-public
-        # Traefik service that listens to HTTP
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        # Traefik service that listens to HTTPS
-        - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
+        - traefik.http.services.alertmanager.loadbalancer.server.port=9093
+        - traefik.http.routers.alertmanager.rule=Host(`alertmanager.${DOMAIN}`)
+        - traefik.http.routers.alertmanager.entrypoints=http,https
+        - traefik.http.routers.alertmanager.middlewares=redirect@file,auth@file
+        - traefik.frontend.rule=Host:alertmanager.${DOMAIN}
 
   unsee:
     image: cloudflare/unsee:v0.8.0
@@ -148,17 +139,12 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        - traefik.frontend.rule=Host:unsee.${DOMAIN}
         - traefik.enable=true
-        - traefik.port=8080
-        - traefik.tags=${TRAEFIK_PUBLIC_TAG:-traefik-public}
-        - traefik.docker.network=traefik-public
-        # Traefik service that listens to HTTP
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        # Traefik service that listens to HTTPS
-        - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
+        - traefik.http.services.unsee.loadbalancer.server.port=8080
+        - traefik.http.routers.unsee.rule=Host(`unsee.${DOMAIN}`)
+        - traefik.http.routers.unsee.entrypoints=http,https
+        - traefik.http.routers.unsee.middlewares=redirect@file,auth@file
+        - traefik.frontend.rule=Host:unsee.${DOMAIN}
 
   node-exporter:
     image: stefanprodan/swarmprom-node-exporter:v0.16.0
@@ -212,14 +198,8 @@ services:
         limits:
           memory: 2048M
       labels:
-        - traefik.frontend.rule=Host:prometheus.${DOMAIN}
         - traefik.enable=true
-        - traefik.port=9090
-        - traefik.tags=${TRAEFIK_PUBLIC_TAG:-traefik-public}
-        - traefik.docker.network=traefik-public
-        # Traefik service that listens to HTTP
-        - traefik.redirectorservice.frontend.entryPoints=http
-        - traefik.redirectorservice.frontend.redirect.entryPoint=https
-        # Traefik service that listens to HTTPS
-        - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.usersFile=/run/secrets/security.htpasswd
+        - traefik.http.services.prometheus.loadbalancer.server.port=9090
+        - traefik.http.routers.prometheus.rule=Host(`prometheus.${DOMAIN}`)
+        - traefik.http.routers.prometheus.entrypoints=http,https
+        - traefik.http.routers.prometheus.middlewares=redirect@file,auth@file

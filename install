@@ -99,11 +99,6 @@ install() {
   echo "$PREFIX Cloning $SWARMLET_REPO"
   if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]]; then
     echo "$PREFIX Swarmlet is already installed, updating"
-    # TODO:
-    # pushd $SWARMLET_INSTALL_ROOT >/dev/null
-    # git pull origin "$INSTALL_BRANCH"
-    # popd >/dev/null
-    # swarmlet update
   else
     git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
   fi
