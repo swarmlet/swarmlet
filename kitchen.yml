@@ -1,0 +1,46 @@
+---
+driver:
+  name: vagrant
+  vm_hostname: swarmlet
+  gui: false
+  cache_directory: false
+  customize:
+    memory: 1024
+    usbxhci: 'off'
+  ssh:
+    shell: /bin/sh
+  synced_folders:
+    - ["./", "/tmp/kitchen"]
+
+provisioner:
+  name: shell
+  command: |
+    cat /tmp/kitchen/install | bash -s \
+      INSTALLATION_TYPE=noninteractive \
+      SWARMLET_INSTALL_ROOT=/tmp/kitchen \
+      INSTALL_FROM=local \
+      INSTALL_MODULES="swarmpit" \
+      SWARMLET_USERNAME=admin \
+      SWARMLET_PASSWORD=admin \
+      ROOT_DOMAIN=example.net \
+      DEBUG=true
+
+verifier:
+  name: inspec
+  reporter:
+    - progress
+
+platforms:
+  - name: buster
+    driver_config:
+      box: debian/buster64
+      platform: debian
+
+suites:
+  - name: debian
+    includes:
+      - buster
+    verifier:
+      inspec_tests:
+        - path: test/kitchen/common
+        - path: test/kitchen/debian

@@ -44,7 +44,9 @@ done
 OPTS_CONFIRMED="true"
 declare -A DEFAULT_OPTS=(
   [INSTALLATION_TYPE]="interactive"                  # (default interactive, options: interactive|noninteractive) Use CLI wizard to setup Swarmlet
+  [INSTALL_FROM]="git"                               # (default git, options: git|local) The install mode
   [SWARMLET_REPO]="$SWARMLET_REPO"                   # (default swarmlet github url) The default repo to install
+  [SWARMLET_INSTALL_ROOT]="$SWARMLET_INSTALL_ROOT"   # (default swarmlet install root) The default repo to install
   [INSTALL_BRANCH]="master"                          # (default master) The default branch to install
   [SWARMLET_USERNAME]="$USER"                        # (default $USER) Used for authentication with the registry and web services / dashboards
   [SWARMLET_PASSWORD]="swarmlet"                     # (default swarmlet) Used for authentication with the registry and web services / dashboards
@@ -96,23 +98,25 @@ install() {
   $SUDO "$PKG_MANAGER" update -y
   $SUDO "$PKG_MANAGER" install -y git apt-transport-https rsync
 
-  echo "$PREFIX Cloning $SWARMLET_REPO"
-  if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]]; then
-    echo "$PREFIX Swarmlet is already installed, updating"
-    # TODO:
-    # pushd $SWARMLET_INSTALL_ROOT >/dev/null
-    # git pull origin "$INSTALL_BRANCH"
-    # popd >/dev/null
-    # swarmlet update
-  else
-    git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
-  fi
+  if [[ "$INSTALL_FROM" = "git" ]]; then
+    echo "$PREFIX Cloning $SWARMLET_REPO"
+    if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]]; then
+      echo "$PREFIX Swarmlet is already installed, updating"
+      # TODO:
+      # pushd $SWARMLET_INSTALL_ROOT >/dev/null
+      # git pull origin "$INSTALL_BRANCH"
+      # popd >/dev/null
+      # swarmlet update
+    else
+      git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
+    fi
 
-  if [[ "$INSTALL_BRANCH" != "master" ]]; then
-    echo "$PREFIX Checking out $INSTALL_BRANCH"
-    pushd $SWARMLET_INSTALL_ROOT >/dev/null
-    git checkout "$INSTALL_BRANCH"
-    popd >/dev/null
+    if [[ "$INSTALL_BRANCH" != "master" ]]; then
+      echo "$PREFIX Checking out $INSTALL_BRANCH"
+      pushd $SWARMLET_INSTALL_ROOT >/dev/null
+      git checkout "$INSTALL_BRANCH"
+      popd >/dev/null
+    fi
   fi
 
   echo "$PREFIX Initializing Swarmlet"
