@@ -50,6 +50,7 @@ init() {
   # Create authorized_keys file if it doesn't exist
   if [ ! -e "$SSH_AUTHORIZED_KEYS" ]; then
     echo "📄 Creating file authorized_keys"
+    mkdir "/root/.ssh"
     touch "$SSH_AUTHORIZED_KEYS"
   fi
 
