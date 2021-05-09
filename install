@@ -116,18 +116,50 @@ install() {
   fi
 
   echo "$PREFIX Initializing Swarmlet"
-  "$SWARMLET_INSTALL_ROOT/swarmlet" init
+
+  # Preserve SWARMLET_INSTALL_ROOT otherwise swarmlet script will fallback on /mnt/gfs/swarmlet to run the installer
+  # Preserve SSH_AUTHORIZED_KEYS as we need it to copy SSH public keys
+  # Preserve SWARMLET_USERNAME and SWARMLET_PASSWORD as we need them to init local registry
+  # Preserve some other environment variables because we need them too :)
+  if [[ "$SUDO" = "sudo" ]]; then
+    SUDO_PARAMS=""
+    PRESERVE_ENV="
+      SWARMLET_INSTALL_ROOT
+      SSH_AUTHORIZED_KEYS
+      SWARMLET_USERNAME
+      SWARMLET_PASSWORD
+      NEW_HOSTNAME
+      ROOT_DOMAIN
+      CREATE_SWAP
+      INSTALL_ZSH
+      INSTALL_MODULES
+      CA_SERVER
+      DEBUG
+    "
+
+    for env_var in ${PRESERVE_ENV}; do
+      SUDO_PARAMS="${SUDO_PARAMS} ${env_var}=${!env_var}"
+    done
+
+    # A more radical way is to keep all environment variables
+    # But this seems a bit risky and not under control...
+    # SUDO_PARAMS="-E"
+  else
+    SUDO_PARAMS=""
+  fi
+
+  $SUDO ${SUDO_PARAMS} "$SWARMLET_INSTALL_ROOT/swarmlet" init
   unset SWARMLET_INSTALL_ROOT
 
   echo "$PREFIX Verifying installation"
-  [[ $(command -v swarmlet) ]] || exit
+  [[ $($SUDO bash -c "command -v swarmlet") ]] || exit
   echo "$PREFIX Installation verified"
 
   echo "$FPREFIX Server initialized as manager node"
-  swarmlet node ls
+  $SUDO swarmlet node ls
 
   echo "$FPREFIX Swarmlet modules deployed"
-  swarmlet stack ls
+  $SUDO swarmlet stack ls
 
   echo "$FPREFIX Installation complete"
   echo "$PREFIX Check the docs on how to configure a domain name for Swarmlet services"
