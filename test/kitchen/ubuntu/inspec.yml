@@ -1,7 +1,6 @@
 ---
-name: common
-title: common profile
+name: ubuntu
+title: ubuntu profile
 summary: Verify that Swarmlet is setup and configured correctly
 supports:
-  - platform-name: debian
   - platform-name: ubuntu
