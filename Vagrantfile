@@ -6,10 +6,13 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = '2'
 
+# This Vagrantfile has nothing to do with Kitchen.
+# (Kitchen generates it's own Vagrantfile on the fly when you call bin/kitchen)
+# The purpose of this file is to easily test Swarmlet locally :)
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = 'debian/buster64'
   config.vm.hostname = 'swarmlet'
-  config.vm.synced_folder './', '/tmp/swarmlet'
+  config.vm.synced_folder './', '/tmp/vagrant'
 
   config.ssh.forward_agent = true
 
@@ -21,8 +24,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   script = <<-'SCRIPT'
   mkdir -p /root/.ssh
   cp /home/vagrant/.ssh/authorized_keys /root/.ssh/
-  cat /tmp/swarmlet/install | bash -s \
+  cat /tmp/vagrant/install | bash -s \
     INSTALLATION_TYPE=noninteractive \
+    SWARMLET_INSTALL_ROOT=/tmp/vagrant \
     INSTALL_FROM=local \
     INSTALL_MODULES="swarmpit" \
     SWARMLET_USERNAME=admin \
