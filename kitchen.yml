@@ -36,6 +36,11 @@ platforms:
       box: debian/buster64
       platform: debian
 
+  - name: focal
+    driver_config:
+      box: bento/ubuntu-20.04
+      platform: ubuntu
+
 suites:
   - name: debian
     includes:
@@ -44,3 +49,11 @@ suites:
       inspec_tests:
         - path: test/kitchen/common
         - path: test/kitchen/debian
+
+  - name: ubuntu
+    includes:
+      - focal
+    verifier:
+      inspec_tests:
+        - path: test/kitchen/common
+        - path: test/kitchen/ubuntu

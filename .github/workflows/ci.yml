@@ -17,6 +17,7 @@ jobs:
       matrix:
         instance:
           - debian-buster
+          - ubuntu-focal
 
     steps:
       - name: 'Check out code'
