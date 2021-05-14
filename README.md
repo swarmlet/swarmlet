@@ -67,14 +67,13 @@ The installation should take a few minutes to complete.
 
 > [Full installation instructions can be found here](https://swarmlet.dev/docs/getting-started/installation)
 
-### Custom installation [(options)](https://swarmlet.dev/docs/getting-started/installation)
+### Custom installation
 
 ```shell
 # Headless (noninteractive) installation:
 curl -fsSL https://get.swarmlet.dev | bash -s \
   INSTALLATION_TYPE=noninteractive \
   INSTALL_ZSH=true \
-  CREATE_SWAP=true \
   INSTALL_MODULES="matomo swarmpit" \
   NEW_HOSTNAME=swarm-manager-1 \
   SWARMLET_USERNAME=admin \
@@ -87,13 +86,13 @@ curl -fsSL https://get.swarmlet.dev | bash -s \
 Swarmlet includes various examples of services that you can deploy to your server cluster with a simple `git push`.
 
 - [swarmlet-website - The swarmlet.dev website](https://github.com/swarmlet/swarmlet-website)
-- [get-swarmlet - The get.swarmlet.dev install script](https://swarmlet.dev/docs/examples/get-swarmlet)
-- [Basic example - Static site](https://swarmlet.dev/docs/examples/static-site)
-- [Basic example - Python web server + Redis](https://swarmlet.dev/docs/examples/python-redis)
-- [Moderate example - NGINX + React app + Node.js API](https://swarmlet.dev/docs/examples/nginx-react-node)
-- (FIX) [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://swarmlet.dev/docs/examples/nginx-react-node-cms)
-- (FIX) [GitLab CE](https://swarmlet.dev/docs/examples/gitlab-ce) (self-hosted)
-- (FIX) [GitLab Runner](https://swarmlet.dev/docs/examples/gitlab-runner) (self-hosted)
+- [get-swarmlet - The get.swarmlet.dev install script](https://github.com/swarmlet/swarmlet/tree/master/examples)
+- [Basic example - Static site](https://github.com/swarmlet/swarmlet/tree/master/examples)
+- [Basic example - Python web server + Redis](https://github.com/swarmlet/swarmlet/tree/master/examples)
+- [Moderate example - NGINX + React app + Node.js API](https://github.com/swarmlet/swarmlet/tree/master/examples)
+- (FIX) [Advanced example - NGINX + React app + Node.js API + CMS + staging/production](https://github.com/swarmlet/swarmlet/tree/master/examples)
+- (FIX) [GitLab CE](https://github.com/swarmlet/swarmlet/tree/master/examples) (self-hosted)
+- (FIX) [GitLab Runner](https://github.com/swarmlet/swarmlet/tree/master/examples) (self-hosted)
 
 All these examples and the [Swarmlet documentation and website](https://swarmlet.dev) are running on a €5/mo _single_ server 'cluster', using Swarmlet for deployments.
 

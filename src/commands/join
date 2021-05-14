@@ -13,7 +13,7 @@ join() {
 join-manager() {
   ROLE=$1
 
-  pushd "$ANSIBLE_ROOT" >/dev/null
+  pushd "$ANSIBLE_ROOT"
 
   echo "$PREFIX To add a $ROLE node to this swarm, run the following join command on the target:"
   echo
@@ -26,7 +26,7 @@ join-manager() {
     --extra-vars 'host={host} address={address} swarm_manager=true' \
     $ANSIBLE_ROOT/node-join.yml"
 
-  popd >/dev/null
+  popd
 }
 
 join-worker() {
