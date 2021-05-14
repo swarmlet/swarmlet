@@ -41,6 +41,19 @@ init() {
     echo "$PREFIX Starting noninteractive installation"
   fi
 
+#  # Create known_hosts file if it doesn't exist
+#  if [ ! -e /root/.ssh/known_hosts ]; then
+#    setup_log "📄 Creating file known_hosts"
+#    touch /root/.ssh/known_hosts
+#  fi
+
+  # Create authorized_keys file if it doesn't exist
+  if [ ! -e "$SSH_AUTHORIZED_KEYS" ]; then
+    echo "📄 Creating file authorized_keys"
+    mkdir "/root/.ssh"
+    touch "$SSH_AUTHORIZED_KEYS"
+  fi
+
   install-ansible
 
   echo "$PREFIX Installing modules"
@@ -48,6 +61,7 @@ init() {
   for MODULE in $(ls "$SWARMLET_MODULES_ROOT"/core); do
     SWARMLET_MODULES+=("core/$MODULE")
   done
+
 
   # TODO: refactor this mess
   # INSTALL_MODULES must be in this format: (module1 module2), or "" to skip optional modules installation
@@ -59,9 +73,10 @@ init() {
   swarmlet stack build deployer "$SWARMLET_MODULES_ROOT"/core
   swarmlet stack deploy deployer "$SWARMLET_MODULES_ROOT"/core
 
+  echo "$SWARMLET_MODULES"
   for MODULE in ${SWARMLET_MODULES[@]}; do
     echo "$PREFIX Installing $MODULE"
-    swarmlet repo create "$(basename "$(echo "$MODULE" | sed -r "s/\"//g")")"
+    sudo swarmlet repo create "$(basename "$(echo "$MODULE" | sed -r "s/\"//g")")"
     git-local-push "$SWARMLET_MODULES_ROOT/$(echo "$MODULE" | sed -r "s/\"//g")"
   done
 }

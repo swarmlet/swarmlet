@@ -48,7 +48,7 @@ get-own-ip-address() {
 
 install-ansible() {
   echo "$PREFIX Installing Ansible"
-  $SUDO apt-add-repository -y --update ppa:ansible/ansible
+#  $SUDO apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
   $SUDO "$PKG_MANAGER" update -y -qq
   $SUDO "$PKG_MANAGER" install -y -qq ansible
 
@@ -93,8 +93,8 @@ git-local-push() {
   git-set-config "$ROOT_DOMAIN"
   git add .
   git commit -m "initial"
-  git push "$GIT_REPO_ROOT/$REPO_NAME.git" master
-  chown -R "$GIT_USER:$GIT_USER" "$GIT_DATA_ROOT/$REPO_NAME"
+  sudo git push "$GIT_REPO_ROOT/$REPO_NAME.git" master
+  sudo chown -R "$GIT_USER:$GIT_USER" "$GIT_DATA_ROOT/$REPO_NAME"
   popd || exit
 }
 
