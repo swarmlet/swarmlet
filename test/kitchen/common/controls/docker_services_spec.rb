@@ -23,43 +23,43 @@ end
 describe docker_service('router_traefik') do
   it { should exist }
 
-  its('image')    { should eq 'traefik:v2.3' }
+  its('image')    { should eq 'traefik:v2.4.8' }
   its('repo')     { should eq 'traefik' }
-  its('tag')      { should eq 'v2.3' }
+  its('tag')      { should eq 'v2.4.8' }
   its('mode')     { should eq 'replicated' }
   its('replicas') { should eq '1/1' }
   its('ports')    { should include '*:80->80/tcp, *:443->443/tcp, *:8080->8080/tcp' }
 end
 
-describe docker_service('swarmpit_agent') do
-  it { should exist }
+# describe docker_service('swarmpit_agent') do
+#   it { should exist }
 
-  its('image')    { should eq 'swarmpit/agent:latest' }
-  its('repo')     { should eq 'swarmpit/agent' }
-  its('tag')      { should eq 'latest' }
-  its('mode')     { should eq 'global' }
-  its('replicas') { should eq '1/1' }
-  its('ports')    { should include '' }
-end
+#   its('image')    { should eq 'swarmpit/agent:latest' }
+#   its('repo')     { should eq 'swarmpit/agent' }
+#   its('tag')      { should eq 'latest' }
+#   its('mode')     { should eq 'global' }
+#   its('replicas') { should eq '1/1' }
+#   its('ports')    { should include '' }
+# end
 
-describe docker_service('swarmpit_app') do
-  it { should exist }
+# describe docker_service('swarmpit_app') do
+#   it { should exist }
 
-  its('image')    { should eq 'swarmpit/swarmpit:latest' }
-  its('repo')     { should eq 'swarmpit/swarmpit' }
-  its('tag')      { should eq 'latest' }
-  its('mode')     { should eq 'replicated' }
-  its('replicas') { should eq '1/1' }
-  its('ports')    { should include '' }
-end
+#   its('image')    { should eq 'swarmpit/swarmpit:latest' }
+#   its('repo')     { should eq 'swarmpit/swarmpit' }
+#   its('tag')      { should eq 'latest' }
+#   its('mode')     { should eq 'replicated' }
+#   its('replicas') { should eq '1/1' }
+#   its('ports')    { should include '' }
+# end
 
-describe docker_service('swarmpit_db') do
-  it { should exist }
+# describe docker_service('swarmpit_db') do
+#   it { should exist }
 
-  its('image')    { should eq 'couchdb:2.3.0' }
-  its('repo')     { should eq 'couchdb' }
-  its('tag')      { should eq '2.3.0' }
-  its('mode')     { should eq 'replicated' }
-  its('replicas') { should eq '1/1' }
-  its('ports')    { should include '' }
-end
+#   its('image')    { should eq 'couchdb:2.3.0' }
+#   its('repo')     { should eq 'couchdb' }
+#   its('tag')      { should eq '2.3.0' }
+#   its('mode')     { should eq 'replicated' }
+#   its('replicas') { should eq '1/1' }
+#   its('ports')    { should include '' }
+# end
