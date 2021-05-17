@@ -13,10 +13,10 @@ update() {
   echo "$FPREFIX Updating Swarmlet"
   echo "$PREFIX Pulling from $BRANCH branch"
 
-  pushd "$SWARMLET_ROOT" >/dev/null
-  git reset --hard origin "$BRANCH"
+  pushd "$SWARMLET_ROOT"
+  git reset --hard "origin/$BRANCH"
   git pull
-  popd >/dev/null
+  popd
 
   echo "$PREFIX Current version:"
   echo "$INDENT Swarmlet $(check-swarmlet-version)"

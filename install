@@ -95,27 +95,23 @@ install() {
   echo "$FPREFIX Installing Swarmlet"
 
   echo "$PREFIX Installing required packages"
-  $SUDO "$PKG_MANAGER" update -y
-  $SUDO "$PKG_MANAGER" install -y git apt-transport-https rsync
+  $SUDO "$PKG_MANAGER" update -y -qq
+  $SUDO "$PKG_MANAGER" install -y -qq git apt-transport-https whiptail rsync
 
   if [[ "$INSTALL_FROM" = "git" ]]; then
     echo "$PREFIX Cloning $SWARMLET_REPO"
     if [[ -d $SWARMLET_INSTALL_ROOT && $(command -v swarmlet) ]]; then
       echo "$PREFIX Swarmlet is already installed, updating"
-      # TODO:
-      # pushd $SWARMLET_INSTALL_ROOT >/dev/null
-      # git pull origin "$INSTALL_BRANCH"
-      # popd >/dev/null
-      # swarmlet update
+    echo "$PREFIX Swarmlet is already installed, updating"
     else
       git clone -q $SWARMLET_REPO $SWARMLET_INSTALL_ROOT
     fi
 
     if [[ "$INSTALL_BRANCH" != "master" ]]; then
       echo "$PREFIX Checking out $INSTALL_BRANCH"
-      pushd $SWARMLET_INSTALL_ROOT >/dev/null
+    pushd $SWARMLET_INSTALL_ROOT
       git checkout "$INSTALL_BRANCH"
-      popd >/dev/null
+    popd
     fi
   fi
 

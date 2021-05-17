@@ -10,6 +10,7 @@
       debug: msg="Starting system setup"
 
     - name: set hostname
+      become: yes
       hostname:
         name: "{{ lookup('env', 'NEW_HOSTNAME') | default(lookup('env', 'HOST'), True) }}"
 
@@ -27,6 +28,7 @@
       debug: msg="Installing packages, this takes a while"
 
     - name: install pre-requirements
+      become: yes
       apt:
         pkg:
           - acl
@@ -43,6 +45,7 @@
           - btrfs-progs
 
     - name: install pip
+      become: yes
       apt:
         pkg:
           - python3-pip

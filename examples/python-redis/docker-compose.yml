@@ -1,18 +1,18 @@
-version: "3.7"
+version: '3.7'
 
 services:
-  web-1:
-    image: ${SWARMLET_REGISTRY}/python-redis
+  web:
+    image: ${SWARMLET_REGISTRY}/${APP_NAME}
     build: .
     deploy:
       mode: replicated
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.http.services.python-redis.loadbalancer.server.port=8000
-        - traefik.http.routers.python-redis.rule=Host(`${DOMAIN}`)
-        - traefik.http.routers.python-redis.entrypoints=http,https
-        - traefik.http.routers.python-redis.middlewares=redirect@file
+        - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${APP_PORT}
+        - traefik.http.routers.${APP_NAME}.rule=Host(`${APP_NAME}.${ROOT_DOMAIN}`)
+        - traefik.http.routers.${APP_NAME}.entrypoints=http,https
+        - traefik.http.routers.${APP_NAME}.middlewares=redirect@file
     networks:
       - swarmlet-network
       - traefik-public

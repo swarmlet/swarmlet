@@ -50,7 +50,7 @@ repo-rm() {
     exit 1
   fi
 
-  rm -rf "$REPO_PATH"
+  sudo rm -rf "$REPO_PATH"
   echo "$INDENT Repository removed from swarm"
 }
 

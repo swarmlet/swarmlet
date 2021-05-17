@@ -20,7 +20,7 @@ stack-build() {
   SWARMLET_REGISTRY_PASSWORD="${4:-$SWARMLET_PASSWORD}"
 
   if [ "$(ls -A "$STACK_ROOT")" ]; then
-    pushd "$STACK_ROOT" >/dev/null
+    pushd "$STACK_ROOT"
 
     while ! is-service-healthy registry; do sleep 2; done
 
@@ -34,7 +34,7 @@ stack-build() {
     echo "$PREFIX Pushing $STACK_NAME to swarm registry"
     docker-compose push
 
-    popd >/dev/null
+    popd
   fi
 }
 
@@ -46,7 +46,7 @@ stack-deploy() {
   STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
   COMPOSE_FILE="$STACK_ROOT/docker-compose.yml"
 
-  pushd "$STACK_ROOT" >/dev/null
+  pushd "$STACK_ROOT"
 
   echo "$PREFIX Deploying $STACK_NAME"
 
@@ -56,7 +56,7 @@ stack-deploy() {
     docker stack deploy --compose-file "$COMPOSE_FILE" "$STACK_NAME"
   fi
 
-  popd >/dev/null
+  popd
 }
 
 stack-ls() {
@@ -74,13 +74,13 @@ stack-start() {
   STACK_NAME="$1"
   STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
-  pushd "$STACK_ROOT" >/dev/null
+  pushd "$STACK_ROOT"
 
   echo "$PREFIX Starting stack $STACK_NAME"
 
   docker-compose up -d
 
-  popd >/dev/null
+  popd
 }
 
 stack-stop() {
@@ -90,12 +90,12 @@ stack-stop() {
   STACK_NAME="$1"
   STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
-  pushd "$STACK_ROOT" >/dev/null
+  pushd "$STACK_ROOT"
 
   echo "$PREFIX Stopping stack"
   docker-compose down
 
-  popd >/dev/null
+  popd
 }
 
 stack-remove() {
@@ -106,7 +106,7 @@ stack-remove() {
   STACK_ROOT="${2:-$USER_ROOT}/$STACK_NAME"
 
   docker stack rm "$STACK_NAME"
-  rm -rf "$STACK_ROOT" "$GIT_REPO_ROOT/$STACK_NAME.git" >/dev/null
+  rm -rf "$STACK_ROOT" "$GIT_REPO_ROOT/$STACK_NAME.git"
   # TODO: clean up some more
 }
 

@@ -1,8 +1,8 @@
-version: "3.7"
+version: '3.7'
 
 services:
   web:
-    image: ${SWARMLET_REGISTRY}/python-docker
+    image: ${SWARMLET_REGISTRY}/${APP_NAME}
     build: .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -11,12 +11,12 @@ services:
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.http.services.python-docker.loadbalancer.server.port=5000
-        - traefik.http.routers.python-docker.rule=Host(`python-docker.${DOMAIN}`)
-        - traefik.http.routers.python-docker.entrypoints=http,https
-        - traefik.http.routers.python-docker.middlewares=redirect@file
+        - traefik.http.services.${APP_NAME}.loadbalancer.server.port=${APP_PORT}
+        - traefik.http.routers.${APP_NAME}.rule=Host(`${APP_NAME}.${ROOT_DOMAIN}`)
+        - traefik.http.routers.${APP_NAME}.entrypoints=http,https
+        - traefik.http.routers.${APP_NAME}.middlewares=redirect@file
     networks:
-      - swarmlet-network
+      - python-docker
       - traefik-public
 
   redis:
