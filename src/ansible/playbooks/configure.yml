@@ -13,8 +13,8 @@
       swap_file_path: /swapfile
       swap_file_size_mb: '1024'
       swap_swappiness: '60'
-      when: 'create_swap is defined'
+      when: 'create_swap is defined and create_swap == True'
     - role: oh-my-zsh
       users:
         - username: '{{ remote_user }}'
-      when: 'install_zsh is defined'
+      when: 'install_zsh is defined and install_zsh == True'
