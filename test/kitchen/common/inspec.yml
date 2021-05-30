@@ -1,0 +1,7 @@
+---
+name: common
+title: common profile
+summary: Verify that Swarmlet is setup and configured correctly
+supports:
+  - platform-name: debian
+  - platform-name: ubuntu

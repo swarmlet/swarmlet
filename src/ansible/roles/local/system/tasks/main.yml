@@ -46,7 +46,7 @@
 
 - name: Copy Swarmlet directory
   synchronize:
-    src: /tmp/swarmlet/
+    src: "{{ lookup('env', 'SWARMLET_INSTALL_ROOT') }}/"
     dest: "{{ lookup('env', 'GFS_MOUNT') }}/swarmlet"
 
 - name: Create symbolic link

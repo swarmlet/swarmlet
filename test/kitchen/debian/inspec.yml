@@ -1,0 +1,6 @@
+---
+name: debian
+title: debian profile
+summary: Verify that Swarmlet is setup and configured correctly
+supports:
+  - platform-name: debian

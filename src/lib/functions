@@ -37,9 +37,9 @@ check-bash-version() {
 }
 
 check-swarmlet-version() {
-  pushd "$SWARMLET_ROOT" >/dev/null || exit
+  pushd "$SWARMLET_ROOT" || exit
   git describe --tags --match "v*" "$INSTALL_BRANCH"
-  popd >/dev/null || exit
+  popd || exit
 }
 
 get-own-ip-address() {
@@ -48,12 +48,23 @@ get-own-ip-address() {
 
 install-ansible() {
   echo "$PREFIX Installing Ansible"
-  $SUDO apt-add-repository -y --update ppa:ansible/ansible &>/dev/null
-  $SUDO "$PKG_MANAGER" update -y -qq &>/dev/null
-  $SUDO "$PKG_MANAGER" install -y -qq ansible &>/dev/null
+
+  source /etc/os-release
+
+  if [ "${ID}" = "ubuntu" ]; then
+    $SUDO apt-add-repository -y --update ppa:ansible/ansible
+    $SUDO "$PKG_MANAGER" update -y
+    $SUDO "$PKG_MANAGER" install -y ansible
+  fi
+
+  if [ "${ID}" = "debian" ]; then
+    $SUDO sh -c "echo 'deb http://ftp.fr.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/backports.list"
+    $SUDO "$PKG_MANAGER" update -y
+    $SUDO "$PKG_MANAGER" install -y -t buster-backports ansible
+  fi
 
   echo "$PREFIX Running Ansible playbooks"
-  pushd "$ANSIBLE_ROOT" &>/dev/null || exit
+  pushd "$ANSIBLE_ROOT" || exit
   ansible-playbook "$ANSIBLE_ROOT/playbooks/setup.yml"
   ansible-playbook "$ANSIBLE_ROOT/swarmlet.yml"
 
@@ -61,7 +72,7 @@ install-ansible() {
   # echo "$PREFIX Fetching collections"
   # ansible-galaxy collection install community.general &>/dev/null
 
-  popd &>/dev/null || exit
+  popd || exit
 }
 
 abort-installation() {
@@ -88,14 +99,14 @@ git-set-config() {
 git-local-push() {
   REPO_SRC=$1
   REPO_NAME=$(basename "$REPO_SRC")
-  pushd "$REPO_SRC" >/dev/null || exit
+  pushd "$REPO_SRC" || exit
   git init
   git-set-config "$ROOT_DOMAIN"
   git add .
-  git commit -m "initial"
+  git commit -m "initial" || true
   git push "$GIT_REPO_ROOT/$REPO_NAME.git" master
   chown -R "$GIT_USER:$GIT_USER" "$GIT_DATA_ROOT/$REPO_NAME"
-  popd >/dev/null || exit
+  popd || exit
 }
 
 uninstall-swarmlet() {
