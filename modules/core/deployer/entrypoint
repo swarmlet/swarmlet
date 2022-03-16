@@ -24,7 +24,7 @@ deploy() {
   echo "$PREFIX Starting deployment"
   echo "$INDENT Command: $@"
 
-  REPO_PATH="$1"
+  REPO_PATH="/mnt/gfs/git/data/$1"
   REPO_NAME=$(basename "$REPO_PATH")
   ENV_FILE="$REPO_PATH/.env"
   ENTRYPOINT_FILE="$REPO_PATH/entrypoint"
