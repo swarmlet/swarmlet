@@ -1,7 +1,6 @@
 ---
 collections:
-  - name: acl
-    src: ansible.posix.acl
+  - name: ansible.posix
 
 roles:
   - name: swap

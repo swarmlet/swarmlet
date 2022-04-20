@@ -38,6 +38,10 @@
           - ca-certificates
           - gnupg-agent
           - moreutils
+          - build-essential
+          - libssl-dev
+          - libffi-dev
+          - gcc
           - wget
           - tree
           - libpcre3
@@ -64,6 +68,10 @@
         path: '{{ installation_prefix }}{{ installation_dir }}'
         state: absent
       when: force_purge | bool
+
+    - name: Install ansible-galaxy collection install ansible.posix
+      command: >
+        ansible-galaxy collection install ansible.posix
 
     - name: Install public roles
       command: >
