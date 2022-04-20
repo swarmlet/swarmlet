@@ -84,7 +84,7 @@ done
 if [[ $OPTS_CONFIRMED == "false" ]]; then
   echo "$PREFIX Current environment:"
   for KEY in "${!DEFAULT_OPTS[@]}"; do printenv | grep "$KEY"; done
-  [[ $INSTALLLATION_TYPE == "noninteractive" ]] && echo "$PREFIX Exiting" && exit 1
+  [[ $INSTALLATION_TYPE == "noninteractive" ]] && echo "$PREFIX Exiting" && exit 1
   read -p "$PREFIX Press enter to continue with this configuration" </dev/tty
 fi
 
