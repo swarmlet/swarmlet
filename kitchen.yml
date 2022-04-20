@@ -5,7 +5,7 @@ driver:
   gui: false
   cache_directory: false
   customize:
-    memory: 1024
+    memory: 4096
     usbxhci: 'off'
   ssh:
     shell: /bin/sh
@@ -23,7 +23,7 @@ provisioner:
       SWARMLET_USERNAME=admin \
       SWARMLET_PASSWORD=admin \
       ROOT_DOMAIN=example.net \
-      DEBUG=true
+      DEBUG=false
 
 verifier:
   name: inspec
@@ -31,9 +31,9 @@ verifier:
     - progress
 
 platforms:
-  - name: buster
+  - name: bullseye
     driver_config:
-      box: debian/buster64
+      box: debian/bullseye64
       platform: debian
 
   - name: focal
@@ -44,7 +44,7 @@ platforms:
 suites:
   - name: debian
     includes:
-      - buster
+      - bullseye
     verifier:
       inspec_tests:
         - path: test/kitchen/common

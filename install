@@ -54,7 +54,7 @@ declare -A DEFAULT_OPTS=(
   [NEW_HOSTNAME]="$HOSTNAME"                         # (default $HOSTNAME) Optional: set a new hostname
   [ROOT_DOMAIN]=""                                   # (default undefined) The domain to use for deployment of included services
   [CREATE_SWAP]="false"                              # (default false) Allocate 1GB of swap space
-  [INSTALL_ZSH]="false"                              # (default false) Install 'Oh My Zsh'
+  [INSTALL_ZSH]="true"                              # (default false) Install 'Oh My Zsh'
   [INSTALL_MODULES]=""                               # (default undefined, options: matomo|swarmpit|swarmprom|portainer) Seperate by space and wrap in quotes to install multiple modules
   [CA_SERVER]="production"                           # (default production, options: production|staging) The Let's Encrypt server to use
   [DEBUG]=""                                         # (default undefined) TODO: Run installation in debug mode
@@ -97,6 +97,10 @@ install() {
   echo "$PREFIX Installing required packages"
   $SUDO "$PKG_MANAGER" update -y -qq
   $SUDO "$PKG_MANAGER" install -y -qq git apt-transport-https whiptail rsync
+  $SUDO "$PKG_MANAGER" clean -y -qq
+  $SUDO "$PKG_MANAGER" update -y -qq
+  $SUDO "$PKG_MANAGER" install -y locales
+  $SUDO locale-gen en_US.UTF-8
 
   if [[ "$INSTALL_FROM" = "git" ]]; then
     echo "$PREFIX Cloning $SWARMLET_REPO"

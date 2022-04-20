@@ -58,9 +58,9 @@ install-ansible() {
   fi
 
   if [ "${ID}" = "debian" ]; then
-    $SUDO sh -c "echo 'deb http://ftp.fr.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/backports.list"
+    $SUDO sh -c "echo 'deb http://deb.debian.org/debian bullseye-backports main contrib non-free' > /etc/apt/sources.list.d/backports.list"
     $SUDO "$PKG_MANAGER" update -y
-    $SUDO "$PKG_MANAGER" install -y -t buster-backports ansible
+    $SUDO "$PKG_MANAGER" install -y -t bullseye-backports ansible
   fi
 
   echo "$PREFIX Running Ansible playbooks"

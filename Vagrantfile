@@ -10,7 +10,7 @@ VAGRANTFILE_API_VERSION = '2'
 # (Kitchen generates it's own Vagrantfile on the fly when you call bin/kitchen)
 # The purpose of this file is to easily test Swarmlet locally :)
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = 'debian/buster64'
+  config.vm.box = 'debian/bullseye64'
   config.vm.hostname = 'swarmlet'
   config.vm.synced_folder './', '/tmp/vagrant'
 
