@@ -99,3 +99,8 @@ All these examples and the [Swarmlet documentation and website](https://swarmlet
 ---
 
 [![Proudly sponsored by Passionate People](https://passionatepeople.io/image/sponsor/sponsored-by-normal-small.png)](https://passionatepeople.io/oss)
+
+
+### Infrastructure model
+
+![Insfrastructure model](.infragenie/infrastructure_model.png)
