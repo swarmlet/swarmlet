@@ -6,4 +6,4 @@
     - disk
     - role: glusterfs
       vars:
-        gluster_version: 7
+        gluster_version: 10
