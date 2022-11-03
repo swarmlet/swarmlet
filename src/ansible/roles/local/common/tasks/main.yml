@@ -21,16 +21,36 @@
   ignore_errors: yes
   when: "'/etc/cloud/templates/hosts.debian.tmpl' is file"
 
+- name: update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 5
+
 - name: install pip
   apt:
     pkg:
       - python3-pip
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 5
 
 - name: Remove unused apt packages from the cache
   apt:
     autoclean: yes
-  ignore_errors: yes
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 5
 
 - name: Remove dependencies that are no longer required
   apt:
     autoremove: yes
+  register: result
+  until: result is not failed
+  retries: 5
+  delay: 5
