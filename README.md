@@ -10,15 +10,11 @@ Swarmlet is a self-hosted, open-source Platform as a Service that runs on any si
 ---
 
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg?style=flat-square)
-![PRs Welcome](https://img.shields.io/badge/contributions-welcome!-brightgreen.svg?style=flat-square)
 
 ### NOTE
 
 Work In Progress.  
 This project is in beta and definitely not production-ready yet.
-
-- Project boards: https://github.com/orgs/swarmlet/projects
-- Join us on Slack: https://join.slack.com/t/swarmlet/shared_invite/zt-eki9qa53-9FdvUik604rncp61dbawkQ
 
 ### _TL;DR_
 
@@ -98,4 +94,4 @@ All these examples and the [Swarmlet documentation and website](https://swarmlet
 
 ---
 
-[![Proudly sponsored by Passionate People](https://passionatepeople.io/image/sponsor/sponsored-by-normal-small.png)](https://passionatepeople.io/oss)
+[Proudly sponsored by Passionate People](https://passionatepeople.io)
