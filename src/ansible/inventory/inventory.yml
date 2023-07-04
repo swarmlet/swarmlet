@@ -7,7 +7,7 @@ all:
     ansible_ssh_known_hosts: '/mnt/{{ gluster_volume_name }}/ansible/.ssh/known_hosts'
     docker_group: docker
     local_user: "{{ lookup('env', 'USER') }}"
-    gluster_version: 7
+    gluster_version: 10
     gluster_volume_name: gfs
     gluster_brick_path:
       - '/data/glusterfs/brick01/{{ gluster_volume_name }}'
